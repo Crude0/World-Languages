@@ -100,6 +100,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .masthead h1 { font-size: clamp(1.65rem, 3.1vw, 2.5rem); line-height: 1.08; letter-spacing: -.015em; margin-top: 6px; }
 .masthead h1 em { font-style: italic; }
 .lede { color: var(--ink-2); font-size: .9375rem; max-width: 62ch; }
+.prefs { display: flex; gap: 8px; margin-top: 13px; flex-wrap: wrap; }
 .stats { display: flex; flex-wrap: wrap; gap: 8px 26px; margin: 12px 0 0; }
 .stat { display: flex; flex-direction: column; gap: 1px; }
 .stat b { font: 400 1.5rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; }
@@ -409,12 +410,23 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
 <div class="app">
   <header class="masthead">
     <div>
-      <p class="eyebrow">Dil Atlası · 2026</p>
-      <h1>Dünyanın çoğunluğu <em>hangi dilleri</em> konuşuyor?</h1>
+      <p class="eyebrow" id="eyebrow">Dil Atlası · 2026</p>
+      <h1 id="h1">Dünyanın çoğunluğu <em>hangi dilleri</em> konuşuyor?</h1>
     </div>
     <div>
-      <p class="lede">Her ülkede nüfusun çoğunluğunun günlük hayatta konuştuğu dil. Renkler dil ailelerini gösterir; listeden bir dil seçerek haritayı süzebilirsiniz.</p>
+      <p class="lede" id="lede">Her ülkede nüfusun çoğunluğunun günlük hayatta konuştuğu dil. Renkler dil ailelerini gösterir; listeden bir dil seçerek haritayı süzebilirsiniz.</p>
       <dl class="stats" id="stats"></dl>
+      <div class="prefs">
+        <div class="seg" role="group" aria-label="Language">
+          <button data-ui="tr" aria-pressed="true">Türkçe</button>
+          <button data-ui="en" aria-pressed="false">English</button>
+        </div>
+        <div class="seg" role="group" aria-label="Theme">
+          <button data-theme="auto" aria-pressed="true">Oto</button>
+          <button data-theme="light" aria-pressed="false">Açık</button>
+          <button data-theme="dark" aria-pressed="false">Koyu</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -430,7 +442,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         <h2 id="keyTitle">Dil aileleri</h2>
         <div class="key-rows" id="keyRows"></div>
         <div class="dist" id="dist" role="img" aria-label="Ülkelerin dil ailelerine dağılımı"></div>
-        <p class="key-note">Bir satıra tıklayarak o aileyi haritada yalnız bırakabilirsiniz.</p>
+        <p class="key-note" id="keyNote">Bir satıra tıklayarak o aileyi haritada yalnız bırakabilirsiniz.</p>
       </section>
 
       <section class="card index" aria-labelledby="idxTitle">
@@ -488,9 +500,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       <div class="scale" id="scale" hidden></div>
 
       <p class="plate-note" id="plateNote">
-        <span>Doğal Dünya (Natural Earth) projeksiyonu</span>
+        <span id="noteProj">Doğal Dünya (Natural Earth) projeksiyonu</span>
         <span>·</span>
-        <span>Antarktika gösterilmiyor</span>
+        <span id="noteAnt">Antarktika gösterilmiyor</span>
         <span>·</span>
         <span id="noteCount"></span>
         <span>·</span>
@@ -518,24 +530,24 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
 
   <footer>
     <div>
-      <h3>Ölçüt</h3>
-      <p>Her ülke için, nüfusun en büyük bölümünün günlük hayatta konuştuğu dil gösterilir. Bu her zaman ana dil değildir: Tanzanya'da Svahili, Endonezya'da Endonezce ya da Pakistan'da Urduca çoğunlukla ikinci dil olarak, ortak dil işleviyle konuşulur.</p>
+      <h3 id="fh1">Ölçüt</h3>
+      <p id="fp1">Her ülke için, nüfusun en büyük bölümünün günlük hayatta konuştuğu dil gösterilir. Bu her zaman ana dil değildir: Tanzanya'da Svahili, Endonezya'da Endonezce ya da Pakistan'da Urduca çoğunlukla ikinci dil olarak, ortak dil işleviyle konuşulur.</p>
     </div>
     <div>
-      <h3>Bölge ayrıntısı ve şehirler</h3>
-      <p>“Bölge” düğmesi (ya da yeterince yakınlaşmak) 12 ülkede eyalet/il/kanton düzeyine iner: Kanada, ABD, İsviçre, Belçika, İspanya, Birleşik Krallık, İtalya, Hindistan, Türkiye, Ukrayna, Finlandiya, Bolivya. Bunlar ulusal sayımların dil sorularına dayanır; Türkiye'de resmî dil sayımı olmadığı için il rakamları anket temelli tahmindir. <b>Şehir düzeyine inilmedi</b>, çünkü belediye bazında dil istatistiği çoğu ülkede yayımlanmıyor — örneğin İsveç, belediye başına doğum ülkesi verir, konuşulan dili değil. Uydurmaktansa boş bırakmak daha doğru.</p>
+      <h3 id="fh2">Bölge ayrıntısı ve şehirler</h3>
+      <p id="fp2">“Bölge” düğmesi (ya da yeterince yakınlaşmak) 12 ülkede eyalet/il/kanton düzeyine iner: Kanada, ABD, İsviçre, Belçika, İspanya, Birleşik Krallık, İtalya, Hindistan, Türkiye, Ukrayna, Finlandiya, Bolivya. Bunlar ulusal sayımların dil sorularına dayanır; Türkiye'de resmî dil sayımı olmadığı için il rakamları anket temelli tahmindir. <b>Şehir düzeyine inilmedi</b>, çünkü belediye bazında dil istatistiği çoğu ülkede yayımlanmıyor — örneğin İsveç, belediye başına doğum ülkesi verir, konuşulan dili değil. Uydurmaktansa boş bırakmak daha doğru.</p>
     </div>
     <div>
-      <h3>Göçmen ve azınlık toplulukları</h3>
-      <p>Bir dil seçtiğinizde, çoğunluk olduğu ülkelerin yanı sıra azınlık olarak konuşulduğu ülkeler de soluk renkle işaretlenir. Bu katman başlıca göç alan ülkeler için %0,05'e kadar iner; her ülkedeki her küçük topluluk değil, belgelenebilen başlıca topluluklar listelenmiştir. Oranlar dili evde konuşanları gösterir — köken/soy sayısından düşüktür, çünkü ikinci ve üçüncü kuşakta dil aktarımı zayıflar.</p>
+      <h3 id="fh3">Göçmen ve azınlık toplulukları</h3>
+      <p id="fp3">Bir dil seçtiğinizde, çoğunluk olduğu ülkelerin yanı sıra azınlık olarak konuşulduğu ülkeler de soluk renkle işaretlenir. Bu katman başlıca göç alan ülkeler için %0,05'e kadar iner; her ülkedeki her küçük topluluk değil, belgelenebilen başlıca topluluklar listelenmiştir. Oranlar dili evde konuşanları gösterir — köken/soy sayısından düşüktür, çünkü ikinci ve üçüncü kuşakta dil aktarımı zayıflar.</p>
     </div>
     <div>
-      <h3>Çoğunluk dili olmayan ülkeler</h3>
-      <p>Bazı ülkelerde hiçbir dil nüfusun yarısını aşmaz. Bunlar “çoğunluk yok” etiketiyle işaretlendi ve en yaygın dille gösterildi — Hindistan, Nijerya, Güney Afrika ve Kongo Demokratik Cumhuriyeti bunların başında gelir.</p>
+      <h3 id="fh4">Çoğunluk dili olmayan ülkeler</h3>
+      <p id="fp4">Bazı ülkelerde hiçbir dil nüfusun yarısını aşmaz. Bunlar “çoğunluk yok” etiketiyle işaretlendi ve en yaygın dille gösterildi — Hindistan, Nijerya, Güney Afrika ve Kongo Demokratik Cumhuriyeti bunların başında gelir.</p>
     </div>
     <div>
-      <h3>Veri ve sınırlar</h3>
-      <p>Konuşan sayıları hesaplanmıştır: ülke nüfusu (BM, 2024 tahmini) × o dilin ülkedeki payı. Bu yüzden kesin değil, büyüklük mertebesi olarak okunmalıdır; bir dili birden fazla ülkede konuşanlar toplanır. Oranlar yaklaşıktır; nüfus sayımları, Ethnologue ve resmî dil politikaları derlenerek yuvarlanmıştır. İkinci dil oranları Avrupa'da Eurobarometre 386 (2012) “sohbet edecek düzeyde” ölçütüne, diğer bölgelerde ulusal sayım ve tahminlere dayanır — bu yüzden ülkeler arası karşılaştırmalarda dikkatli olun. Sınırlar Natural Earth 1:50m verisinden gelir ve hiçbir egemenlik iddiasını yansıtmaz.</p>
+      <h3 id="fh5">Veri ve sınırlar</h3>
+      <p id="fp5">Konuşan sayıları hesaplanmıştır: ülke nüfusu (BM, 2024 tahmini) × o dilin ülkedeki payı. Bu yüzden kesin değil, büyüklük mertebesi olarak okunmalıdır; bir dili birden fazla ülkede konuşanlar toplanır. Oranlar yaklaşıktır; nüfus sayımları, Ethnologue ve resmî dil politikaları derlenerek yuvarlanmıştır. İkinci dil oranları Avrupa'da Eurobarometre 386 (2012) “sohbet edecek düzeyde” ölçütüne, diğer bölgelerde ulusal sayım ve tahminlere dayanır — bu yüzden ülkeler arası karşılaştırmalarda dikkatli olun. Sınırlar Natural Earth 1:50m verisinden gelir ve hiçbir egemenlik iddiasını yansıtmaz.</p>
     </div>
   </footer>
 </div>
@@ -557,37 +569,164 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const col = (g) => `var(--g-${g})`;
   const tr = (a, b) => a.localeCompare(b, "tr");
   // nüfuslar bin kişi cinsinden tutuluyor
-  const dec = (x, d) => x.toFixed(d).replace(".", ",");
-  const pc = (p) => "%" + String(p).replace(".", ",");   // %0,9
+  const dec = (x, d) => ui === "en" ? x.toFixed(d) : x.toFixed(d).replace(".", ",");
+  const pc = (p) => ui === "en" ? String(p) + "%" : "%" + String(p).replace(".", ",");
   const fmtK = (k) => {
     const n = k * 1000;
-    if (n >= 1e9) return dec(n / 1e9, 1) + " milyar";
-    if (n >= 1e6) return dec(n / 1e6, n >= 1e8 ? 0 : 1) + " milyon";
-    if (n >= 1e3) return Math.round(n / 1e3).toLocaleString("tr") + " bin";
-    return Math.round(n).toLocaleString("tr");
+    const LC = ui === "en" ? "en" : "tr";
+    if (n >= 1e9) return dec(n / 1e9, 1) + t().bil;
+    if (n >= 1e6) return dec(n / 1e6, n >= 1e8 ? 0 : 1) + t().mil;
+    if (n >= 1e3) return Math.round(n / 1e3).toLocaleString(LC) + t().tho;
+    return Math.round(n).toLocaleString(LC);
   };
   const fmtS = (k) => {                       // dar sütunlar için kısa biçim
     const n = k * 1000;
-    if (n >= 1e9) return dec(n / 1e9, 1) + " mlr";
-    if (n >= 1e6) return dec(n / 1e6, n >= 1e7 ? 0 : 1) + " mn";
-    if (n >= 1e3) return Math.round(n / 1e3) + " bin";
+    if (n >= 1e9) return dec(n / 1e9, 1) + t().sBil;
+    if (n >= 1e6) return dec(n / 1e6, n >= 1e7 ? 0 : 1) + t().sMil;
+    if (n >= 1e3) return Math.round(n / 1e3) + t().sTho;
     return String(Math.round(n));
   };
   const norm = (s) => s.toLocaleLowerCase("tr").replace(/ı/g, "i")
     .normalize("NFD").replace(/[̀-ͯ]/g, "");
 
   document.documentElement.lang = "tr";
+  /* ---------------------------------------------------------------- dil */
+  const TX = D.tx || {};
+  const T = {
+    tr: {
+      eyebrow: "Dil Atlası · 2026",
+      h1: 'Dünyanın çoğunluğu <em>hangi dilleri</em> konuşuyor?',
+      lede: "Her ülkede nüfusun çoğunluğunun günlük hayatta konuştuğu dil. Renkler dil ailelerini gösterir; listeden bir dil seçerek haritayı süzebilirsiniz.",
+      stats: ["ülke", "bağımlı bölge", "farklı dil", "çoğunluk dili yok"],
+      search: "Dil veya ülke ara…", families: "Dil aileleri",
+      keyNote: "Bir satıra tıklayarak o aileyi haritada yalnız bırakabilirsiniz.",
+      languages: "Diller", sFam: "Aile", sCnt: "Ülke", sSpk: "Kişi",
+      pFam: "Aile", pPct: "Yoğunluk", pPpl: "Kişi",
+      dAuto: "Oto", dOff: "Ülke", dOn: "Bölge",
+      reset: "Süzgeci kaldır", table: "Tablo",
+      capAll: "Dünya · çoğunluğun konuştuğu dil",
+      capAllSub: (n) => `${n} ülke ve bölge, ailelerine göre renklendirildi.`,
+      countries: "Ülkeler", noHit: (q) => `“${q}” için sonuç yok.`,
+      cntry: (c, t) => `${c} ülke${t ? ` ve ${t} bağımlı bölge` : ""}`,
+      noMaj: "hiçbir ülkede çoğunluk değil",
+      native: (v) => ` · ana dili ≈ ${v} kişi`, second: (v) => ` · ikinci dil ≈ ${v}`,
+      proj: "Doğal Dünya (Natural Earth) projeksiyonu", noAnt: "Antarktika gösterilmiyor",
+      nCount: (n) => `${n} ülke ve bölge`,
+      navMouse: "Tekerlekle yakınlaşıp sürükleyerek gezinebilirsiniz",
+      navTouch: "İki parmakla yakınlaşıp sürükleyerek gezinebilirsiniz",
+      rankSpk: "Ana dil", rankAll: "Toplam", rankCnt: "Ülke",
+      rankHSpk: "En çok konuşulan diller", rankHCnt: "En çok ülkede çoğunluğun dili",
+      rankSSpk: "ana dili olarak konuşan yaklaşık kişi sayısı",
+      rankSAll: "ana dil ve ikinci dil olarak konuşanların toplamı",
+      rankSCnt: "ülke ve bağımlı bölge sayısı",
+      speaks: "bu dili konuşabilenler", popIs: (v) => `Ülke nüfusu ≈ ${v} kişi.`,
+      regionPop: (v) => `Bölge nüfusu ≈ ${v} kişi.`,
+      home: "Evde konuşulan diller",
+      homeNote: "Ana dil olarak yaklaşık paylar. Çok dilli ülkelerde toplam %100'ü aşar: pek çok kişi evde birden fazla dil konuşur.",
+      l2: "İkinci dil olarak bilenler",
+      l2Note: "Ana dili olmadığı hâlde sohbet edecek düzeyde konuşabilenler.",
+      l2Country: (c) => ` Oranlar <b>${c} geneli</b> — ikinci dil bilgisi bölge bazında toplanmıyor; kişi sayıları bu oranın bölge nüfusuna uygulanmasıyla bulundu.`,
+      more: (n, p) => `· ve her biri ${p} altında kalan ${n} dil daha.`,
+      noMajChip: "çoğunluk dili yok · en yaygın dil",
+      back: (c) => `${c} geneline dön →`, toSubs: (c) => `${c}'yi bölgelere ayır →`,
+      showLang: (l, n) => `${l} konuşulan ${n} ülkeyi göster →`,
+      minorH: (l) => `${l} · azınlık olarak konuşulduğu ülkeler`,
+      minorSub: (n, v) => `· ${n} ülke, toplam ≈ ${v} kişi`,
+      minorNote: "Haritada soluk renkle işaretlendiler. Oranlar evde konuşulan ana dile göredir; okulda öğrenilen ikinci dil sayılmaz.",
+      andMore: (n) => `+${n} ülke daha`,
+      cols: ["Ülke / bölge", "Dil", "Kendi dilinde", "Aile", "Kıta", "~%", "Konuşan"],
+      region: "bölge", dep: "bağımlı bölge", regionTag: "(bölge)",
+      scaleWhat: "çoğunluğun dili", scalePct: "nüfustaki payı", scalePpl: "konuşan kişi",
+      binsPct: ["<%5", "%5–15", "%15–35", "%35–60", "%60–85", ">%85"],
+      binsPpl: ["<10 bin", "10–100 bin", "100 bin–1 mn", "1–10 mn", "10–100 mn", ">100 mn"],
+      themeAuto: "Oto", themeLight: "Açık", themeDark: "Koyu",
+      bil: " milyar", mil: " milyon", tho: " bin", sBil: " mlr", sMil: " mn", sTho: " bin",
+      filterOff: "Süzgeç kaldırıldı.", hi: (c, n) => `${c}: ${n} ülke vurgulandı.`,
+      footer: null,
+    },
+    en: {
+      eyebrow: "Language Atlas · 2026",
+      h1: 'Which languages does <em>most of the world</em> speak?',
+      lede: "The language spoken by most of the population in each country. Colours show language families; pick a language from the list to filter the map.",
+      stats: ["countries", "dependencies", "languages", "no majority language"],
+      search: "Search a language or country…", families: "Language families",
+      keyNote: "Click a row to show only that family on the map.",
+      languages: "Languages", sFam: "Family", sCnt: "Countries", sSpk: "Speakers",
+      pFam: "Family", pPct: "Density", pPpl: "People",
+      dAuto: "Auto", dOff: "Country", dOn: "Region",
+      reset: "Clear filter", table: "Table",
+      capAll: "World · majority language",
+      capAllSub: (n) => `${n} countries and territories, coloured by family.`,
+      countries: "Countries", noHit: (q) => `No results for “${q}”.`,
+      cntry: (c, t) => `${c} countries${t ? ` and ${t} dependencies` : ""}`,
+      noMaj: "not a majority anywhere",
+      native: (v) => ` · ≈ ${v} native speakers`, second: (v) => ` · ≈ ${v} as a second language`,
+      proj: "Natural Earth projection", noAnt: "Antarctica not shown",
+      nCount: (n) => `${n} countries and territories`,
+      navMouse: "Scroll to zoom, drag to pan",
+      navTouch: "Pinch to zoom, drag to pan",
+      rankSpk: "Native", rankAll: "Total", rankCnt: "Countries",
+      rankHSpk: "Most spoken languages", rankHCnt: "Majority language in most countries",
+      rankSSpk: "approximate number of native speakers",
+      rankSAll: "native and second-language speakers combined",
+      rankSCnt: "number of countries and dependencies",
+      speaks: "speak this language", popIs: (v) => `Country population ≈ ${v}.`,
+      regionPop: (v) => `Region population ≈ ${v}.`,
+      home: "Languages spoken at home",
+      homeNote: "Approximate first-language shares. Totals exceed 100% in multilingual countries: many people speak more than one language at home.",
+      l2: "Spoken as a second language",
+      l2Note: "People who can hold a conversation in it without it being their first language.",
+      l2Country: (c) => ` Shares are for <b>${c} as a whole</b> — second-language data is not collected by region; counts apply those shares to this region's population.`,
+      more: (n, p) => `· and ${n} more languages, each below ${p}.`,
+      noMajChip: "no majority language · most spoken",
+      back: (c) => `Back to ${c} →`, toSubs: (c) => `Split ${c} into regions →`,
+      showLang: (l, n) => `Show the ${n} countries where ${l} is spoken →`,
+      minorH: (l) => `${l} · spoken as a minority language`,
+      minorSub: (n, v) => `· ${n} countries, ≈ ${v} people in total`,
+      minorNote: "Marked in a pale shade on the map. Shares refer to the language spoken at home; a second language learned at school is not counted.",
+      andMore: (n) => `+${n} more`,
+      cols: ["Country / territory", "Language", "Endonym", "Family", "Continent", "~%", "Speakers"],
+      region: "region", dep: "dependency", regionTag: "(territory)",
+      scaleWhat: "majority language", scalePct: "share of population", scalePpl: "speakers",
+      binsPct: ["<5%", "5–15%", "15–35%", "35–60%", "60–85%", ">85%"],
+      binsPpl: ["<10k", "10–100k", "100k–1M", "1–10M", "10–100M", ">100M"],
+      themeAuto: "Auto", themeLight: "Light", themeDark: "Dark",
+      bil: " billion", mil: " million", tho: "k", sBil: "B", sMil: "M", sTho: "k",
+      filterOff: "Filter cleared.", hi: (c, n) => `${c}: ${n} countries highlighted.`,
+      footer: [
+        ["Criterion", "For each country the map shows the language spoken by the largest share of the population in daily life. That is not always a first language: in Tanzania Swahili, in Indonesia Indonesian and in Pakistan Urdu are mostly spoken as a second language, serving as a lingua franca."],
+        ["Regional detail and cities", "The <b>Region</b> control (or zooming in far enough) drops to state, province or canton level in 12 countries: Canada, the United States, Switzerland, Belgium, Spain, the United Kingdom, Italy, India, Türkiye, Ukraine, Finland and Bolivia. These come from national census language questions; Türkiye has no official language census, so its provincial figures are survey-based estimates. <b>City level is not covered</b>, because language statistics are rarely published per municipality — Sweden, for example, publishes country of birth per municipality, not language spoken. Leaving it out is more honest than making it up."],
+        ["Migrant and minority communities", "When you pick a language, countries where it is spoken as a minority language are marked in a pale shade alongside the countries where it is the majority. This layer goes down to 0.05% for the main destination countries; it lists the communities that can be documented, not every small community everywhere. Shares refer to the language spoken at home — lower than ancestry counts, because transmission weakens in the second and third generation."],
+        ["Countries without a majority language", "In some countries no single language is spoken by half the population. These are marked “no majority language” and shown with their most widely spoken language — India, Nigeria, South Africa and the Democratic Republic of the Congo foremost among them."],
+        ["Data and borders", "Speaker counts are calculated: country population (UN, 2024 estimate) × the language's share in that country. They are therefore not exact and should be read as orders of magnitude; people who speak a language in more than one country are added together. Shares are approximate, compiled and rounded from censuses, Ethnologue and official language policies. Second-language shares rely on Eurobarometer 386 (2012) “able to hold a conversation” in Europe, and on national censuses and estimates elsewhere — so be careful comparing across countries. Borders come from Natural Earth 1:50m data and reflect no claim of sovereignty."],
+      ],
+    },
+  };
+  let ui = localStorage.getItem("wl-ui")
+    || ((navigator.language || "").toLowerCase().startsWith("tr") ? "tr" : "en");
+  if (!T[ui]) ui = "tr";
+  const t = () => T[ui];
+  const cn = (c) => ui === "en" ? (c.en || c.n) : c.n;
+  const sn = (o) => ui === "en" ? (o.ne || o.n) : o.n;
+  const ln = (l) => ui === "en" ? (l.ne || l.n) : l.n;
+  const lf = (l) => ui === "en" ? (l.fe || l.f) : l.f;
+  const gn = (g) => ui === "en" ? GR[g].ne : GR[g].n;
+  const gd = (g) => ui === "en" ? GR[g].de : GR[g].d;
+  const tx = (n) => ui === "en" ? (TX[n] || n) : n;
+  const noteOf = (c) => ui === "en" ? (c.note_en || "") : (c.note || "");
+
   const state = { filter: null, sel: null, sort: "fam", q: "", table: false };
 
   /* ------------------------------------------------------------- masthead */
   const nCountry = ids.filter((i) => !C[i].t).length;
   const nTerr = ids.length - nCountry;
   const nNoMaj = ids.filter((i) => !C[i].m).length;
-  $("#stats").innerHTML = [
-    [nCountry, "ülke"], [nTerr, "bağımlı bölge"],
-    [Object.keys(LG).length, "farklı dil"], [nNoMaj, "çoğunluk dili yok"],
-  ].map(([v, l]) => `<div class="stat"><b class="num">${v}</b><span>${l}</span></div>`).join("");
-  $("#noteCount").textContent = `${ids.length} ülke ve bölge`;
+  function renderStats() {
+    $("#stats").innerHTML = [
+      [nCountry, 0], [nTerr, 1], [Object.keys(LG).length, 2], [nNoMaj, 3],
+    ].map(([v, i]) =>
+      `<div><dt class="num">${v}</dt><dd>${t().stats[i]}</dd></div>`).join("");
+  }
 
   /* ------------------------------------------------------------- map */
   const svg = $("#map");
@@ -740,11 +879,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const box = $("#scale");
     if (paint === "fam") { box.hidden = true; box.innerHTML = ""; return; }
     const f = state.filter;
-    const what = f && f.t === "l" ? LG[f.k].n : "çoğunluğun dili";
-    const labels = paint === "pct"
-      ? ["<%5", "%5–15", "%15–35", "%35–60", "%60–85", ">%85"]
-      : ["<10 bin", "10–100 bin", "100 bin–1 mn", "1–10 mn", "10–100 mn", ">100 mn"];
-    box.innerHTML = `<span class="scale-t">${esc(what)} · ${paint === "pct" ? "nüfustaki payı" : "konuşan kişi"}</span>` +
+    const what = f && f.t === "l" ? ln(LG[f.k]) : t().scaleWhat;
+    const labels = paint === "pct" ? t().binsPct : t().binsPpl;
+    box.innerHTML = `<span class="scale-t">${esc(what)} · ${paint === "pct" ? t().scalePct : t().scalePpl}</span>` +
       `<span class="scale-bins">` + ramp.map((c, i) =>
         `<span class="scale-bin"><i style="background:${c}"></i><span>${labels[i]}</span></span>`).join("") +
       `</span>`;
@@ -905,18 +1042,18 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (!f || f.t !== "l" || c.l === f.k || !c.pop) return "";
     const row = (c.mix || []).find(([n]) => n === LG[f.k].n);
     if (!row) return "";
-    return `<span class="tf tf-min">${esc(LG[f.k].n)} · ${pc(row[1])} · ` +
-      `${fmtK(c.pop * row[1] / 100)} kişi</span>`;
+    return `<span class="tf tf-min">${esc(ln(LG[f.k]))} · ${pc(row[1])} · ` +
+      `${fmtK(c.pop * row[1] / 100)}</span>`;
   }
   function hover(e) {
     const ts = subOn ? e.target.closest("[data-sid]") : null;
     if (ts) {
       const s = SB[ts.dataset.sid], top = s.mix[0], g = LG[s.l] ? LG[s.l].g : "oth";
       tip.innerHTML =
-        `<b>${esc(s.n)}</b>` +
+        `<b>${esc(sn(s))}</b>` +
         `<span class="tl" style="--c:${col(g)}"><i class="${g === "oth" ? "oth" : ""}"></i>` +
-        `${esc(top[0])} · ${pc(top[1])}</span>` +
-        `<span class="tf">${esc(C[s.p].n)}${s.pop ? " · " + fmtK(s.pop) + " kişi" : ""}</span>` +
+        `${esc(tx(top[0]))} · ${pc(top[1])}</span>` +
+        `<span class="tf">${esc(cn(C[s.p]))}${s.pop ? " · " + fmtK(s.pop) : ""}</span>` +
         minorLine(s);
       place(e); return;
     }
@@ -924,10 +1061,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (!t) { tip.classList.remove("on"); return; }
     const c = C[t.dataset.id], l = LG[c.l];
     tip.innerHTML =
-      `<b>${esc(c.n)}</b>` +
-      `<span class="tl" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(l.n)}` +
+      `<b>${esc(cn(c))}</b>` +
+      `<span class="tl" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}` +
       `${c.m ? "" : ' <span style="opacity:.7">· çoğunluk yok</span>'}</span>` +
-      `<span class="tf">${esc(l.f)} · ~%${c.p} · ${fmtK(c.pop * c.p / 100)} kişi</span>` +
+      `<span class="tf">${esc(lf(l))} · ~${pc(c.p)} · ${fmtK(c.pop * c.p / 100)}</span>` +
       minorLine(c);
     place(e);
   }
@@ -942,15 +1079,18 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   /* ------------------------------------------------------------- key */
   const gCount = {};
   GORDER.forEach((g) => { gCount[g] = ids.filter((i) => LG[C[i].l].g === g).length; });
-  $("#keyRows").innerHTML = GORDER.map((g) =>
-    `<button class="key-row" data-g="${g}" aria-pressed="false" style="--c:${col(g)}">
-       <span class="swatch ${g === "oth" ? "oth" : ""}"></span>
-       <span class="key-name" title="${esc(GR[g].d)}">${esc(GR[g].n)}</span>
-       <span class="key-count num">${gCount[g]}</span>
-     </button>`).join("");
-  $("#dist").innerHTML = GORDER.map((g) =>
-    `<span class="${g === "oth" ? "oth" : ""}" style="--c:${col(g)};flex:${gCount[g]}"
-      title="${esc(GR[g].n)}: ${gCount[g]} ülke ve bölge"></span>`).join("");
+  function renderKey() {
+    $("#keyRows").innerHTML = GORDER.map((g) =>
+      `<button class="key-row" data-g="${g}" aria-pressed="false" style="--c:${col(g)}">
+         <span class="swatch ${g === "oth" ? "oth" : ""}"></span>
+         <span class="key-name" title="${esc(gd(g))}">${esc(gn(g))}</span>
+         <span class="key-count num">${gCount[g]}</span>
+       </button>`).join("");
+    $("#dist").innerHTML = GORDER.map((g) =>
+      `<span class="${g === "oth" ? "oth" : ""}" style="--c:${col(g)};flex:${gCount[g]}"
+        title="${esc(gn(g))}: ${t().nCount(gCount[g])}"></span>`).join("");
+  }
+  renderKey();
   $("#keyRows").addEventListener("click", (e) => {
     const b = e.target.closest("[data-g]"); if (!b) return;
     const g = b.dataset.g;
@@ -963,13 +1103,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const total = (s) => LG[s].c + LG[s].t;
   const spk = (s) => LG[s].s;                        // ana dil (bin kişi)
   const spkAll = (s) => LG[s].s + LG[s].s2;          // + ikinci dil
-  const spkTitle = (s) => `${total(s)} ülke ve bölgede çoğunluğun dili · ana dil ` +
-    `${fmtK(LG[s].s)}${LG[s].s2 ? ` · ikinci dil ${fmtK(LG[s].s2)}` : ""}`;
+  const spkTitle = (s) => t().cntry(LG[s].c, LG[s].t) +
+    t().native(fmtK(LG[s].s)) + (LG[s].s2 ? t().second(fmtK(LG[s].s2)) : "");
 
   function matches(slug) {
     if (!state.q) return true;
     const q = norm(state.q), l = LG[slug];
-    if (norm(l.n).includes(q) || norm(l.e).includes(q) || norm(l.f).includes(q)) return true;
+    if (norm(l.n).includes(q) || norm(l.e).includes(q) || norm(l.f).includes(q)
+        || norm(l.ne || "").includes(q)) return true;
     return ids.some((i) => C[i].l === slug && (norm(C[i].n).includes(q) || norm(C[i].en).includes(q)));
   }
 
@@ -985,13 +1126,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         const l = LG[C[i].l];
         return `<button class="idx-row" data-c="${i}" style="--c:${col(l.g)}">
           <span class="idx-dot ${l.g === "oth" ? "oth" : ""}"></span>
-          <span class="idx-name">${esc(C[i].n)}<span class="idx-endo">${esc(l.n)}</span></span>
+          <span class="idx-name">${esc(cn(C[i]))}<span class="idx-endo">${esc(ln(l))}</span></span>
           <span class="idx-n">%${C[i].p}</span></button>`;
       }).join("");
-      if (head) head = `<div class="idx-group">Ülkeler</div>` + head;
+      if (head) head = `<div class="idx-group">${t().countries}</div>` + head;
     }
     if (!hits.length && !head) {
-      idxList.innerHTML = `<p class="idx-empty">“${esc(state.q)}” için sonuç yok.</p>`;
+      idxList.innerHTML = `<p class="idx-empty">${esc(t().noHit(state.q))}</p>`;
       return;
     }
     const row = (s) => {
@@ -999,12 +1140,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       return `<button class="idx-row" data-l="${s}" aria-pressed="${on}" style="--c:${col(l.g)}"
           title="${esc(spkTitle(s))}">
         <span class="idx-dot ${l.g === "oth" ? "oth" : ""}"></span>
-        <span class="idx-name">${esc(l.n)}<span class="idx-endo">${esc(l.e)}</span></span>
+        <span class="idx-name">${esc(ln(l))}<span class="idx-endo">${esc(l.e)}</span></span>
         <span class="idx-n">${state.sort === "spk" ? fmtS(spk(s)) : (total(s) || "—")}</span></button>`;
     };
     const bySort = (a, b) => state.sort === "spk"
-      ? spk(b) - spk(a) || tr(LG[a].n, LG[b].n)
-      : total(b) - total(a) || tr(LG[a].n, LG[b].n);
+      ? spk(b) - spk(a) || tr(ln(LG[a]), ln(LG[b]))
+      : total(b) - total(a) || tr(ln(LG[a]), ln(LG[b]));
     if (state.sort !== "fam") {
       const list = hits.slice().sort(bySort);
       idxList.innerHTML = head + (head && list.length ? `<div class="idx-group">Diller</div>` : "") + list.map(row).join("");
@@ -1013,7 +1154,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         const list = hits.filter((s) => LG[s].g === g).sort(bySort);
         if (!list.length) return "";
         return `<div class="idx-group" style="--c:${col(g)}">
-            <span class="idx-dot ${g === "oth" ? "oth" : ""}"></span>${esc(GR[g].n)}
+            <span class="idx-dot ${g === "oth" ? "oth" : ""}"></span>${esc(gn(g))}
           </div>` + list.map(row).join("");
       }).join("");
     }
@@ -1027,25 +1168,22 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   });
   /* ------------------------------------------------------------- sıralama grafiği */
   const RANK = {
-    spk: { f: spk, lbl: (s) => fmtK(spk(s)), h: "En çok konuşulan diller",
-           sub: "ana dili olarak konuşan yaklaşık kişi sayısı" },
-    all: { f: spkAll, lbl: (s) => fmtK(spkAll(s)), h: "En çok konuşulan diller",
-           sub: "ana dil ve ikinci dil olarak konuşanların toplamı" },
-    cnt: { f: total, lbl: (s) => String(total(s)), h: "En çok ülkede çoğunluğun dili",
-           sub: "ülke ve bağımlı bölge sayısı" },
+    spk: { f: spk, lbl: (s) => fmtK(spk(s)), h: () => t().rankHSpk, sub: () => t().rankSSpk },
+    all: { f: spkAll, lbl: (s) => fmtK(spkAll(s)), h: () => t().rankHSpk, sub: () => t().rankSAll },
+    cnt: { f: total, lbl: (s) => String(total(s)), h: () => t().rankHCnt, sub: () => t().rankSCnt },
   };
   let rankMode = "spk";
   function renderRank() {
     const m = RANK[rankMode];
-    const top = langIds.slice().sort((a, b) => m.f(b) - m.f(a) || tr(LG[a].n, LG[b].n)).slice(0, 12);
+    const top = langIds.slice().sort((a, b) => m.f(b) - m.f(a) || tr(ln(LG[a]), ln(LG[b]))).slice(0, 12);
     const max = m.f(top[0]) || 1;
-    $("#rankTitle").textContent = m.h;
-    $("#rankSub").textContent = m.sub;
+    $("#rankTitle").textContent = m.h();
+    $("#rankSub").textContent = m.sub();
     $("#rankRows").innerHTML = top.map((s) => {
       const l = LG[s], on = state.filter && state.filter.t === "l" && state.filter.k === s;
       return `<button class="rank-row" data-l="${s}" aria-pressed="${on}" style="--c:${col(l.g)}"
           title="${esc(spkTitle(s))}">
-        <span class="rank-name">${esc(l.n)}</span>
+        <span class="rank-name">${esc(ln(l))}</span>
         <span class="rank-bar"><i class="${l.g === "oth" ? "oth" : ""}" style="width:${(m.f(s) / max * 100).toFixed(1)}%"></i></span>
         <span class="rank-n">${m.lbl(s)}</span></button>`;
     }).join("");
@@ -1106,16 +1244,15 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const tot = minor.reduce((a, m) => a + ppl(m), 0);
     const show = minor.slice(0, 24), rest = minor.length - show.length;
     minorBox.innerHTML =
-      `<h3 id="minorTitle">${esc(l.n)} · azınlık olarak konuşulduğu ülkeler ` +
-        `<span>· ${minor.length} ülke, toplam ≈ ${fmtK(tot)} kişi</span></h3>` +
+      `<h3 id="minorTitle">${esc(t().minorH(ln(l)))} ` +
+        `<span>${esc(t().minorSub(minor.length, fmtK(tot)))}</span></h3>` +
       `<div class="minor-rows">` + show.map((m) => {
         const c = C[m[0]];
         return `<button class="minor-chip" data-go="${m[0]}"
-            title="${esc(c.n)} nüfusunun ~${pc(m[1])}'i, yaklaşık ${fmtK(ppl(m))} kişi">
-          ${esc(c.n)} <b>${pc(m[1])} · ${fmtS(ppl(m))}</b></button>`;
-      }).join("") + (rest ? `<span class="minor-chip" style="border-style:dashed">+${rest} ülke daha</span>` : "") + `</div>` +
-      `<p class="minor-note">Haritada soluk renkle işaretlendiler. Oranlar evde konuşulan
-        ana dile göredir; okulda öğrenilen ikinci dil sayılmaz.</p>`;
+            title="${esc(cn(c))} · ${pc(m[1])} · ${fmtK(ppl(m))}">
+          ${esc(cn(c))} <b>${pc(m[1])} · ${fmtS(ppl(m))}</b></button>`;
+      }).join("") + (rest ? `<span class="minor-chip" style="border-style:dashed">${t().andMore(rest)}</span>` : "") + `</div>` +
+      `<p class="minor-note">${t().minorNote}</p>`;
     minorBox.hidden = false;
   }
   minorBox.addEventListener("click", (e) => {
@@ -1179,20 +1316,18 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     btnReset.hidden = !f;
 
     if (!f) {
-      capT.textContent = "Dünya · çoğunluğun konuştuğu dil";
-      capS.textContent = `${ids.length} ülke ve bölge, ailelerine göre renklendirildi.`;
+      capT.textContent = t().capAll;
+      capS.textContent = t().capAllSub(ids.length);
     } else if (f.t === "l") {
       const l = LG[f.k];
-      capT.innerHTML = `${esc(l.n)} <span style="color:var(--ink-3);font-size:.8em">${esc(l.e)}</span>`;
-      capS.textContent = (l.c + l.t
-        ? `${l.f} · ${l.c} ülke${l.t ? ` ve ${l.t} bağımlı bölge` : ""}`
-        : `${l.f} · hiçbir ülkede çoğunluk değil`) +
-        ` · ana dili ≈ ${fmtK(l.s)} kişi` + (l.s2 ? ` · ikinci dil ≈ ${fmtK(l.s2)}` : "");
+      capT.innerHTML = `${esc(ln(l))} <span style="color:var(--ink-3);font-size:.8em">${esc(l.e)}</span>`;
+      capS.textContent = lf(l) + " · " + (l.c + l.t ? t().cntry(l.c, l.t) : t().noMaj) +
+        t().native(fmtK(l.s)) + (l.s2 ? t().second(fmtK(l.s2)) : "");
     } else {
-      capT.textContent = GR[f.k].n;
-      capS.textContent = `${GR[f.k].d} · ${gCount[f.k]} ülke ve bölge`;
+      capT.textContent = gn(f.k);
+      capS.textContent = `${gd(f.k)} · ${t().nCount(gCount[f.k])}`;
     }
-    live(f ? `${capT.textContent}: ${hits.length} ülke vurgulandı.` : "Süzgeç kaldırıldı.");
+    live(f ? t().hi(capT.textContent, hits.length) : t().filterOff);
     rampKey = "";
     repaint();
     if (state.table) renderTable();
@@ -1232,51 +1367,50 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       const pop = popOverride !== undefined && popOverride !== 0 ? popOverride : c.pop;
       return `<div class="bars">` + show.map(([name, pct]) =>
         `<div class="bar-row" style="--c:${hue}">
-           <span class="bar-name" title="${esc(name)}">${esc(name)}</span>
+           <span class="bar-name" title="${esc(tx(name))}">${esc(tx(name))}</span>
            <span class="bar-track"><i style="width:${Math.min(100, pct)}%"></i></span>
            <span class="bar-pct">${pc(pct)}</span>
            <span class="bar-ppl" title="${pop ? "yaklaşık " + esc(fmtK(pop * pct / 100)) + " kişi" : ""}">${
              pop ? fmtS(pop * pct / 100) : ""}</span>
          </div>`).join("") + `</div>` +
-        (rest ? `<p class="d-hint">· ve her biri ${pc(show[show.length - 1][1])} altında kalan ${rest} dil daha.</p>` : "");
+        (rest ? `<p class="d-hint">${t().more(rest, pc(show[show.length - 1][1]))}</p>` : "");
     };
 
     detail.innerHTML =
       `<button class="close" id="dClose" aria-label="Kapat">✕</button>` +
       `<div class="d-main">` +
-        `<div class="d-country"><h3>${esc(c.n)}</h3><span class="d-region">${esc(c.r)}${
-          c.sub ? " · bölge" : (c.t ? " · bağımlı bölge" : "")}</span></div>` +
+        `<div class="d-country"><h3>${esc(c.sub ? sn(c) : cn(c))}</h3><span class="d-region">${
+          esc(c.sub ? cn(C[id]) : (ui === "en" ? C[id].re : c.r))}${
+          c.sub ? " · " + t().region : (c.t ? " · " + t().dep : "")}</span></div>` +
         (c.sub ? "" : `<p class="d-endo" lang="${c.l.split("_")[0]}">${esc(l.e)}</p>`) +
-        `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(l.n)}</p>` +
-        `<p class="d-fam">${esc(l.f)}</p>` +
+        `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
+        `<p class="d-fam">${esc(lf(l))}</p>` +
         `<div class="meter" style="--c:${col(l.g)}">
-           <div class="meter-top"><span>bu dili konuşabilenler</span><b>${pc(c.p)}${
+           <div class="meter-top"><span>${t().speaks}</span><b>${pc(c.p)}${
              c.pop ? " · " + fmtS(c.pop * c.p / 100) : ""}</b></div>
            <div class="meter-track"><div class="meter-fill" style="width:${Math.min(100, c.p)}%"></div></div>
-           ${c.pop ? `<p class="d-hint">${c.sub ? "Bölge" : "Ülke"} nüfusu ≈ ${fmtK(c.pop)} kişi.</p>` : ""}
+           ${c.pop ? `<p class="d-hint">${c.sub ? t().regionPop(fmtK(c.pop)) : t().popIs(fmtK(c.pop))}</p>` : ""}
          </div>` +
-        (c.m ? "" : `<span class="chip">çoğunluk dili yok · en yaygın dil</span>`) +
-        (c.note ? `<p class="d-note">${esc(c.note)}</p>` : "") +
+        (c.m ? "" : `<span class="chip">${t().noMajChip}</span>`) +
+        (noteOf(C[id]) ? `<p class="d-note">${esc(noteOf(C[id]))}</p>` : "") +
       `</div>` +
-      (c.mix ? `<div class="d-sec"><h4>Evde konuşulan diller</h4>${bars(c.mix, col(l.g), 12)}` +
-        `<p class="d-hint">Ana dil olarak yaklaşık paylar. Çok dilli ülkelerde toplam %100'ü aşar: pek çok kişi evde birden fazla dil konuşur.</p></div>` : "") +
-      (c.l2 ? `<div class="d-sec"><h4>İkinci dil olarak bilenler</h4>` +
+      (c.mix ? `<div class="d-sec"><h4>${t().home}</h4>${bars(c.mix, col(l.g), 12)}` +
+        `<p class="d-hint">${t().homeNote}</p></div>` : "") +
+      (c.l2 ? `<div class="d-sec"><h4>${t().l2}</h4>` +
         bars(c.l2, "var(--ink-3)") +
-        `<p class="d-hint">Ana dili olmadığı hâlde sohbet edecek düzeyde konuşabilenler.` +
-        (c.l2country ? ` Oranlar <b>${esc(C[id].n)} geneli</b> — ikinci dil bilgisi bölge bazında
-           toplanmıyor; kişi sayıları bu oranın bölge nüfusuna uygulanmasıyla bulundu.` : "") +
-        `</p></div>` : "") +
+        `<p class="d-hint">${t().l2Note}` +
+        (c.l2country ? t().l2Country(esc(cn(C[id]))) : "") + `</p></div>` : "") +
       `<div class="d-act">` +
-        (c.sub ? `<button id="dUp">${esc(C[id].n)} geneline dön →</button>` : "") +
-        (!c.sub && subsOf[id] ? `<button id="dSub">${esc(c.n)}'yi bölgelere ayır →</button>` : "") +
-        `<button id="dSame">${esc(l.n)} konuşulan ${LG[c.l] ? LG[c.l].in.length : 0} ülkeyi göster →</button>` +
+        (c.sub ? `<button id="dUp">${esc(t().back(cn(C[id])))}</button>` : "") +
+        (!c.sub && subsOf[id] ? `<button id="dSub">${esc(t().toSubs(cn(C[id])))}</button>` : "") +
+        `<button id="dSame">${esc(t().showLang(ln(l), LG[c.l] ? LG[c.l].in.length : 0))}</button>` +
       `</div>`;
     detail.classList.add("on");
     $("#dClose").onclick = () => select(null);
     $("#dSame").onclick = () => setFilter({ t: "l", k: c.l });
     if ($("#dUp")) $("#dUp").onclick = () => { select(id); focusCountry(id); };
     if ($("#dSub")) $("#dSub").onclick = () => { $("#lodOn").click(); focusCountry(id); };
-    live(`${c.n}: ${l.n}, ${l.f}, yaklaşık ${pc(c.p)}.`);
+    live(`${c.sub ? sn(c) : cn(c)}: ${ln(l)}, ${lf(l)}, ${pc(c.p)}.`);
   }
   function focusCountry(id) {
     const c = C[id];
@@ -1285,13 +1419,15 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
 
   /* ------------------------------------------------------------- table */
   const COLS = [
-    { k: "n", t: "Ülke / bölge" }, { k: "l", t: "Dil" }, { k: "e", t: "Kendi dilinde" },
-    { k: "f", t: "Aile" }, { k: "r", t: "Kıta" }, { k: "p", t: "~%", num: true },
-    { k: "s", t: "Konuşan", num: true },
+    { k: "n" }, { k: "l" }, { k: "e" }, { k: "f" }, { k: "r" },
+    { k: "p", num: true }, { k: "s", num: true },
   ];
   let sortK = "n", sortDir = 1;
-  $("#thRow").innerHTML = COLS.map((c) =>
-    `<th${c.num ? ' style="text-align:right"' : ""}><button data-k="${c.k}">${c.t}<span data-arrow="${c.k}"></span></button></th>`).join("");
+  function renderHead() {
+    $("#thRow").innerHTML = COLS.map((c, i) =>
+      `<th${c.num ? ' style="text-align:right"' : ""}><button data-k="${c.k}">${t().cols[i]}<span data-arrow="${c.k}"></span></button></th>`).join("");
+  }
+  renderHead();
   $("#thRow").addEventListener("click", (e) => {
     const b = e.target.closest("[data-k]"); if (!b) return;
     if (sortK === b.dataset.k) sortDir *= -1; else { sortK = b.dataset.k; sortDir = 1; }
@@ -1304,9 +1440,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       const nq = norm(state.q);
       rows = rows.filter((i) => norm(C[i].n).includes(nq) || norm(LG[C[i].l].n).includes(nq) || norm(LG[C[i].l].e).includes(nq));
     }
-    const val = (i, k) => k === "n" ? C[i].n : k === "r" ? C[i].r : k === "p" ? C[i].p
-      : k === "s" ? C[i].pop * C[i].p / 100
-      : k === "l" ? LG[C[i].l].n : k === "e" ? LG[C[i].l].e : LG[C[i].l].f;
+    const val = (i, k) => k === "n" ? cn(C[i]) : k === "r" ? (ui === "en" ? C[i].re : C[i].r)
+      : k === "p" ? C[i].p : k === "s" ? C[i].pop * C[i].p / 100
+      : k === "l" ? ln(LG[C[i].l]) : k === "e" ? LG[C[i].l].e : lf(LG[C[i].l]);
     rows.sort((a, b) => {
       const x = val(a, sortK), y = val(b, sortK);
       return (typeof x === "number" ? x - y : tr(x, y)) * sortDir;
@@ -1317,12 +1453,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     });
     $("#tbody").innerHTML = rows.map((i) => {
       const c = C[i], l = LG[c.l];
-      return `<tr><td><span class="t-name" data-go="${i}">${esc(c.n)}</span>${c.t ? ' <span class="muted">(bölge)</span>' : ""}</td>` +
-        `<td style="--c:${col(l.g)}"><span class="tswatch ${l.g === "oth" ? "oth" : ""}"></span>${esc(l.n)}` +
-        `${c.m ? "" : ' <span class="muted">· çoğunluk yok</span>'}</td>` +
-        `<td class="muted">${esc(l.e)}</td><td class="muted">${esc(l.f)}</td><td class="muted">${esc(c.r)}</td>` +
+      return `<tr><td><span class="t-name" data-go="${i}">${esc(cn(c))}</span>${c.t ? ` <span class="muted">${t().regionTag}</span>` : ""}</td>` +
+        `<td style="--c:${col(l.g)}"><span class="tswatch ${l.g === "oth" ? "oth" : ""}"></span>${esc(ln(l))}` +
+        `${c.m ? "" : ` <span class="muted">· ${t().noMaj}</span>`}</td>` +
+        `<td class="muted">${esc(l.e)}</td><td class="muted">${esc(lf(l))}</td><td class="muted">${esc(ui === "en" ? c.re : c.r)}</td>` +
         `<td class="pct">${c.p}</td>` +
-        `<td class="pct" title="${esc(c.n)} nüfusu ≈ ${esc(fmtK(c.pop))}">${fmtS(c.pop * c.p / 100)}</td></tr>`;
+        `<td class="pct" title="${esc(cn(c))} · ${esc(fmtK(c.pop))}">${fmtS(c.pop * c.p / 100)}</td></tr>`;
     }).join("");
   }
   $("#tbody").addEventListener("click", (e) => {
@@ -1341,10 +1477,64 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   }
   $("#btnTable").onclick = () => setTable(!state.table);
 
-  /* ------------------------------------------------------------- go */
-  if (matchMedia("(pointer: coarse)").matches) {
-    $("#navHint").textContent = "İki parmakla yakınlaşıp sürükleyerek gezinebilirsiniz";
+  /* ------------------------------------------------- tema ve arayüz dili */
+  let FOOT_TR = null;
+  let theme = localStorage.getItem("wl-theme") || "auto";
+  function applyTheme() {
+    if (theme === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", theme);
+    document.querySelectorAll("[data-theme]").forEach((b) => {
+      if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String(b.dataset.theme === theme));
+    });
+    rampKey = ""; repaint();
   }
+  function applyUi() {
+    document.documentElement.lang = ui;
+    const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
+    set("#eyebrow", t().eyebrow);
+    $("#h1").innerHTML = t().h1;
+    set("#lede", t().lede);
+    set("#keyTitle", t().families);
+    set("#keyNote", t().keyNote);
+    set("#idxTitle", t().languages);
+    set("#sortFam", t().sFam); set("#sortCnt", t().sCnt); set("#sortSpk", t().sSpk);
+    set("#paintFam", t().pFam); set("#paintPct", t().pPct); set("#paintPpl", t().pPpl);
+    set("#lodAuto", t().dAuto); set("#lodOff", t().dOff); set("#lodOn", t().dOn);
+    set("#rankSpk", t().rankSpk); set("#rankAll", t().rankAll); set("#rankCnt", t().rankCnt);
+    set("#btnReset", t().reset); set("#btnTable", t().table);
+    set("#noteProj", t().proj); set("#noteAnt", t().noAnt);
+    set("#noteCount", t().nCount(ids.length));
+    set("#navHint", matchMedia("(pointer: coarse)").matches ? t().navTouch : t().navMouse);
+    $("#q").placeholder = t().search;
+    document.querySelectorAll("[data-ui]").forEach((b) =>
+      b.setAttribute("aria-pressed", String(b.dataset.ui === ui)));
+    document.querySelectorAll("[data-theme]").forEach((b) => {
+      if (b.tagName !== "BUTTON") return;
+      const m = { auto: t().themeAuto, light: t().themeLight, dark: t().themeDark };
+      b.textContent = m[b.dataset.theme];
+    });
+    if (!FOOT_TR) FOOT_TR = [1,2,3,4,5].map((i) => [$("#fh"+i).innerHTML, $("#fp"+i).innerHTML]);
+    const F = ui === "en" ? t().footer : FOOT_TR;
+    F.forEach(([h, b], i) => { $("#fh"+(i+1)).innerHTML = h; $("#fp"+(i+1)).innerHTML = b; });
+    renderStats();
+    renderKey();
+    renderHead();
+    renderIndex();
+    renderRank();
+    setFilter(state.filter);
+    if (state.sel) select(state.sel, state.selSub);
+    if (state.table) renderTable();
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-ui],.prefs [data-theme]");
+    if (!b) return;
+    if (b.dataset.ui) { ui = b.dataset.ui; localStorage.setItem("wl-ui", ui); applyUi(); }
+    else { theme = b.dataset.theme; localStorage.setItem("wl-theme", theme); applyTheme(); }
+  });
+
+  /* ------------------------------------------------------------- go */
+  applyTheme();
+  applyUi();
   renderIndex();
   applyVB();
   document.addEventListener("keydown", (e) => {

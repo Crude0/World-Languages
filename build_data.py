@@ -4,6 +4,7 @@ import json, sys
 from lang_mix import MIX, L2
 from population import POP
 from diaspora import DIASPORA
+import i18n
 
 # ---------------------------------------------------------------- diller
 # slug: (Türkçe ad, kendi dilindeki ad, kol/aile etiketi, renk grubu)
@@ -472,8 +473,11 @@ for cid, (tr, lang, pct, maj, note, region, terr) in C.items():
     countries[cid] = {"n": tr, "en": f["n"], "l": lang, "p": pct, "m": maj,
                       "r": region, "t": terr, "pop": POP[cid],
                       "d": f["d"], "c": f["c"], "a": f["a"]}
+    countries[cid]["re"] = i18n.REGION_EN.get(region, region)
     if note:
         countries[cid]["note"] = note
+        if cid in i18n.NOTE_EN:
+            countries[cid]["note_en"] = i18n.NOTE_EN[cid]
     if cid in MIX:
         countries[cid]["mix"] = [[n, p] for n, p in MIX[cid]]
     if cid in L2:
@@ -520,6 +524,8 @@ for slug, (tr, endo, fam, grp) in L.items():
         continue
     rows = sorted(where[slug], key=lambda r: -POP[r[0]] * r[1])
     langs[slug] = {"n": tr, "e": endo, "f": fam, "g": grp,
+                   "ne": i18n.LANG_EN.get(slug, tr),
+                   "fe": i18n.FAM_EN.get(fam, fam),
                    "c": sum(1 for i in ids if not C[i][6]),
                    "t": sum(1 for i in ids if C[i][6]),
                    "s": round(speakers[slug]),
@@ -548,7 +554,9 @@ if sp:
         mix = sorted(rows, key=lambda r: -r[1])
         # bölgenin baskın dili: 121 dil listesinde karşılığı olan ilk satır
         top = next((by_name[n] for n, _ in mix if n in by_name), C[cid][1])
-        subs[sid] = {"n": NAME.get(sid, g["n"]), "p": cid, "l": top, "d": g["d"],
+        tr_name = NAME.get(sid, g["n"])
+        subs[sid] = {"n": tr_name, "ne": i18n.SUB_EN.get(f"{cid}-{tr_name}", tr_name),
+                     "p": cid, "l": top, "d": g["d"],
                      "c": g["c"], "a": g["a"],
                      "mix": [[n, p] for n, p in mix]}
         if sid in SUBPOP:
@@ -563,7 +571,10 @@ if sp:
 
 out = {"w": mp["w"], "h": mp["h"], "grat": mp["grat"], "eq": mp["eq"], "frame": mp["frame"],
        "countries": countries, "langs": langs, "subs": subs,
-       "groups": {k: {"n": v[0], "d": v[1]} for k, v in GROUPS.items()}}
+       "groups": {k: {"n": v[0], "d": v[1],
+                      "ne": i18n.GROUP_EN[k][0], "de": i18n.GROUP_EN[k][1]}
+                  for k, v in GROUPS.items()},
+       "tx": i18n.name_map({v[0]: i18n.LANG_EN.get(k, v[0]) for k, v in L.items()})}
 json.dump(out, open("data.json", "w"), separators=(",", ":"), ensure_ascii=False)
 
 print(f"ülke/bölge: {len(countries)}  dil: {len(langs)}  "

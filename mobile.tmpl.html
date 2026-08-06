@@ -20,7 +20,7 @@
   --g-afa: #a2bb45; --g-nkg: #12a077; --g-aus: #e37ab3; --g-oth: #8d949e;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
     --bg:        #0d1014;
     --ocean:     #12151b;
@@ -39,6 +39,25 @@
     --g-rom: #d1571a; --g-ger: #57bdff; --g-ine: #8a76e0;
     --g-afa: #b6cf5c; --g-nkg: #2bbd8e; --g-aus: #f094c6; --g-oth: #99a1ac;
   }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:        #0d1014;
+  --ocean:     #12151b;
+  --land-mute: #272b33;
+  --ink:       #eceef2;
+  --ink-2:     #b3bac4;
+  --ink-3:     #838d99;
+  --rule:      rgba(236,238,242,.12);
+  --glass:     rgba(28,32,40,.62);
+  --glass-2:   rgba(28,32,40,.84);
+  --edge:      rgba(255,255,255,.10);
+  --shade:     rgba(0,0,0,.45);
+  --tint:      #62a8ff;
+  --hatch:     rgba(236,238,242,.30);
+  --sub-line:  rgba(236,238,242,.34);
+  --g-rom: #d1571a; --g-ger: #57bdff; --g-ine: #8a76e0;
+  --g-afa: #b6cf5c; --g-nkg: #2bbd8e; --g-aus: #f094c6; --g-oth: #99a1ac;
 }
 
 * { -webkit-tap-highlight-color: transparent; }
@@ -163,9 +182,21 @@ body.zoomed .orn { opacity: 0; }
   border-bottom: 0;
 }
 .sheet.dragging { transition: none; }
-.grab { padding: 7px 0 3px; display: grid; place-items: center; flex: none; touch-action: none; }
-.grab i { display: block; width: 38px; height: 5px; border-radius: 3px; background: var(--ink-3); opacity: .5; }
-.sheet-head { flex: none; padding: 2px 14px 10px; display: grid; gap: 9px; touch-action: none; }
+/* Tutamak: çizgi ince görünür ama dokunma alanı iOS ölçüsünde (44px). */
+.grab {
+  padding: 14px 0 10px; display: grid; place-items: center; flex: none;
+  touch-action: none; min-height: 44px;
+}
+.grab i {
+  display: block; width: 44px; height: 6px; border-radius: 3px;
+  background: var(--ink-3); opacity: .42; transition: opacity .2s ease, width .2s ease;
+}
+.sheet.dragging .grab i, .grab:active i { opacity: .7; width: 52px; }
+.sheet-head {
+  flex: none; padding: 0 14px 11px; display: grid; gap: 9px; touch-action: none;
+  border-bottom: .5px solid transparent; transition: border-color .2s ease;
+}
+.sheet-head.stuck { border-bottom-color: var(--rule); }
 .searchbar { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px;
   border-radius: 12px; background: var(--rule); }
 .searchbar input {
@@ -327,7 +358,18 @@ body.zoomed .orn { opacity: 0; }
     <button data-lod="off" aria-pressed="false">Ülke</button>
     <button data-lod="on" aria-pressed="false">Bölge</button>
   </div>
-  <p class="pop-n">Oto: uzakta ülke, yaklaşınca eyalet/il. Bölge verisi 12 ülkede var.</p>
+  <p class="pop-n" id="popNote">Oto: uzakta ülke, yaklaşınca eyalet/il. Bölge verisi 12 ülkede var.</p>
+  <p class="pop-t" id="popThemeT">Tema</p>
+  <div class="seg" role="group" aria-label="Tema">
+    <button data-theme="auto" aria-pressed="true">Oto</button>
+    <button data-theme="light">Açık</button>
+    <button data-theme="dark">Koyu</button>
+  </div>
+  <p class="pop-t" id="popLangT">Dil · Language</p>
+  <div class="seg" role="group" aria-label="Dil">
+    <button data-ui="tr">Türkçe</button>
+    <button data-ui="en">English</button>
+  </div>
 </div>
 
 <div class="sheet glass" id="sheet">
@@ -360,14 +402,14 @@ body.zoomed .orn { opacity: 0; }
   const trc = (a, b) => a.localeCompare(b, "tr");
   const norm = (s) => s.toLocaleLowerCase("tr").replace(/ı/g, "i").replace(/[şğüöç]/g, (c) =>
     ({ "ş": "s", "ğ": "g", "ü": "u", "ö": "o", "ç": "c" }[c]));
-  const dec = (x, d) => x.toFixed(d).replace(".", ",");
-  const pc = (p) => "%" + String(p).replace(".", ",");
+  const dec = (x, d) => ui === "en" ? x.toFixed(d) : x.toFixed(d).replace(".", ",");
+  const pc = (p) => ui === "en" ? String(p) + "%" : "%" + String(p).replace(".", ",");
   const fmtK = (k) => {                       // k: bin kişi
-    const n = k * 1000;
-    if (n >= 1e9) return dec(n / 1e9, 1) + " milyar";
-    if (n >= 1e6) return dec(n / 1e6, n >= 1e8 ? 0 : 1) + " milyon";
-    if (n >= 1e3) return Math.round(n / 1e3).toLocaleString("tr") + " bin";
-    return Math.round(n).toLocaleString("tr");
+    const n = k * 1000, L = ui === "en" ? "en" : "tr";
+    if (n >= 1e9) return dec(n / 1e9, 1) + t().bil;
+    if (n >= 1e6) return dec(n / 1e6, n >= 1e8 ? 0 : 1) + t().mil;
+    if (n >= 1e3) return Math.round(n / 1e3).toLocaleString(L) + t().tho;
+    return Math.round(n).toLocaleString(L);
   };
   const subsOf = {};
   subIds.forEach((sid) => (subsOf[SB[sid].p] = subsOf[SB[sid].p] || []).push(sid));
@@ -376,6 +418,73 @@ body.zoomed .orn { opacity: 0; }
   // kalmasın diye iki uçta gezinilebilir bir pay bırakılır. O pay boş
   // kalmasın diye eski deniz haritalarındaki gibi süslerle doldurulur.
   const PAD = 130;
+
+  /* ---------------------------------------------------------------- dil */
+  const TX = D.tx || {};
+  const T = {
+    tr: {
+      title: "Dünya dilleri", sub: (n) => `${n} ülke · çoğunluğun konuştuğu dil`,
+      search: "Dil veya ülke ara", countries: "Ülkeler", languages: "Diller",
+      nLangs: (n) => `${n} dil`, bySpk: "Konuşan sayısı", byCnt: "Ülke sayısı",
+      noHit: (q) => `“${q}” için sonuç yok`, cnt: (n) => `${n} ülke`,
+      speaks: "bu dili konuşuyor", people: "kişi", pop: "nüfus",
+      home: "Evde konuşulan diller",
+      homeNote: "Ana dil olarak yaklaşık paylar; çok dilli yerlerde toplam %100'ü aşar.",
+      l2: "İkinci dil olarak bilenler",
+      l2Note: "Ana dili olmadığı hâlde sohbet edecek düzeyde konuşabilenler.",
+      l2Country: (c) => ` Oranlar <b>${c} geneli</b>; kişi sayıları bölge nüfusuna uygulandı.`,
+      elsewhere: (l) => `${l} başka nerede?`, minor: (n) => `${n} ülkede azınlık`,
+      more: (n) => `· ve ${n} dil daha`, region: "bölge", dep: "bağımlı bölge",
+      back: (c) => `${c} geneline dön`, showSubs: (c) => `${c} bölgelerini göster`,
+      showLang: (l) => `${l} konuşulan yerleri haritada göster`, close: "Kapat",
+      noMajority: "Bu ülkede hiçbir dil nüfusun yarısını aşmıyor.",
+      majIn: (n) => `${n} ülkede çoğunluk`, majNone: "hiçbir ülkede çoğunluk değil",
+      native: (v) => `ana dili ${v} kişi`,
+      paint: "Renk ölçütü", pFam: "Aile", pPct: "Yoğunluk", pPpl: "Kişi",
+      detail: "Ayrıntı düzeyi", dAuto: "Oto", dOff: "Ülke", dOn: "Bölge",
+      lodNote: "Oto: uzakta ülke, yaklaşınca eyalet/il. Bölge verisi 12 ülkede var.",
+      theme: "Tema", tAuto: "Oto", tLight: "Açık", tDark: "Koyu",
+      scaleLo: "az", scaleHi: "çok", scaleLoP: "az kişi", scaleHiP: "çok kişi",
+      filterOff: "Süzgeç kaldırıldı", panelOpen: "Panel açıldı", panelShut: "Panel kapatıldı",
+      bil: " milyar", mil: " milyon", tho: " bin",
+    },
+    en: {
+      title: "World languages", sub: (n) => `${n} countries · majority language`,
+      search: "Search a language or country", countries: "Countries", languages: "Languages",
+      nLangs: (n) => `${n} languages`, bySpk: "Speakers", byCnt: "Countries",
+      noHit: (q) => `No results for “${q}”`, cnt: (n) => `${n} countries`,
+      speaks: "speak this language", people: "people", pop: "population",
+      home: "Languages spoken at home",
+      homeNote: "Approximate first-language shares; totals exceed 100% where people speak several.",
+      l2: "Spoken as a second language",
+      l2Note: "People who can hold a conversation in it without it being their first language.",
+      l2Country: (c) => ` Shares are for <b>${c} as a whole</b>; counts apply them to this region.`,
+      elsewhere: (l) => `Where else is ${l} spoken?`, minor: (n) => `minority in ${n} countries`,
+      more: (n) => `· and ${n} more languages`, region: "region", dep: "dependency",
+      back: (c) => `Back to ${c}`, showSubs: (c) => `Show regions of ${c}`,
+      showLang: (l) => `Show where ${l} is spoken`, close: "Close",
+      noMajority: "No language is spoken by half the population here.",
+      majIn: (n) => `majority in ${n} countries`, majNone: "not a majority anywhere",
+      native: (v) => `${v} native speakers`,
+      paint: "Colour by", pFam: "Family", pPct: "Density", pPpl: "People",
+      detail: "Detail level", dAuto: "Auto", dOff: "Country", dOn: "Region",
+      lodNote: "Auto: countries when zoomed out, states or provinces when zoomed in. Region data covers 12 countries.",
+      theme: "Theme", tAuto: "Auto", tLight: "Light", tDark: "Dark",
+      scaleLo: "low", scaleHi: "high", scaleLoP: "few", scaleHiP: "many",
+      filterOff: "Filter cleared", panelOpen: "Panel opened", panelShut: "Panel closed",
+      bil: " billion", mil: " million", tho: "k",
+    },
+  };
+  let ui = localStorage.getItem("wl-ui")
+    || ((navigator.language || "").toLowerCase().startsWith("tr") ? "tr" : "en");
+  if (!T[ui]) ui = "tr";
+  const t = () => T[ui];
+  const cn = (c) => ui === "en" ? (c.en || c.n) : c.n;        // ülke adı
+  const sn = (s) => ui === "en" ? (s.ne || s.n) : s.n;        // bölge adı
+  const ln = (l) => ui === "en" ? (l.ne || l.n) : l.n;        // dil adı
+  const lf = (l) => ui === "en" ? (l.fe || l.f) : l.f;        // aile
+  const tx = (n) => ui === "en" ? (TX[n] || n) : n;           // dağılımdaki dil adı
+  const noteOf = (c) => ui === "en" ? (c.note_en || "") : (c.note || "");
 
   const state = { filter: null, sel: null, selSub: null, q: "", sort: "spk", paint: "fam", lod: "auto" };
 
@@ -583,7 +692,7 @@ body.zoomed .orn { opacity: 0; }
     const t = o ? null : e.target.closest("[data-id]");
     if (!o && !t) { tip.classList.remove("on"); return; }
     const c = o || C[t.dataset.id], l = LG[c.l];
-    tip.innerHTML = `<b>${esc(c.n)}</b><span>${esc(l ? l.n : "")} · ${pc(o ? c.mix[0][1] : c.p)}</span>`;
+    tip.innerHTML = `<b>${esc(o ? sn(c) : cn(c))}</b><span>${esc(l ? ln(l) : "")} · ${pc(o ? c.mix[0][1] : c.p)}</span>`;
     tip.style.left = Math.min(innerWidth - 12, Math.max(12, e.clientX)) + "px";
     tip.style.top = Math.max(70, e.clientY - 54) + "px";
     tip.classList.add("on");
@@ -714,7 +823,7 @@ body.zoomed .orn { opacity: 0; }
     sheetTop = sheet.offsetTop + y;                  // araç sütunu ve harita için
     $("#tools").style.bottom = (stage.clientHeight - sheetTop + 12) + "px";
     if (!pop.hidden) popPlace();
-    if (!quiet) live(d === "peek" ? "Panel kapatıldı" : "Panel açıldı");
+    if (!quiet) live(d === "peek" ? t().panelShut : t().panelOpen);
   }
   // sürükleme
   let sd = null;
@@ -756,6 +865,9 @@ body.zoomed .orn { opacity: 0; }
   // tarayıcı kaydırmayı kendi devraldığı için pointer değil touch olayları
   // kullanılıyor; devralmayı preventDefault ile kesiyoruz.
   let take = null;
+  body.addEventListener("scroll", () => {
+    head.classList.toggle("stuck", body.scrollTop > 2);
+  }, { passive: true });
   body.addEventListener("touchstart", (e) => {
     take = e.touches.length === 1 ? { y: e.touches[0].clientY, on: false } : null;
   }, { passive: true });
@@ -787,8 +899,9 @@ body.zoomed .orn { opacity: 0; }
   function matches(slug) {
     if (!state.q) return true;
     const q = norm(state.q), l = LG[slug];
-    if (norm(l.n).includes(q) || norm(l.e).includes(q) || norm(l.f).includes(q)) return true;
-    return (l.in || []).some(([i]) => norm(C[i].n).includes(q));
+    if (norm(l.n).includes(q) || norm(l.e).includes(q) || norm(l.f).includes(q)
+        || norm(l.ne || "").includes(q)) return true;
+    return (l.in || []).some(([i]) => norm(C[i].n).includes(q) || norm(C[i].en).includes(q));
   }
   let lastKey = "";
   function render() {
@@ -800,41 +913,41 @@ body.zoomed .orn { opacity: 0; }
     let html = "";
     if (state.q) {
       const cs = ids.filter((i) => norm(C[i].n).includes(q) || norm(C[i].en).includes(q))
-        .sort((a, b) => trc(C[a].n, C[b].n)).slice(0, 8);
+        .sort((a, b) => trc(cn(C[a]), cn(C[b]))).slice(0, 8);
       if (cs.length) {
-        html += `<div class="sec"><div class="sec-h"><h2>Ülkeler</h2></div><div class="rows">` +
+        html += `<div class="sec"><div class="sec-h"><h2>${t().countries}</h2></div><div class="rows">` +
           cs.map((i) => {
             const l = LG[C[i].l];
             return `<button class="row" data-go="${i}" style="--c:${col(l.g)}">
               <span class="dot-c ${l.g === "oth" ? "oth" : ""}"></span>
-              <span><span class="row-t">${esc(C[i].n)}</span><br><span class="sub-t">${esc(l.n)}</span></span>
+              <span><span class="row-t">${esc(cn(C[i]))}</span><br><span class="sub-t">${esc(ln(l))}</span></span>
               <span class="val num">${pc(C[i].p)}</span></button>`;
           }).join("") + `</div></div>`;
       }
     }
     const hits = langIds.filter(matches).sort((a, b) =>
-      state.sort === "spk" ? spk(b) - spk(a) || trc(LG[a].n, LG[b].n)
-                           : total(b) - total(a) || trc(LG[a].n, LG[b].n));
-    html += `<div class="sec"><div class="sec-h"><h2>Diller</h2>
-        <span>${hits.length} dil</span></div>
+      state.sort === "spk" ? spk(b) - spk(a) || trc(ln(LG[a]), ln(LG[b]))
+                           : total(b) - total(a) || trc(ln(LG[a]), ln(LG[b])));
+    html += `<div class="sec"><div class="sec-h"><h2>${t().languages}</h2>
+        <span>${t().nLangs(hits.length)}</span></div>
       <div class="seg" role="group" aria-label="Sıralama" style="margin-bottom:8px">
-        <button data-sort="spk" aria-pressed="${state.sort === "spk"}">Konuşan sayısı</button>
-        <button data-sort="cnt" aria-pressed="${state.sort === "cnt"}">Ülke sayısı</button>
+        <button data-sort="spk" aria-pressed="${state.sort === "spk"}">${t().bySpk}</button>
+        <button data-sort="cnt" aria-pressed="${state.sort === "cnt"}">${t().byCnt}</button>
       </div>`;
     html += hits.length ? `<div class="rows">` + hits.slice(0, 160).map((s) => {
       const l = LG[s], on = state.filter && state.filter.t === "l" && state.filter.k === s;
       return `<button class="row" data-l="${s}" aria-pressed="${on}" style="--c:${col(l.g)}">
         <span class="dot-c ${l.g === "oth" ? "oth" : ""}"></span>
-        <span><span class="row-t">${esc(l.n)}</span><br><span class="sub-t">${esc(l.e)}</span></span>
-        <span class="val num">${state.sort === "spk" ? fmtK(l.s) : (total(s) || "—") + " ülke"}</span>
+        <span><span class="row-t">${esc(ln(l))}</span><br><span class="sub-t">${esc(l.e)}</span></span>
+        <span class="val num">${state.sort === "spk" ? fmtK(l.s) : (total(s) ? t().cnt(total(s)) : "—")}</span>
       </button>`;
-    }).join("") + `</div>` : `<p class="empty">“${esc(state.q)}” için sonuç yok</p>`;
+    }).join("") + `</div>` : `<p class="empty">${esc(t().noHit(state.q))}</p>`;
     html += `</div>`;
     body.innerHTML = html;
   }
   function scaleHTML() {
     if (state.paint === "fam") return "";
-    const lab = state.paint === "pct" ? ["az", "çok"] : ["az kişi", "çok kişi"];
+    const lab = state.paint === "pct" ? [t().scaleLo, t().scaleHi] : [t().scaleLoP, t().scaleHiP];
     return `<div class="scale"><span>${lab[0]}</span>` +
       ramp.map((c) => `<i style="background:${c}"></i>`).join("") + `<span>${lab[1]}</span></div>`;
   }
@@ -843,52 +956,52 @@ body.zoomed .orn { opacity: 0; }
     const show = cap ? list.slice(0, cap) : list, rest = list.length - show.length;
     return `<div class="bars">` + show.map(([n, p]) =>
       `<div class="bar" style="--c:${hue}">
-         <span class="bar-n">${esc(n)}</span>
+         <span class="bar-n">${esc(tx(n))}</span>
          <span class="bar-v num">${pc(p)}${pop ? " · " + fmtK(pop * p / 100) : ""}</span>
          <span class="bar-t"><i style="width:${Math.min(100, p)}%"></i></span>
        </div>`).join("") + `</div>` +
-      (rest ? `<p class="note">· ve ${rest} dil daha</p>` : "");
+      (rest ? `<p class="note">${esc(t().more(rest))}</p>` : "");
   };
 
   function renderDetail() {
     const sub = state.selSub ? SB[state.selSub] : null;
     const id = state.sel;
     const c = sub
-      ? { n: sub.n, r: C[sub.p].n + " · bölge", l: sub.l, p: sub.mix[0][1], pop: sub.pop,
-          mix: sub.mix, l2: C[sub.p].l2, l2c: !!C[sub.p].l2, sub: true }
-      : { n: C[id].n, r: C[id].r + (C[id].t ? " · bağımlı bölge" : ""), l: C[id].l, p: C[id].p,
-          pop: C[id].pop, mix: C[id].mix, l2: C[id].l2, note: C[id].note, m: C[id].m };
+      ? { n: sn(sub), r: cn(C[sub.p]) + " · " + t().region, l: sub.l, p: sub.mix[0][1],
+          pop: sub.pop, mix: sub.mix, l2: C[sub.p].l2, l2c: !!C[sub.p].l2, sub: true }
+      : { n: cn(C[id]), r: (ui === "en" ? C[id].re : C[id].r) + (C[id].t ? " · " + t().dep : ""),
+          l: C[id].l, p: C[id].p, pop: C[id].pop, mix: C[id].mix, l2: C[id].l2,
+          note: noteOf(C[id]), m: C[id].m };
     const l = LG[c.l] || LG[C[id].l];
     const minor = LG[c.l] ? (LG[c.l].in || []).filter(([i]) => C[i].l !== c.l) : [];
     body.innerHTML =
       `<div class="d-top"><div class="grow" style="flex:1;min-width:0">
          <h2>${esc(c.n)}</h2><p>${esc(c.r)}</p></div></div>` +
-      `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(l.n)}</p>` +
-      `<p class="d-fam">${esc(l.f)}</p>` +
+      `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
+      `<p class="d-fam">${esc(lf(l))}</p>` +
       `<div class="stat">
-         <div><b class="num">${pc(c.p)}</b><span>bu dili konuşuyor</span></div>
-         <div><b class="num">${c.pop ? fmtK(c.pop * c.p / 100) : "—"}</b><span>kişi</span></div>
-         <div><b class="num">${c.pop ? fmtK(c.pop) : "—"}</b><span>nüfus</span></div>
+         <div><b class="num">${pc(c.p)}</b><span>${t().speaks}</span></div>
+         <div><b class="num">${c.pop ? fmtK(c.pop * c.p / 100) : "—"}</b><span>${t().people}</span></div>
+         <div><b class="num">${c.pop ? fmtK(c.pop) : "—"}</b><span>${t().pop}</span></div>
        </div>` +
-      (c.m === 0 ? `<p class="note">Bu ülkede hiçbir dil nüfusun yarısını aşmıyor.</p>` : "") +
+      (c.m === 0 ? `<p class="note">${t().noMajority}</p>` : "") +
       (c.note ? `<p class="note">${esc(c.note)}</p>` : "") +
-      (c.mix ? `<div class="sec"><div class="sec-h"><h2>Evde konuşulan diller</h2></div>
+      (c.mix ? `<div class="sec"><div class="sec-h"><h2>${t().home}</h2></div>
          ${bars(c.mix, c.pop, col(l.g), 12)}
-         <p class="note">Ana dil olarak yaklaşık paylar; çok dilli yerlerde toplam %100'ü aşar.</p></div>` : "") +
-      (c.l2 ? `<div class="sec"><div class="sec-h"><h2>İkinci dil olarak bilenler</h2></div>
+         <p class="note">${t().homeNote}</p></div>` : "") +
+      (c.l2 ? `<div class="sec"><div class="sec-h"><h2>${t().l2}</h2></div>
          ${bars(c.l2, c.pop, "var(--ink-3)", 8)}
-         <p class="note">Ana dili olmadığı hâlde sohbet edecek düzeyde konuşabilenler.${
-           c.l2c ? ` Oranlar <b>${esc(C[state.sel].n)} geneli</b>; kişi sayıları bölge nüfusuna uygulandı.` : ""}</p></div>` : "") +
-      (minor.length ? `<div class="sec"><div class="sec-h"><h2>${esc(l.n)} başka nerede?</h2>
-           <span>${minor.length} ülkede azınlık</span></div>
+         <p class="note">${t().l2Note}${c.l2c ? t().l2Country(esc(cn(C[state.sel]))) : ""}</p></div>` : "") +
+      (minor.length ? `<div class="sec"><div class="sec-h"><h2>${esc(t().elsewhere(ln(l)))}</h2>
+           <span>${t().minor(minor.length)}</span></div>
          <div class="chips">` + minor.slice(0, 14).map((m) =>
-           `<button class="chip" data-go="${m[0]}">${esc(C[m[0]].n)} <b class="num">${pc(m[1])}</b></button>`).join("") +
+           `<button class="chip" data-go="${m[0]}">${esc(cn(C[m[0]]))} <b class="num">${pc(m[1])}</b></button>`).join("") +
          `</div></div>` : "") +
       `<div class="acts">` +
-        (sub ? `<button class="ghost" data-up="${id}">${esc(C[id].n)} geneline dön</button>` : "") +
-        (!sub && subsOf[id] ? `<button class="ghost" data-sub="${id}">${esc(c.n)} bölgelerini göster</button>` : "") +
-        `<button data-l="${c.l}">${esc(l.n)} konuşulan yerleri haritada göster</button>` +
-        `<button class="ghost" data-close="1">Kapat</button>` +
+        (sub ? `<button class="ghost" data-up="${id}">${esc(t().back(cn(C[id])))}</button>` : "") +
+        (!sub && subsOf[id] ? `<button class="ghost" data-sub="${id}">${esc(t().showSubs(c.n))}</button>` : "") +
+        `<button data-l="${c.l}">${esc(t().showLang(ln(l)))}</button>` +
+        `<button class="ghost" data-close="1">${t().close}</button>` +
       `</div>`;
   }
 
@@ -904,20 +1017,54 @@ body.zoomed .orn { opacity: 0; }
     if (on) { popPlace(); syncPop(); }
   }
   function syncPop() {
-    pop.querySelectorAll("[data-paint]").forEach((b) =>
-      b.setAttribute("aria-pressed", String(b.dataset.paint === state.paint)));
-    pop.querySelectorAll("[data-lod]").forEach((b) =>
-      b.setAttribute("aria-pressed", String(b.dataset.lod === state.lod)));
+    const set = (sel, val) => pop.querySelectorAll(sel).forEach((b) =>
+      b.setAttribute("aria-pressed", String(b.dataset[Object.keys(b.dataset)[0]] === val)));
+    set("[data-paint]", state.paint);
+    set("[data-lod]", state.lod);
+    set("[data-theme]", theme);
+    set("[data-ui]", ui);
     $("#popScale").innerHTML = scaleHTML();
+    // menü etiketleri de seçili dile göre
+    const P = pop.querySelectorAll(".pop-t");
+    P[0].textContent = t().paint; P[1].textContent = t().detail;
+    P[2].textContent = t().theme;
+    $("#popNote").textContent = t().lodNote;
+    const lbl = [["[data-paint='fam']", t().pFam], ["[data-paint='pct']", t().pPct],
+                 ["[data-paint='ppl']", t().pPpl], ["[data-lod='auto']", t().dAuto],
+                 ["[data-lod='off']", t().dOff], ["[data-lod='on']", t().dOn],
+                 ["[data-theme='auto']", t().tAuto], ["[data-theme='light']", t().tLight],
+                 ["[data-theme='dark']", t().tDark]];
+    lbl.forEach(([q, v]) => { const b = pop.querySelector(q); if (b) b.textContent = v; });
   }
   $("#btnLayers").onclick = () => setPop(pop.hidden);
   pop.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-paint],[data-lod]");
-    if (!t) return;
-    if (t.dataset.paint) { state.paint = t.dataset.paint; rampKey = ""; repaint(); }
-    else { state.lod = t.dataset.lod; applyLod(); }
+    const b = e.target.closest("[data-paint],[data-lod],[data-theme],[data-ui]");
+    if (!b) return;
+    const d = b.dataset;
+    if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); }
+    else if (d.lod) { state.lod = d.lod; applyLod(); }
+    else if (d.theme) { setTheme(d.theme); }
+    else if (d.ui) { setUi(d.ui); }
     syncPop();
   });
+
+  /* --------------------------------------------------------- tema ve dil */
+  let theme = localStorage.getItem("wl-theme") || "auto";
+  function setTheme(v) {
+    theme = v;
+    localStorage.setItem("wl-theme", v);
+    if (v === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", v);
+    rampKey = ""; repaint();
+  }
+  function setUi(v) {
+    ui = v;
+    localStorage.setItem("wl-ui", v);
+    document.documentElement.lang = v;
+    $("#q").placeholder = t().search;
+    setFilter(state.filter);          // başlık ve liste yeniden yazılır
+    render();
+  }
   svg.addEventListener("pointerdown", () => { if (!pop.hidden) setPop(false); });
 
   /* ---------------------------------------------------------- eylemler */
@@ -944,16 +1091,16 @@ body.zoomed .orn { opacity: 0; }
     rampKey = ""; repaint();
     $("#btnClear").hidden = !f;
     if (!f) {
-      $("#capT").textContent = "Dünya dilleri";
-      $("#capS").textContent = `${ids.length} ülke · çoğunluğun konuştuğu dil`;
+      $("#capT").textContent = t().title;
+      $("#capS").textContent = t().sub(ids.length);
     } else if (f.t === "l") {
       const l = LG[f.k];
-      $("#capT").textContent = l.n;
-      $("#capS").textContent = (l.c + l.t ? `${l.c + l.t} ülkede çoğunluk` : "hiçbir ülkede çoğunluk değil") +
-        ` · ana dili ${fmtK(l.s)} kişi`;
+      $("#capT").textContent = ln(l);
+      $("#capS").textContent = (l.c + l.t ? t().majIn(l.c + l.t) : t().majNone) +
+        " · " + t().native(fmtK(l.s));
     }
     if (!state.sel) render();
-    live(f ? `${$("#capT").textContent} süzgeci` : "Süzgeç kaldırıldı");
+    live(f ? $("#capT").textContent : t().filterOff);
   }
   $("#btnClear").onclick = () => { setFilter(null); select(null); };
 
@@ -971,7 +1118,7 @@ body.zoomed .orn { opacity: 0; }
     }
     marks.insertAdjacentHTML("beforeend",
       `<text class="map-label" x="${o.c[0]}" y="${o.c[1] - 9 * k}" text-anchor="middle"
-        font-size="${(12 * k).toFixed(2)}">${esc(o.n)}</text>`);
+        font-size="${(12 * k).toFixed(2)}">${esc(sid ? sn(o) : cn(o))}</text>`);
     render();
     if (detent === "peek") setDetent("half");
   }
@@ -1002,6 +1149,11 @@ body.zoomed .orn { opacity: 0; }
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
     rampKey = ""; repaint(); render();
   });
+  if (theme !== "auto") document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.lang = ui;
+  $("#q").placeholder = t().search;
+  $("#capT").textContent = t().title;
+  $("#capS").textContent = t().sub(ids.length);
   buildRamp("--g-ger");
   render();
   setDetent("peek", true);

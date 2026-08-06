@@ -9,6 +9,8 @@ paketlenir. Hiçbir ağ isteği yapmaz, hiçbir izin istemez.
 [📱 Telefon sürümü](https://crude0.github.io/World-Languages/mobile.html) ·
 [⬇ İndirilebilir uygulamalar](#i̇ndir)
 
+Arayüz **Türkçe ve İngilizce**; tema **otomatik, açık veya koyu** seçilebilir.
+
 ![Dünya haritası](docs/img/desktop-world.png)
 
 ---
@@ -59,6 +61,15 @@ Kürtçe %82 ile batısında %3; Ukrayna'nın doğusunda Rusça %70 ile batısı
 
 ![Bölge düzeyi](docs/img/desktop-regions.png)
 
+### İki dil, üç tema
+
+Arayüz dili Türkçe ve İngilizce arasında geçiş yapar — yalnızca menüler değil,
+142 dilin adı, 44 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
+notu, kıtalar ve sayı biçimi de çevrilir (1,2 milyar ↔ 1.2 billion). Tema
+sistemi izler ama elle açık/koyu da seçilebilir; seçim tarayıcıda saklanır.
+
+![İngilizce, koyu tema](docs/img/desktop-english-dark.png)
+
 ### Telefon sürümü
 
 Android uygulaması masaüstü sayfasının küçültülmüş hâli değil; telefon için
@@ -66,9 +77,9 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 çekilen üç duraklı panel, dokunmatik yüzey jestleri ve sistem yazı tipi.
 
 <p>
-  <img src="docs/img/mobile-home.png" width="240" alt="Ana ekran">
-  <img src="docs/img/mobile-layers.png" width="240" alt="Katman menüsü">
-  <img src="docs/img/mobile-detail.png" width="240" alt="Ülke kartı">
+  <img src="docs/img/mobile-home.png" width="230" alt="Ana ekran">
+  <img src="docs/img/mobile-settings.png" width="230" alt="Görünüm menüsü">
+  <img src="docs/img/mobile-detail.png" width="230" alt="Ülke kartı">
 </p>
 
 ---
@@ -77,7 +88,7 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 431 KB | İnternet izni yok |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 444 KB | İnternet izni yok |
 | macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 6,7 MB | Evrensel (Intel + Apple Silicon) |
 | Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,1 MB | Tek dosya, kurulum yok |
 | Tarayıcı | [`docs/index.html`](docs/index.html) | 1,0 MB | Tek dosya, çift tıkla aç |
@@ -158,6 +169,7 @@ lang_mix.py         ülke başına dil dağılımı
 diaspora.py         göçmen ve azınlık toplulukları (%0,05'e kadar)
 population.py       ülke nüfusları
 subdiv.py           eyalet/il dil dağılımları ve nüfusları
+i18n.py             İngilizce dil adları, aile etiketleri, ülke notları
 desktop/            Go başlatıcı + paketleme (WKWebView / WebView2)
 android/            WebView kabuğu + APK derleme betiği
 tools/              Playwright doğrulama betikleri
@@ -206,5 +218,8 @@ Beyond the majority language it shows the **full home-language breakdown** per
 country (down to 0.05%, so diaspora communities are visible), **second-language
 knowledge**, **speaker counts**, a **density/heat map** mode, and **state or
 province level detail** for 12 countries. Interface language is Turkish.
+
+The interface is available in **Turkish and English** (switchable in the header,
+or in the layers menu on mobile), with **automatic, light or dark** themes.
 
 Build with `make`; see [DATA.md](DATA.md) for sources and known limitations.
