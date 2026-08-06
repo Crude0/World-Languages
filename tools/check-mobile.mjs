@@ -1,5 +1,7 @@
 import { chromium } from "playwright";
-const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
+// PW_CHROME verilirse o tarayıcı kullanılır (CI ya da sistem Chromium'u),
+// yoksa Playwright kendi indirdiği sürümü açar.
+const b = await chromium.launch(process.env.PW_CHROME ? { executablePath: process.env.PW_CHROME } : {});
 const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
 const p = await ctx.newPage();
 const errs = [];
