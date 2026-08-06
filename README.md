@@ -1,150 +1,160 @@
-# Dünya Dilleri Atlası
+**English** · [Türkçe](README.tr.md)
 
-Dünyadaki 234 ülke ve bölgede hangi dilin konuşulduğunu gösteren, dile göre
-süzülebilen etkileşimli harita. Tamamen çevrimdışı çalışır: tek dosyalık bir web
-sayfası, masaüstü uygulaması (macOS · Windows) ve Android uygulaması olarak
-paketlenir. Hiçbir ağ isteği yapmaz, hiçbir izin istemez.
+# World Language Atlas
 
-**[▶ Tarayıcıda aç](https://crude0.github.io/World-Languages/)** ·
-[📱 Telefon sürümü](https://crude0.github.io/World-Languages/mobile.html) ·
-[⬇ İndirilebilir uygulamalar](#i̇ndir)
+An interactive map of the language spoken by the majority in each of 234
+countries and territories, filterable by language. It works entirely offline:
+one self-contained web page, a desktop app (macOS · Windows) and an Android app.
+No network requests, no permissions.
 
-Arayüz **Türkçe ve İngilizce**; tema **otomatik, açık veya koyu** seçilebilir.
+**[▶ Open in your browser](https://crude0.github.io/World-Languages/)** ·
+[📱 Phone version](https://crude0.github.io/World-Languages/mobile.html) ·
+[⬇ Downloads](#downloads)
 
-![Dünya haritası](docs/img/desktop-world.png)
+The interface is available in **Turkish and English**; the theme follows the
+system or can be set to **light or dark** by hand.
+
+![World map](docs/img/desktop-english-dark.png)
 
 ---
 
-## Ne gösteriyor?
+## What it shows
 
 | | |
 |---|---|
-| **234** | ülke ve bağımlı bölge |
-| **142** | dil (121'i bir ülkede çoğunluk, 21'i yalnızca bölge düzeyinde) |
-| **1.100+** | ülke × dil satırı — her ülkede evde konuşulan dillerin dağılımı |
-| **313** | eyalet / il / kanton (12 ülkede) |
-| **8,09 milyar** | kapsanan nüfus |
+| **234** | countries and dependent territories |
+| **142** | languages (121 are a majority somewhere, 21 only at region level) |
+| **1,100+** | country × language rows — the home-language breakdown of every country |
+| **313** | states / provinces / cantons (in 12 countries) |
+| **8.09 billion** | people covered |
 
-Harita dört soruya cevap verir:
+The map answers four questions:
 
-1. **Bu ülkede çoğunluk hangi dili konuşuyor?** Renkler dil ailesini gösterir.
-2. **Geri kalanı ne konuşuyor?** Her ülkenin evde konuşulan dil dağılımı, %0,05'e
-   kadar inen bir kuyrukla — Belçika'daki Türkçe (%1,3) ya da Almanya'daki
-   Ukraynaca (%1,4) gibi topluluklar dâhil.
-3. **Bu dil başka nerede konuşuluyor?** Bir dil seçince çoğunluk olduğu ülkeler
-   koyu, azınlık olarak konuşulduğu ülkeler soluk renkle işaretlenir. Türkçe
-   26 ülkede görünür.
-4. **Kaç kişi konuşuyor?** Ülke nüfusu × dil payı ile hesaplanan konuşan sayıları;
-   ana dil ve ikinci dil ayrı ayrı.
+1. **What does the majority speak here?** Colour shows the language family.
+2. **What does everyone else speak?** The full home-language distribution of each
+   country, with a tail reaching down to 0.05% — so communities like Turkish in
+   Belgium (1.3%) or Ukrainian in Germany (1.4%) are visible.
+3. **Where else is this language spoken?** Pick a language and the countries
+   where it is the majority turn solid, while the ones where it is a minority
+   are tinted. Turkish appears in 26 countries.
+4. **How many people speak it?** Speaker counts computed as country population ×
+   language share, native and second-language kept apart.
 
-![Türkçe diasporası](docs/img/desktop-diaspora.png)
+![Turkish diaspora](docs/img/desktop-diaspora.png)
 
-### Yoğunluk haritası
+### Density map
 
-Bir dil seçiliyken renklendirmeyi **yoğunluğa** (nüfustaki pay) veya **kişi
-sayısına** çevirebilirsiniz. İngilizce'de İrlanda ve Birleşik Krallık en koyu
-tonda (>%85), ABD ve Avustralya bir kademe açık, Almanya ve İsveç en açık
-kademede görünür.
+With a language selected you can switch the colouring to **density** (share of
+the population) or **head count**. For English, Ireland and the UK sit in the
+darkest band (>85%), the US and Australia one step lighter, Germany and Sweden
+lightest of all.
 
-![Yoğunluk haritası](docs/img/desktop-density.png)
+![Density map](docs/img/desktop-density.png)
 
-### Eyalet / il düzeyi
+### State and province level
 
-12 ülkede harita il, eyalet ya da kanton düzeyine iner: Kanada, ABD, İsviçre,
-Belçika, İspanya, Birleşik Krallık, İtalya, Hindistan, Türkiye, Ukrayna,
-Finlandiya, Bolivya. Uzaktayken ülke, yaklaşınca bölge görünür (Paradox
-oyunlarındaki gibi), ya da elle sabitlenebilir.
+In 12 countries the map descends to province, state or canton level: Canada, the
+US, Switzerland, Belgium, Spain, the UK, Italy, India, Türkiye, Ukraine, Finland
+and Bolivia. Countries when zoomed out, regions when you zoom in (the way the
+recent Paradox games do it), or pinned by hand.
 
-Québec'te Fransızca %78 ile British Columbia'da %1,1; Türkiye'nin güneydoğusunda
-Kürtçe %82 ile batısında %3; Ukrayna'nın doğusunda Rusça %70 ile batısında %1 —
-ülke ortalamasının sakladığı farklar.
+French is 78% in Québec and 1.1% in British Columbia; Kurdish is 82% in
+south-eastern Türkiye and 3% in the west; Russian is 70% in eastern Ukraine and
+1% in the west — differences a national average hides.
 
-![Bölge düzeyi](docs/img/desktop-regions.png)
+![Region level](docs/img/desktop-regions.png)
 
-### İki dil, üç tema
+### Colours
 
-Arayüz dili Türkçe ve İngilizce arasında geçiş yapar — yalnızca menüler değil,
-142 dilin adı, 44 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
-notu, kıtalar ve sayı biçimi de çevrilir (1,2 milyar ↔ 1.2 billion). Tema
-sistemi izler ama elle açık/koyu da seçilebilir; seçim tarayıcıda saklanır.
+Nine legend entries: eight language-family colours plus a neutral "other". The
+palette is not hand-picked — the eight hues are searched in OKLCH space and
+verified with a colour-vision-deficiency simulation (Machado 2009, protanopia /
+deuteranopia / tritanopia) so that **every pair**, not just neighbours, stays
+apart. Worst pair: ΔE 11.2 in light mode, 8.2 in dark.
 
-![İngilizce, koyu tema](docs/img/desktop-english-dark.png)
+Creole languages do not get a colour of their own: they are drawn in the colour
+of their lexifier — the language that gave them their vocabulary — with a
+diagonal hatch over it. So Haitian Creole is hatched Romance red and Nigerian
+Pidgin is hatched Germanic blue, and the colour carries an extra piece of
+information instead of just being a ninth hue.
 
-### Telefon sürümü
+### Phone version
 
-Android uygulaması masaüstü sayfasının küçültülmüş hâli değil; telefon için
-ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar, alttan
-çekilen üç duraklı panel, dokunmatik yüzey jestleri ve sistem yazı tipi.
+The Android app is not the desktop page shrunk down; it is a separate interface
+written for the phone: full-screen map, floating glass layers above it, a
+three-detent bottom sheet, touch gestures and the system typeface.
 
 <p>
-  <img src="docs/img/mobile-home.png" width="230" alt="Ana ekran">
-  <img src="docs/img/mobile-settings.png" width="230" alt="Görünüm menüsü">
-  <img src="docs/img/mobile-detail.png" width="230" alt="Ülke kartı">
+  <img src="docs/img/mobile-home.png" width="230" alt="Home screen">
+  <img src="docs/img/mobile-settings.png" width="230" alt="Appearance menu">
+  <img src="docs/img/mobile-detail.png" width="230" alt="Country card">
 </p>
 
 ---
 
-## İndir
+## Downloads
 
-En güncel sürüm **v0.1.3** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+Latest release **v0.1.4** — get it from the
+[Releases page](https://github.com/Crude0/World-Languages/releases/latest);
+changes are in [CHANGELOG.md](CHANGELOG.md).
 
-| Platform | Dosya | Boyut | Not |
+| Platform | File | Size | Note |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 433 KB | İnternet izni yok |
-| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 6,8 MB | Evrensel (Intel + Apple Silicon) |
-| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,1 MB | Tek dosya, kurulum yok |
-| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,1 MB | Tek dosya, çift tıkla aç |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 433 KB | No internet permission |
+| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 6.8 MB | Universal (Intel + Apple Silicon) |
+| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4.1 MB | Single file, no installer |
+| Browser | [`docs/index.html`](docs/index.html) | 1.1 MB | One file, just open it |
 
-Uygulamalar imzalı değil (Apple/Microsoft geliştirici sertifikası yok):
+The apps are unsigned (there is no Apple/Microsoft developer certificate):
 
-- **macOS**: ilk açılışta uygulamaya sağ tıklayın → **Aç** → çıkan pencerede yine **Aç**.
-  Ya da: `xattr -dr com.apple.quarantine "/Applications/Dunya Dilleri Atlasi.app"`
-- **Windows**: SmartScreen uyarısında **Ek bilgi** → **Yine de çalıştır**.
-- **Android**: bilinmeyen kaynaklardan kuruluma izin vermeniz gerekir.
+- **macOS**: on first launch right-click the app → **Open** → **Open** again in
+  the dialog. Or: `xattr -dr com.apple.quarantine "/Applications/Dunya Dilleri Atlasi.app"`
+- **Windows**: on the SmartScreen warning pick **More info** → **Run anyway**.
+- **Android**: you need to allow installation from unknown sources.
 
-Masaüstü uygulamaları işletim sisteminin kendi tarayıcı motorunu kullanır
-(macOS'ta WKWebView, Windows'ta WebView2) — kendi pencerelerinde açılırlar,
-tarayıcı gerekmez. Motor bulunamazsa kurulu bir tarayıcıyı adres çubuğu olmayan
-uygulama kipinde açan bir yedek yol vardır.
-
----
-
-## Veri
-
-Rakamların nereden geldiği, nasıl hesaplandığı ve nerede zayıf olduğu
-**[DATA.md](DATA.md)** dosyasında ayrıntılı yazıyor. Özetle:
-
-- **Sınırlar**: [Natural Earth](https://www.naturalearthdata.com/) 1:50m (ülkeler)
-  ve 1:10m (alt bölgeler), kamu malı.
-- **Nüfus**: BM Nüfus Bölümü, 2024 tahminleri.
-- **Dil payları**: ulusal nüfus sayımlarının dil soruları, Ethnologue ve resmî
-  dil politikaları derlenerek yuvarlandı.
-- **İkinci dil**: Avrupa'da Eurobarometre 386 (2012) "sohbet edecek düzeyde"
-  ölçütü, diğer bölgelerde ulusal tahminler.
-
-Bunlar yaklaşık değerlerdir ve ülkeler arası karşılaştırmalarda dikkat ister:
-bir ülkenin sayımı "ana dil", diğerininki "evde konuşulan dil" sorar. Türkiye'de
-resmî dil sayımı olmadığı için il rakamları anket temelli tahmindir.
-
-**Şehir düzeyi veri yoktur** — belediye bazında dil istatistiği çoğu ülkede
-yayımlanmıyor (örneğin İsveç belediye başına doğum ülkesi verir, konuşulan dili
-değil). Uydurmak yerine boş bırakıldı.
+The desktop apps use the operating system's own browser engine (WKWebView on
+macOS, WebView2 on Windows) — they open in their own window, no browser needed.
+If the engine is missing there is a fallback that opens an installed browser in
+app mode, without an address bar.
 
 ---
 
-## Derleme
+## Data
 
-Gereksinimler: Python 3.9+, Node 18+ (yalnızca doğrulama için), Go 1.21+
-(masaüstü), Android SDK build-tools 34 + JDK 17+ (Android).
+Where the numbers come from, how they are computed and where they are weak is
+written out in **[DATA.md](DATA.en.md)**. In short:
+
+- **Borders**: [Natural Earth](https://www.naturalearthdata.com/) 1:50m
+  (countries) and 1:10m (subdivisions), public domain.
+- **Population**: UN Population Division, 2024 estimates.
+- **Language shares**: compiled from the language questions of national
+  censuses, Ethnologue and official language policy, then rounded.
+- **Second language**: Eurobarometer 386 (2012) "able to hold a conversation"
+  in Europe, national estimates elsewhere.
+
+These are approximations and need care in cross-country comparison: one census
+asks for "mother tongue", another for "language spoken at home". Türkiye has no
+official language census, so its provincial figures are survey-based estimates.
+
+**There is no city-level data** — most countries do not publish language
+statistics per municipality (Sweden, for instance, publishes country of birth
+per municipality, not language spoken). Rather than invent it, it was left out.
+
+---
+
+## Build
+
+Requirements: Python 3.9+, Node 18+ (verification only), Go 1.21+ (desktop),
+Android SDK build-tools 34 + JDK 17+ (Android).
 
 ```bash
-make            # veri + web sayfası (tarayıcıda açılabilir tek dosya)
+make            # data + web page (single file, opens in a browser)
 make desktop    # macOS .dmg + .app, Windows .exe
-make android    # imzalı APK
-make check      # Playwright ile arayüz denetimi
+make android    # signed APK
+make check      # interface checks with Playwright
 ```
 
-Boru hattı:
+Pipeline:
 
 ```
 countries-50m.json ──► build_map.py  ──► map_paths.json  ┐
@@ -154,74 +164,69 @@ lang_mix / diaspora / population / subdiv ────────────�
                                                     mobile.tmpl.html ◄────────────┘
 ```
 
-`build_subs.py` ilk çalıştırmada Natural Earth'ün 40 MB'lık alt bölge dosyasını
-indirir (depoda tutulmuyor).
+On its first run `build_subs.py` downloads Natural Earth's 40 MB subdivision
+file (not kept in the repository).
 
-### Dosya düzeni
+### Layout
 
 ```
-build_map.py        ülke sınırları → projeksiyonlu SVG yolları
-build_subs.py       eyalet/il sınırları; topoloji koruyan sadeleştirme
-build_data.py       tüm katmanları birleştirir, konuşan sayılarını hesaplar
-build_page.py       masaüstü sayfası (gömülü fontlarla tek dosya)
-build_mobile.py     telefon arayüzü (sistem fontları)
-page.tmpl.html      masaüstü arayüzü
-mobile.tmpl.html    telefon arayüzü
-lang_mix.py         ülke başına dil dağılımı
-diaspora.py         göçmen ve azınlık toplulukları (%0,05'e kadar)
-population.py       ülke nüfusları
-subdiv.py           eyalet/il dil dağılımları ve nüfusları
-i18n.py             İngilizce dil adları, aile etiketleri, ülke notları
-desktop/            Go başlatıcı + paketleme (WKWebView / WebView2)
-android/            WebView kabuğu + APK derleme betiği
-tools/              Playwright doğrulama betikleri
+build_map.py        country borders → projected SVG paths
+build_subs.py       state/province borders; topology-preserving simplification
+build_data.py       joins every layer, computes speaker counts
+build_page.py       desktop page (single file, fonts embedded)
+build_mobile.py     phone interface (system fonts)
+anchor.py           label anchors (pole of inaccessibility)
+page.tmpl.html      desktop interface
+mobile.tmpl.html    phone interface
+lang_mix.py         language distribution per country
+diaspora.py         migrant and minority communities (down to 0.05%)
+population.py       country populations
+subdiv.py           state/province distributions and populations
+i18n.py             English language names, family labels, country notes
+desktop/            Go launcher + packaging (WKWebView / WebView2)
+android/            WebView shell + APK build script
+tools/              Playwright verification scripts
 ```
 
 ---
 
-## Teknik notlar
+## Technical notes
 
-Projede ilginç çıkan birkaç ayrıntı:
+A few details that turned out to be interesting:
 
-- **Projeksiyon** Natural Earth (Šavrič polinomu), Python'da elle uygulandı;
-  harita dışa bağımlılığı olmayan düz SVG yolları olarak gömülü.
-- **Topoloji koruyan sadeleştirme**: komşu illeri tek tek sadeleştirmek ortak
-  sınırda farklı noktalar seçtirip aralarında kılcal boşluk bırakıyordu. TopoJSON'un
-  kuralıyla (bir noktanın komşu çifti değişiyorsa orası yay başlangıcıdır) halkalar
-  yaylara bölünüp her ortak yay bir kez sadeleştiriliyor.
-- **Renk paleti** dil ailelerine göre; renk körlüğü benzetimiyle tüm çiftlerin
-  ayırt edilebilirliği doğrulandı, yedinci grup ayrıca taramayla işaretlendi.
-- **180. meridyen**: Rusya ve Fiji'nin halkaları kenardan kesilip ayrı parçalara
-  bölünüyor, yoksa harita boyunca yatay bir şerit oluşuyor.
-- **macOS'ta ISO9660 tuzağı**: DMG içindeki Türkçe karakterli dosya adları
-  açılamıyordu (cd9660 sürücüsü Unicode normalizasyonu yapmıyor). Dosya adları
-  ASCII, görünen ad ise yerelleştirilmiş `InfoPlist.strings` ile veriliyor.
-- **Windows'ta DPI**: uygulama kendini DPI farkında ilan etmezse 2K/4K ekranda
-  1080p'de çizilip büyütülüyor ve bulanık görünüyordu.
+- **Projection** is Natural Earth (Šavrič's polynomial), implemented by hand in
+  Python; the map is embedded as plain SVG paths with no runtime dependency.
+- **Topology-preserving simplification**: simplifying neighbouring provinces one
+  by one picked different points along the shared border and left hairline gaps
+  between them. Using TopoJSON's rule — a point starts an arc when its pair of
+  neighbours changes — rings are split into arcs and each shared arc is
+  simplified exactly once.
+- **Label anchors** are the pole of inaccessibility of the largest ring, not a
+  centroid. A vertex mean lands offshore on concave coasts: Norway's label ended
+  up in the sea, Croatia's on top of Bosnia. 228 of 234 anchors are now strictly
+  inside their country; the six that are not are pixel-sized (Vatican, Monaco,
+  Macao…) and are drawn as pins anyway.
+- **The palette is computed, not chosen.** Simulated annealing over OKLCH with a
+  colour-blindness model, then checked against the all-pairs threshold. Ten
+  colours could not clear it in dark mode's narrow lightness band — which is why
+  creoles carry texture instead of a colour of their own.
+- **Gestures do not rewrite the viewBox.** Redrawing 550 paths every frame is
+  what made a mid-range Android stutter. During a gesture the already-rasterised
+  layer is moved and scaled with a CSS transform, and the real viewBox is written
+  once when your finger lifts.
+- **The 180th meridian**: Russia's and Fiji's rings are cut at the edge and split
+  into separate pieces, otherwise a horizontal band is drawn across the map.
+- **The ISO 9660 trap on macOS**: files with Turkish characters inside the DMG
+  could not be opened (the cd9660 driver does not normalise Unicode). File names
+  are ASCII on disk, with the visible name supplied by a localized
+  `InfoPlist.strings`.
+- **DPI on Windows**: an application that does not declare itself DPI-aware is
+  drawn at 1080p and stretched on a 2K/4K display, which looks blurry.
 
 ---
 
-## Lisans
+## Licence
 
-Kod [MIT](LICENSE) ile. Harita sınırları Natural Earth'ten gelir ve kamu malıdır.
-Dil ve nüfus verileri kamuya açık kaynaklardan derlenmiştir; kaynak listesi
-[DATA.md](DATA.md) içinde.
-
----
-
-## English summary
-
-An interactive map of the language spoken by the majority in each of 234
-countries and territories, filterable by language. Works fully offline as a
-single-file web page, a macOS/Windows desktop app, and an Android app — no
-network requests, no permissions.
-
-Beyond the majority language it shows the **full home-language breakdown** per
-country (down to 0.05%, so diaspora communities are visible), **second-language
-knowledge**, **speaker counts**, a **density/heat map** mode, and **state or
-province level detail** for 12 countries. Interface language is Turkish.
-
-The interface is available in **Turkish and English** (switchable in the header,
-or in the layers menu on mobile), with **automatic, light or dark** themes.
-
-Build with `make`; see [DATA.md](DATA.md) for sources and known limitations.
+The code is [MIT](LICENSE). Map borders come from Natural Earth and are public
+domain. Language and population data are compiled from public sources; the list
+is in [DATA.en.md](DATA.en.md).

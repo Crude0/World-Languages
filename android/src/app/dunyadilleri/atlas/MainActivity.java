@@ -32,7 +32,11 @@ public class MainActivity extends Activity {
         s.setUseWideViewPort(true);
         s.setLoadWithOverviewMode(false);
         s.setTextZoom(100);
-        // Sayfa iki temayı da destekliyor: sistem karanlık kipini aktarabilelim
+        // Sayfa iki temayı da destekliyor (color-scheme: light dark), bu yüzden
+        // WebView kendi algoritmik karartmasını uygulamaz; bayrak yalnızca
+        // prefers-color-scheme'in sistem ayarını yansıtmasını sağlar. Sayfa
+        // "light" bildirdiği sürece WebView araya girip yüzeyleri tek tek
+        // karartıyordu — açık temada panelin koyu kalmasının sebebi buydu.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             s.setAlgorithmicDarkeningAllowed(true);
         }

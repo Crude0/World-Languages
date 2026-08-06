@@ -1,5 +1,45 @@
 # Sürüm geçmişi
 
+## v0.1.4 — 7 Ağustos 2026
+
+**Dokuz renkli lejant.** Gri "diğer aileler" yığını 47 dilden 11'e indi: Türk
+dilleri ve Doğu-Güney Asya dilleri kendi renklerini aldı. Palet elle seçilmedi —
+sekiz ton OKLCH uzayında arandı ve renk körlüğü benzetimiyle (Machado 2009)
+doğrulandı; yalnızca komşular değil bütün çiftler ayrılıyor. Kreol diller kendi
+rengi yerine kaynak dilin renginde, çapraz taramayla çiziliyor.
+
+**Etiketler artık ülkenin üstünde.** Ad konumu merkez noktası yerine erişilmezlik
+kutbundan hesaplanıyor; köşe ortalaması içbükey kıyılarda denize düşüyordu
+(Norveç'in adı denizde, Hırvatistan'ınki Bosna'da). 234 çapanın 228'i kesin
+olarak ülke içinde. Etiket ve nokta boyutları da CSS pikseline sabitlendi —
+telefonda 3 piksellik yazılar bu yüzden çıkıyordu.
+
+**Akıcılık.** Jest sırasında her karede `viewBox` yazmak 550 yolu yeniden
+rasterize ettiriyordu. Artık hazır katman CSS dönüşümüyle kaydırılıp
+ölçekleniyor, gerçek `viewBox` parmak kalkınca bir kez yazılıyor. Mobil panel ve
+menü de cam olmaktan çıkıp opak yüzeye geçti: hem hareket sırasında opaklık
+sıçraması bitti hem de en pahalı iş ortadan kalktı.
+
+**Kıstırma düzeldi.** İki parmak değince harita bir "tık" sıçrayıp sonra
+yakınlaşıyordu; görüş kutusu jestin başındaki orta noktaya ortalanıyordu. Artık
+parmakların altındaki nokta yerinde kalıyor, iki parmakla kaydırma da çalışıyor.
+Aynı hata masaüstünde de vardı, o da düzeldi.
+
+**Yakınlaşma 22x'ten 160x'e.** Ayrıca küçük ülkelere 22 piksellik görünmez
+dokunma hedefi eklendi — Singapur, Malta, Bahreyn artık ilk denemede seçiliyor.
+Seçilen yer üst çubuğun altında kalmıyor.
+
+**Açık tema Android'de tamamen açık.** Sayfa `color-scheme: light` bildirdiği
+için WebView kendi algoritmik karartmasını uyguluyor, panel ve harita çevresi
+koyu kalıyordu. `light dark` bildirildi.
+
+**Masaüstü başlığı.** İstatistik satırı `<dt>/<dd>` üretiyordu ama CSS başka bir
+yapı arıyordu; sayılar ve etiketler kayıyordu. Başlık da sağ sütunla aynı
+hizadan başlıyor.
+
+**Depo iki dilde.** Varsayılan README İngilizce, Türkçesi `README.tr.md`;
+veri belgesi de öyle.
+
 ## v0.1.3 — 6 Ağustos 2026
 
 **İngilizce arayüz.** Başlıktaki (mobilde görünüm menüsündeki) düğmeyle Türkçe ve

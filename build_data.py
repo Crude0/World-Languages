@@ -9,15 +9,29 @@ import i18n
 # ---------------------------------------------------------------- diller
 # slug: (Türkçe ad, kendi dilindeki ad, kol/aile etiketi, renk grubu)
 R, G, I, A, N, U, O = "rom", "ger", "ine", "afa", "nkg", "aus", "oth"
+# 2026-08: gri "diğer" yığını 47 dilden 11'e indi. Türk dilleri ve Doğu-Güney
+# Asya kendi renklerini aldı; kreoller kaynak dilin rengini tarama dokusuyla
+# taşıyor (dokuz. renk koyu modda ayrım eşiğini geçmiyordu — palfit.mjs).
+T, S = "trk", "asi"
+# Kreoller kendi rengini almıyor: kaynak (sözcük dağarcığını verdiği) dilin
+# rengiyle çiziliyor, üstüne tarama dokusu geliyor. Böylece palet sekiz
+# doğrulanmış renkte kalıyor ve renk "hangi dilden türemiş"i de söylüyor.
+LEXIFIER = {
+    "Kreol · İngilizce temelli": G,
+    "Kreol · Fransızca temelli": R,
+    "Kreol · Portekizce temelli": R,
+    "Kreol · İber temelli": R,
+    "Hint-Aryan temelli kreol": I,
+}
 
 # Hiçbir ülkede çoğunluk olmayan, ama bir eyalet/il/bölgede çoğunluk olan
 # diller. Ülke haritasında yer almazlar; bölge katmanında ve süzgeçte varlar.
 REGIONAL = {
     "ku":   ("Kürtçe", "Kurdî", "Hint-Avrupa · Hint-İran", I),
-    "ta":   ("Tamilce", "தமிழ்", "Dravit dilleri", O),
-    "te":   ("Telugu", "తెలుగు", "Dravit dilleri", O),
-    "kn":   ("Kannada", "ಕನ್ನಡ", "Dravit dilleri", O),
-    "ml":   ("Malayalam", "മലയാളം", "Dravit dilleri", O),
+    "ta":   ("Tamilce", "தமிழ்", "Dravit dilleri", S),
+    "te":   ("Telugu", "తెలుగు", "Dravit dilleri", S),
+    "kn":   ("Kannada", "ಕನ್ನಡ", "Dravit dilleri", S),
+    "ml":   ("Malayalam", "മലയാളം", "Dravit dilleri", S),
     "mr":   ("Marathi", "मराठी", "Hint-Avrupa · Hint-Aryan", I),
     "gu":   ("Gucaratça", "ગુજરાતી", "Hint-Avrupa · Hint-Aryan", I),
     "pa":   ("Pencapça", "ਪੰਜਾਬੀ", "Hint-Avrupa · Hint-Aryan", I),
@@ -25,10 +39,10 @@ REGIONAL = {
     "as":   ("Assamca", "অসমীয়া", "Hint-Avrupa · Hint-Aryan", I),
     "ks":   ("Keşmirce", "کٲشُر", "Hint-Avrupa · Dard", I),
     "kok":  ("Konkani", "कोंकणी", "Hint-Avrupa · Hint-Aryan", I),
-    "mni":  ("Meitei", "ꯃꯤꯇꯩꯂꯣꯟ", "Çin-Tibet dilleri", O),
-    "lus":  ("Mizo", "Mizo ṭawng", "Çin-Tibet dilleri", O),
-    "kha":  ("Kasi", "Khasi", "Avustroasyatik diller", O),
-    "nag":  ("Nagamese", "Nagamese", "Hint-Aryan temelli kreol", O),
+    "mni":  ("Meitei", "ꯃꯤꯇꯩꯂꯣꯟ", "Çin-Tibet dilleri", S),
+    "lus":  ("Mizo", "Mizo ṭawng", "Çin-Tibet dilleri", S),
+    "kha":  ("Kasi", "Khasi", "Avustroasyatik diller", S),
+    "nag":  ("Nagamese", "Nagamese", "Hint-Aryan temelli kreol", I),
     "iu":   ("İnuktitut", "ᐃᓄᒃᑎᑐᑦ", "Eskimo-Aleut dilleri", O),
     "eu":   ("Baskça", "Euskara", "İzole dil", O),
     "gl":   ("Galiçyaca", "Galego", "Hint-Avrupa · Roman", R),
@@ -130,44 +144,44 @@ L = {
     "niu":   ("Niueca", "Vagahau Niuē", "Avustronezya · Okyanusya", U),
     "rar":   ("Cook Adaları Maoricesi", "Māori Kūki 'Āirani", "Avustronezya · Okyanusya", U),
     # Türk dilleri
-    "tr":    ("Türkçe", "Türkçe", "Türk dilleri", O),
-    "az":    ("Azerbaycanca", "Azərbaycan dili", "Türk dilleri", O),
-    "kk":    ("Kazakça", "Қазақ тілі", "Türk dilleri", O),
-    "ky":    ("Kırgızca", "Кыргызча", "Türk dilleri", O),
-    "uz":    ("Özbekçe", "Oʻzbekcha", "Türk dilleri", O),
-    "tk":    ("Türkmence", "Türkmençe", "Türk dilleri", O),
+    "tr":    ("Türkçe", "Türkçe", "Türk dilleri", T),
+    "az":    ("Azerbaycanca", "Azərbaycan dili", "Türk dilleri", T),
+    "kk":    ("Kazakça", "Қазақ тілі", "Türk dilleri", T),
+    "ky":    ("Kırgızca", "Кыргызча", "Türk dilleri", T),
+    "uz":    ("Özbekçe", "Oʻzbekcha", "Türk dilleri", T),
+    "tk":    ("Türkmence", "Türkmençe", "Türk dilleri", T),
     # Doğu ve Güneydoğu Asya
-    "zh":    ("Mandarin Çincesi", "普通话", "Çin-Tibet", O),
-    "yue":   ("Kantonca", "廣東話", "Çin-Tibet", O),
-    "my":    ("Birmanca", "မြန်မာဘာသာ", "Çin-Tibet", O),
-    "dz":    ("Dzongkha", "རྫོང་ཁ", "Çin-Tibet", O),
-    "ja":    ("Japonca", "日本語", "Japon dilleri", O),
-    "ko":    ("Korece", "한국어", "Kore dilleri", O),
-    "vi":    ("Vietnamca", "Tiếng Việt", "Austroasyatik", O),
-    "km":    ("Khmerce", "ភាសាខ្មែរ", "Austroasyatik", O),
-    "th":    ("Tayca", "ภาษาไทย", "Tai-Kadai", O),
-    "lo":    ("Laoca", "ພາສາລາວ", "Tai-Kadai", O),
+    "zh":    ("Mandarin Çincesi", "普通话", "Çin-Tibet dilleri", S),
+    "yue":   ("Kantonca", "廣東話", "Çin-Tibet dilleri", S),
+    "my":    ("Birmanca", "မြန်မာဘာသာ", "Çin-Tibet dilleri", S),
+    "dz":    ("Dzongkha", "རྫོང་ཁ", "Çin-Tibet dilleri", S),
+    "ja":    ("Japonca", "日本語", "Japon dilleri", S),
+    "ko":    ("Korece", "한국어", "Kore dilleri", S),
+    "vi":    ("Vietnamca", "Tiếng Việt", "Avustroasyatik diller", S),
+    "km":    ("Khmerce", "ភាសាខ្មែរ", "Avustroasyatik diller", S),
+    "th":    ("Tayca", "ภาษาไทย", "Tai-Kadai", S),
+    "lo":    ("Laoca", "ພາສາລາວ", "Tai-Kadai", S),
     "mn":    ("Moğolca", "Монгол хэл", "Moğol dilleri", O),
     # Diğer aileler
     "fi":    ("Fince", "Suomi", "Ural", O),
     "et":    ("Estonca", "Eesti keel", "Ural", O),
     "hu":    ("Macarca", "Magyar", "Ural", O),
     "ka":    ("Gürcüce", "ქართული", "Kartvel dilleri", O),
-    "kl":    ("Grönlandca", "Kalaallisut", "Eskimo-Aleut", O),
+    "kl":    ("Grönlandca", "Kalaallisut", "Eskimo-Aleut dilleri", O),
     "gn":    ("Guaraní", "Avañe'ẽ", "Tupi-Guaraní", O),
     # Kreol diller
-    "ht":    ("Haiti Kreolcesi", "Kreyòl ayisyen", "Kreol · Fransızca temelli", O),
-    "crs":   ("Seyşel Kreolcesi", "Seselwa", "Kreol · Fransızca temelli", O),
-    "mfe":   ("Mauritius Kreolcesi", "Kreol Morisien", "Kreol · Fransızca temelli", O),
-    "jam":   ("Jamaika Patoisı", "Patwa", "Kreol · İngilizce temelli", O),
-    "tpi":   ("Tok Pisin", "Tok Pisin", "Kreol · İngilizce temelli", O),
-    "bi":    ("Bislama", "Bislama", "Kreol · İngilizce temelli", O),
-    "pis":   ("Solomon Pijini", "Pijin", "Kreol · İngilizce temelli", O),
-    "kri":   ("Krio", "Krio", "Kreol · İngilizce temelli", O),
-    "pcm":   ("Nijerya Pidgini", "Naijá", "Kreol · İngilizce temelli", O),
-    "kea":   ("Cabo Verde Kreolcesi", "Kriolu", "Kreol · Portekizce temelli", O),
-    "pov":   ("Gine-Bissau Kreolcesi", "Kriol", "Kreol · Portekizce temelli", O),
-    "pap":   ("Papiamentu", "Papiamentu", "Kreol · İber temelli", O),
+    "ht":    ("Haiti Kreolcesi", "Kreyòl ayisyen", "Kreol · Fransızca temelli", R),
+    "crs":   ("Seyşel Kreolcesi", "Seselwa", "Kreol · Fransızca temelli", R),
+    "mfe":   ("Mauritius Kreolcesi", "Kreol Morisien", "Kreol · Fransızca temelli", R),
+    "jam":   ("Jamaika Patoisı", "Patwa", "Kreol · İngilizce temelli", G),
+    "tpi":   ("Tok Pisin", "Tok Pisin", "Kreol · İngilizce temelli", G),
+    "bi":    ("Bislama", "Bislama", "Kreol · İngilizce temelli", G),
+    "pis":   ("Solomon Pijini", "Pijin", "Kreol · İngilizce temelli", G),
+    "kri":   ("Krio", "Krio", "Kreol · İngilizce temelli", G),
+    "pcm":   ("Nijerya Pidgini", "Naijá", "Kreol · İngilizce temelli", G),
+    "kea":   ("Cabo Verde Kreolcesi", "Kriolu", "Kreol · Portekizce temelli", R),
+    "pov":   ("Gine-Bissau Kreolcesi", "Kriol", "Kreol · Portekizce temelli", R),
+    "pap":   ("Papiamentu", "Papiamentu", "Kreol · İber temelli", R),
 }
 L.update(REGIONAL)
 
@@ -175,10 +189,12 @@ GROUPS = {
     R: ("Roman dilleri", "İspanyolca, Portekizce, Fransızca, İtalyanca, Romence"),
     G: ("Cermen dilleri", "İngilizce, Almanca, Felemenkçe, İskandinav dilleri"),
     I: ("Hint-Avrupa · diğer kollar", "Slav, Hint-İran, Helen, Balt, Ermeni, Arnavut kolları"),
+    T: ("Türk dilleri", "Türkçe, Azerice, Kazakça, Özbekçe, Kırgızca, Türkmence"),
     A: ("Afro-Asyatik diller", "Arapça, İbranice, Amharca, Somalice, Hausa, Maltaca"),
     N: ("Nijer-Kongo dilleri", "Svahili, Zuluca, Kinyarwanda, Volofça, Akanca"),
+    S: ("Doğu ve Güney Asya dilleri", "Çince, Japonca, Korece, Tamilce, Vietnamca, Tayca"),
     U: ("Avustronezya dilleri", "Endonezce, Malayca, Filipince, Malgaşça, Okyanusya dilleri"),
-    O: ("Diğer aileler", "Türk, Çin-Tibet, Japon, Kore, Ural, Tai-Kadai, kreol diller"),
+    O: ("Diğer aileler", "Ural, Moğol, Kartvel, Eskimo-Aleut, And dilleri, izole diller"),
 }
 
 # ---------------------------------------------------------------- ülkeler
@@ -524,6 +540,7 @@ for slug, (tr, endo, fam, grp) in L.items():
         continue
     rows = sorted(where[slug], key=lambda r: -POP[r[0]] * r[1])
     langs[slug] = {"n": tr, "e": endo, "f": fam, "g": grp,
+                   **({"x": 1} if fam in LEXIFIER else {}),
                    "ne": i18n.LANG_EN.get(slug, tr),
                    "fe": i18n.FAM_EN.get(fam, fam),
                    "c": sum(1 for i in ids if not C[i][6]),

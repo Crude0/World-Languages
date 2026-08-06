@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """TopoJSON (world-atlas 50m) -> projected SVG paths for the language map."""
-import json, math, sys
+import json
+import math, sys
+from anchor import label_anchor
 
 SRC = "countries-50m.json"
 OUT = "map_paths.json"
@@ -164,10 +166,9 @@ for cid, f in feats.items():
     d = []
     for area, pts, is_hole in kept:
         d.append("M" + "L".join(f"{x:.1f} {y:.1f}" for x, y in pts) + "Z")
-    # visual anchor: centroid of the largest ring
-    main = max(kept, key=lambda r: r[0])[1]
-    cx = sum(p[0] for p in main) / len(main)
-    cy = sum(p[1] for p in main) / len(main)
+    # visual anchor: pole of inaccessibility of the largest solid ring — a
+    # vertex mean lands offshore on concave coasts (Norway, Croatia, Vietnam)
+    cx, cy = label_anchor(kept)
     total = sum(r[0] for r in kept if not r[2])
     out[cid] = {"n": f["name"], "d": "".join(d),
                 "c": [round(cx, 1), round(cy, 1)], "a": round(total, 1)}

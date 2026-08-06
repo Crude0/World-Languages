@@ -7,7 +7,9 @@ sadeleştirmek bu ortak sınırda farklı noktalar seçtirir ve aralarında yar�
 noktalarda yaylara (arc) bölünür ve her yay bir kez sadeleştirilir. RDP yön
 bağımsız olduğu için iki komşu aynı yayda birebir aynı sonucu üretir.
 """
-import json, sys
+import json
+import sys
+from anchor import label_anchor
 from collections import defaultdict
 from build_map import rdp, ring_area, to_svg, W, H   # aynı projeksiyon
 
@@ -97,22 +99,7 @@ def rings_of(geom):
     return geom["coordinates"]
 
 
-NE_URL = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/"
-          "master/geojson/ne_10m_admin_1_states_provinces.geojson")
-
-
-def fetch_source():
-    """Alt bölge sınırları ~40 MB tutuyor; depoda durmuyor, ilk derlemede
-    Natural Earth deposundan indiriliyor."""
-    import os, urllib.request
-    if os.path.exists(SRC):
-        return
-    print(f"· {SRC} indiriliyor (~40 MB, bir kereye mahsus)")
-    urllib.request.urlretrieve(NE_URL, SRC)
-
-
 def main():
-    fetch_source()
     data = json.load(open(SRC))
     feats = []                                # (sid, ad, ülke, kod, [halkalar])
     for feat in data["features"]:
@@ -153,13 +140,11 @@ def main():
         kept = [p for p in parts if p[0] >= MIN_AREA or p[0] == biggest]
         d = "".join("M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in pts) + "Z"
                     for _, pts, _ in kept)
-        main_ring = max(kept, key=lambda p: p[0])[1]
-        cx = sum(q[0] for q in main_ring) / len(main_ring)
-        cy = sum(q[1] for q in main_ring) / len(main_ring)
+        cx, cy = label_anchor(kept)
         e = res.setdefault(sid, {"n": name, "p": cid, "d": "", "c": [0, 0], "a": 0.0})
         e["d"] += d
         if sum(p[0] for p in kept if not p[2]) > e["a"]:
-            e["c"] = [round(cx, 1), round(cy, 1)]
+            e["c"] = [cx, cy]
         e["a"] = round(e["a"] + sum(p[0] for p in kept if not p[2]), 1)
 
     json.dump({"w": round(W, 1), "h": round(H, 1), "s": res},

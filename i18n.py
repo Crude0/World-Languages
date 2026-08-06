@@ -18,13 +18,11 @@ FAM_EN = {
     "Afro-Asyatik · Kuşi": "Afro-Asiatic · Cushitic",
     "Afro-Asyatik · Sami": "Afro-Asiatic · Semitic",
     "Afro-Asyatik · Çad": "Afro-Asiatic · Chadic",
-    "Austroasyatik": "Austroasiatic",
     "Avustroasyatik diller": "Austroasiatic languages",
     "Avustronezya · Malayo-Polinezya": "Austronesian · Malayo-Polynesian",
     "Avustronezya · Okyanusya": "Austronesian · Oceanic",
     "Aymara dilleri": "Aymaran languages",
     "Dravit dilleri": "Dravidian languages",
-    "Eskimo-Aleut": "Eskimo-Aleut",
     "Eskimo-Aleut dilleri": "Eskimo-Aleut languages",
     "Hint-Aryan temelli kreol": "Indo-Aryan-based creole",
     "Hint-Avrupa · Arnavut": "Indo-European · Albanian",
@@ -56,7 +54,6 @@ FAM_EN = {
     "Tupi-Guaraní": "Tupi-Guarani",
     "Türk dilleri": "Turkic languages",
     "Ural": "Uralic",
-    "Çin-Tibet": "Sino-Tibetan",
     "Çin-Tibet dilleri": "Sino-Tibetan languages",
     "İzole dil": "Language isolate",
 }
@@ -366,10 +363,12 @@ GROUP_EN = {
     "rom": ("Romance languages", "Spanish, Portuguese, French, Italian, Romanian"),
     "ger": ("Germanic languages", "English, German, Dutch, Scandinavian languages"),
     "ine": ("Indo-European · other branches", "Slavic, Indo-Iranian, Hellenic, Baltic, Armenian, Albanian"),
+    "trk": ("Turkic languages", "Turkish, Azerbaijani, Kazakh, Uzbek, Kyrgyz, Turkmen"),
     "afa": ("Afro-Asiatic languages", "Arabic, Hebrew, Amharic, Somali, Hausa, Maltese"),
     "nkg": ("Niger-Congo languages", "Swahili, Zulu, Kinyarwanda, Wolof, Akan"),
+    "asi": ("East and South Asian languages", "Chinese, Japanese, Korean, Tamil, Vietnamese, Thai"),
     "aus": ("Austronesian languages", "Indonesian, Malay, Filipino, Malagasy, Oceanic languages"),
-    "oth": ("Other families", "Turkic, Sino-Tibetan, Japonic, Koreanic, Uralic, Tai-Kadai, creoles"),
+    "oth": ("Other families", "Uralic, Mongolic, Kartvelian, Eskimo-Aleut, Andean, isolates"),
 }
 
 

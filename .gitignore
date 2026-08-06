@@ -32,3 +32,6 @@ node_modules/
 __pycache__/
 *.pyc
 .DS_Store
+
+# denetim betiklerinin bıraktığı ekran görüntüleri
+tools/*.png

@@ -1,3 +1,5 @@
+**Türkçe** · [English](DATA.en.md)
+
 # Veri: kaynaklar, yöntem ve sınırlar
 
 Bu belge haritadaki her sayının nereden geldiğini, nasıl hesaplandığını ve nerede
@@ -78,6 +80,13 @@ toplanmıştır, oysa Fas ve Irak konuşmaları karşılıklı anlaşılır değ
 Mandarin ve Kantonca olarak ayrılmıştır ama Vu ve Min ayrı satırlarda durur.
 Sırp-Hırvatça bazı ülkelerde tek, bazılarında ayrı sayılır. Bunlar veri
 hatası değil, sınıflandırma tercihidir.
+
+**Dil aileleri renk için gruplanmıştır.** Haritada sekiz aile rengi ve bir
+"diğer" var; daha fazlası güvenilir biçimde ayırt edilemiyor (README'deki palet
+notuna bakın). "Doğu ve Güney Asya dilleri" bu yüzden *coğrafi* bir gruptur —
+Çin-Tibet, Japon, Kore, Dravit, Avustroasyatik ve Tai-Kadai ayrı ailelerdir ve
+etiket aksini iddia etmez. Her dilin gerçek ailesi kendi satırında ve ipucunda
+yazılıdır.
 
 ## Katkı
 

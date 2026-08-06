@@ -4,7 +4,7 @@ __FONTS__
 
 /* ---------------------------------------------------------------- tokens */
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   --paper:      #eef0f3;
   --panel:      #fbfbfa;
   --panel-2:    #f4f5f6;
@@ -17,8 +17,9 @@ __FONTS__
   --rule-2:     #b6bcc4;
   --ring:       #171a20;
   --shadow:     0 1px 2px rgba(20,24,32,.08), 0 8px 24px -12px rgba(20,24,32,.22);
-  --g-rom: #8f3405;  --g-ger: #3ab1f8;  --g-ine: #54429f;  --g-afa: #a2bb45;
-  --g-nkg: #108464;  --g-aus: #e37ab3;  --g-oth: #9aa1ab;
+  --g-rom: #9e0102;  --g-ger: #5197db;  --g-ine: #8d50d8;  --g-afa: #7ba204;
+  --g-nkg: #03856c;  --g-aus: #6c3d75;  --g-trk: #9c681b;  --g-asi: #e554a1;
+  --g-oth: #9aa1ab;
   --hatch: rgba(23,26,32,.34);
   --sub-line: rgba(23,26,32,.42);
   --on-color: #ffffff;
@@ -38,10 +39,10 @@ __FONTS__
     --rule-2:     #3e444f;
     --ring:       #eceef2;
     --shadow:     0 1px 2px rgba(0,0,0,.5), 0 10px 28px -12px rgba(0,0,0,.7);
-    --g-rom: #a94413;  --g-ger: #1694d7;  --g-ine: #6251b0;  --g-afa: #859c1e;
-    --g-nkg: #0e7a5c;  --g-aus: #c66098;  --g-oth: #5f6772;
+    --g-rom: #be665a;  --g-ger: #176d9b;  --g-ine: #683ec3;  --g-afa: #899e01;
+    --g-nkg: #079e92;  --g-aus: #bf6ccf;  --g-trk: #796500;  --g-asi: #ab0e68;
+    --g-oth: #5f6772;
     --hatch: rgba(236,238,242,.30);
-  --sub-line: rgba(236,238,242,.34);
     --sub-line: rgba(236,238,242,.34);
     --on-color: #0b0d11;
   }
@@ -60,8 +61,9 @@ __FONTS__
   --rule-2:     #3e444f;
   --ring:       #eceef2;
   --shadow:     0 1px 2px rgba(0,0,0,.5), 0 10px 28px -12px rgba(0,0,0,.7);
-  --g-rom: #a94413;  --g-ger: #1694d7;  --g-ine: #6251b0;  --g-afa: #859c1e;
-  --g-nkg: #0e7a5c;  --g-aus: #c66098;  --g-oth: #5f6772;
+  --g-rom: #be665a;  --g-ger: #176d9b;  --g-ine: #683ec3;  --g-afa: #899e01;
+  --g-nkg: #079e92;  --g-aus: #bf6ccf;  --g-trk: #796500;  --g-asi: #ab0e68;
+  --g-oth: #5f6772;
   --hatch: rgba(236,238,242,.30);
   --on-color: #0b0d11;
 }
@@ -91,7 +93,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .app { max-width: 1560px; margin: 0 auto; padding: 28px clamp(14px, 2.4vw, 34px) 56px; }
 
 .masthead {
-  display: grid; gap: 18px 40px; align-items: end;
+  display: grid; gap: 18px 40px; align-items: start;
   grid-template-columns: minmax(0, 1fr);
   padding-bottom: 18px; margin-bottom: 20px;
   border-bottom: 1px solid var(--rule-2);
@@ -101,10 +103,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .masthead h1 em { font-style: italic; }
 .lede { color: var(--ink-2); font-size: .9375rem; max-width: 62ch; }
 .prefs { display: flex; gap: 8px; margin-top: 13px; flex-wrap: wrap; }
-.stats { display: flex; flex-wrap: wrap; gap: 8px 26px; margin: 12px 0 0; }
-.stat { display: flex; flex-direction: column; gap: 1px; }
-.stat b { font: 400 1.5rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; }
-.stat span { font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.stats { display: flex; flex-wrap: wrap; gap: 10px 30px; margin: 14px 0 0; }
+.stats > div { display: flex; flex-direction: column; gap: 2px; }
+.stats dt { font: 400 1.5rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; }
+.stats dd { margin: 0; font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase;
+            color: var(--ink-3); white-space: nowrap; }
 
 /* ---------------------------------------------------------------- layout */
 .plate { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); align-items: start; }
@@ -216,7 +219,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .dot { stroke: var(--ocean); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .g-rom { fill: var(--g-rom); } .g-ger { fill: var(--g-ger); } .g-ine { fill: var(--g-ine); }
 .g-afa { fill: var(--g-afa); } .g-nkg { fill: var(--g-nkg); } .g-aus { fill: var(--g-aus); }
+.g-trk { fill: var(--g-trk); } .g-asi { fill: var(--g-asi); }
 .g-oth { fill: url(#hatch); }
+/* Kreoller kendi rengini almaz: kaynak dilin renginin taramalı hâliyle çizilir. */
+.crl.g-rom { fill: url(#hx-rom); } .crl.g-ger { fill: url(#hx-ger); }
+.crl.g-ine { fill: url(#hx-ine); } .crl.g-afa { fill: url(#hx-afa); }
+.crl.g-nkg { fill: url(#hx-nkg); } .crl.g-aus { fill: url(#hx-aus); }
+.crl.g-trk { fill: url(#hx-trk); } .crl.g-asi { fill: url(#hx-asi); }
 /* alt bölgeler: eyalet / il / kanton */
 .subs, .sub-base { display: none; }
 .subs.on, .sub-base.on { display: inline; }
@@ -241,7 +250,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cty.sel, .dot.sel { stroke: var(--ring); stroke-width: 1.6; }
 .cty:hover, .dot:hover { stroke: var(--ring); stroke-width: 1.2; }
 .pin { fill: none; stroke: var(--ring); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
-.map-label { font: 600 11px "Plex Sans", sans-serif; fill: var(--ink); paint-order: stroke; stroke: var(--ocean); stroke-width: 3.5; stroke-linejoin: round; }
+/* font-size vermiyoruz: boyut öznitelikten geliyor ve CSS onu ezerdi.
+   Kenarlık da harita birimiyle ölçeklenmemeli. */
+.map-label { font-family: "Plex Sans", sans-serif; font-weight: 600; fill: var(--ink);
+  paint-order: stroke; stroke: var(--ocean); stroke-width: 3.5; stroke-linejoin: round;
+  vector-effect: non-scaling-stroke; }
 
 .tip {
   position: absolute; z-index: 5; pointer-events: none; opacity: 0;
@@ -563,7 +576,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const subIds = Object.keys(SB);
   const subsOf = {};                    // ülke -> alt bölge kimlikleri
   subIds.forEach((sid) => (subsOf[SB[sid].p] = subsOf[SB[sid].p] || []).push(sid));
-  const GORDER = ["rom", "ger", "ine", "afa", "nkg", "aus", "oth"];
+  const GORDER = ["rom", "ger", "ine", "trk", "afa", "nkg", "asi", "aus", "oth"];
   const ids = Object.keys(C);
   const $ = (s) => document.querySelector(s);
   const col = (g) => `var(--g-${g})`;
@@ -741,27 +754,32 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     `<defs><pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
        <rect width="7" height="7" fill="var(--g-oth)"></rect>
        <line x1="0" y1="0" x2="0" y2="7" stroke="var(--hatch)" stroke-width="1.6"></line>
-     </pattern></defs>` +
+     </pattern>` +
+     GORDER.filter((g) => g !== "oth").map((g) =>
+       `<pattern id="hx-${g}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="6" height="6" fill="var(--g-${g})"></rect>
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--hatch)" stroke-width="1.5"></line>
+        </pattern>`).join("") + `</defs>` +
     `<path class="sphere" d="${D.frame}"></path>` +
     `<g class="graticule"><path d="${D.grat}"></path><path class="eq" d="${D.eq}"></path></g>` +
     `<g class="lands">` + sorted.map((id) => {
-      const c = C[id], g = LG[c.l].g;
-      return `<path class="cty g-${g}" data-id="${id}" d="${c.d}"></path>`;
+      const c = C[id], l = LG[c.l];
+      return `<path class="cty g-${l.g}${l.x ? " crl" : ""}" data-id="${id}" d="${c.d}"></path>`;
     }).join("") + `</g>` +
     // Zemin: bir ülkenin tüm bölgelerinin birleşimi. Bölgeler arasında kalan
     // kılcal boşluklar ve göl oyukları bunun üstüne düşer, tırtık görünmez.
     `<g class="sub-base">` + Object.keys(subsOf).map((cid) => {
-      const g = LG[C[cid].l].g;
-      return `<path class="sbase g-${g}" data-id="${cid}" d="${
+      const l = LG[C[cid].l];
+      return `<path class="sbase g-${l.g}${l.x ? " crl" : ""}" data-id="${cid}" d="${
         subsOf[cid].map((s) => SB[s].d).join("")}"></path>`;
     }).join("") + `</g>` +
     `<g class="subs">` + subIds.map((sid) => {
-      const s = SB[sid], g = LG[s.l] ? LG[s.l].g : "oth";
-      return `<path class="sub g-${g}" data-sid="${sid}" d="${s.d}"></path>`;
+      const s = SB[sid], l = LG[s.l];
+      return `<path class="sub g-${l ? l.g : "oth"}${l && l.x ? " crl" : ""}" data-sid="${sid}" d="${s.d}"></path>`;
     }).join("") + `</g>` +
     `<g class="dots">` + sorted.filter((id) => C[id].a < DOT_AT).map((id) => {
-      const c = C[id], g = LG[c.l].g;
-      return `<circle class="dot g-${g}" data-id="${id}" cx="${c.c[0]}" cy="${c.c[1]}" r="2.6"></circle>`;
+      const c = C[id], l = LG[c.l];
+      return `<circle class="dot g-${l.g}${l.x ? " crl" : ""}" data-id="${id}" cx="${c.c[0]}" cy="${c.c[1]}" r="3"></circle>`;
     }).join("") + `</g>` +
     `<g class="marks"></g>`;
   const subG = svg.querySelector(".subs");
@@ -903,31 +921,71 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   /* ------------------------------------------------------------- zoom & pan */
   let vb = { x: 0, y: 0, w: W, h: H };
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // en dar görüş kutusu: ~%0,6'sı, yani 160x. Singapur, Lüksemburg,
+  // bir il merkezi bu ölçekte rahat tıklanır.
+  const MINW = W / 160;
 
-  function applyVB() {
-    const k = vb.w / W;
-    vb.w = Math.min(W, Math.max(W / 22, vb.w));
+  // #map'e jest sırasında CSS dönüşümü uyguluyoruz; ölçüyü hiç dönüşmeyen
+  // sarmalayıcıdan almalıyız, yoksa getBoundingClientRect dönüşümü de sayar.
+  let rectCache = null;
+  const mapRect = () => rectCache || (rectCache = svg.parentElement.getBoundingClientRect());
+  addEventListener("resize", () => { rectCache = null; });
+  // bir CSS pikselinin kaç harita birimi ettiği — işaretleri buna göre
+  // ölçeklersek yakınlaşmadan ve pencere genişliğinden bağımsız sabit kalırlar
+  const unit = () => vb.w / Math.max(1, mapRect().width);
+  let dotNodes = null;
+
+  // Sürekli jestlerde (tekerlek, kıstırma, sürükleme) her karede viewBox
+  // yazmak bütün yolları yeniden rasterize ettirir. Onun yerine hazır katmanı
+  // compositor ile kaydırıp ölçekliyoruz; hareket durunca gerçek viewBox bir
+  // kez yazılıyor. Mac'te dokunmatik yüzey, Windows'ta 2K ekran bunu hissediyor.
+  let gest = null, drawn = { x: 0, y: 0, w: W }, settle = 0, raf = 0;
+  function clampVB() {
+    vb.w = Math.min(W, Math.max(MINW, vb.w));
     vb.h = vb.w * H / W;
     vb.x = Math.min(W - vb.w, Math.max(0, vb.x));
     vb.y = Math.min(H - vb.h, Math.max(0, vb.y));
+  }
+  function commitVB() {
+    clampVB();
+    gest = null;
+    svg.style.transform = "";
     svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-    svg.querySelectorAll(".dot").forEach((d) => d.setAttribute("r", (2.6 * k).toFixed(2)));
-    marks.querySelectorAll(".pin").forEach((p) => p.setAttribute("r", (7 * k).toFixed(2)));
+    drawn = { x: vb.x, y: vb.y, w: vb.w };
+    const u = unit();
+    if (!dotNodes) dotNodes = svg.querySelectorAll(".dot");
+    dotNodes.forEach((d) => d.setAttribute("r", (3 * u).toFixed(2)));
+    marks.querySelectorAll(".pin").forEach((p) => p.setAttribute("r", (8 * u).toFixed(2)));
     const lbl = marks.querySelector(".map-label");
-    if (lbl) lbl.setAttribute("font-size", (11 * k).toFixed(2));
+    if (lbl) lbl.setAttribute("font-size", (13 * u).toFixed(2));
     applyLod();
+  }
+  function previewVB() {
+    clampVB();
+    const sc = mapRect().width / vb.w;
+    svg.style.transform =
+      `translate(${((gest.x - vb.x) * sc).toFixed(2)}px, ${((gest.y - vb.y) * sc).toFixed(2)}px) ` +
+      `scale(${(gest.w / vb.w).toFixed(5)})`;
+  }
+  function applyVB() { clampVB(); commitVB(); }
+  // sürekli jest: kareye bir kez önizle, duruşta bir kez işle
+  function glideVB() {
+    if (!gest) gest = { x: drawn.x, y: drawn.y, w: drawn.w };
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; if (gest) previewVB(); });
+    clearTimeout(settle);
+    settle = setTimeout(commitVB, 140);
   }
   function zoomTo(cx, cy, w) {
     vb.w = w; vb.h = w * H / W; vb.x = cx - vb.w / 2; vb.y = cy - vb.h / 2; applyVB();
   }
   function zoomBy(f, cx, cy) {
     const nx = cx === undefined ? vb.x + vb.w / 2 : cx, ny = cy === undefined ? vb.y + vb.h / 2 : cy;
-    const nw = Math.min(W, Math.max(W / 22, vb.w * f));
+    const nw = Math.min(W, Math.max(MINW, vb.w * f));
     vb.x = nx - (nx - vb.x) * (nw / vb.w); vb.y = ny - (ny - vb.y) * (nw / vb.w);
     vb.w = nw; applyVB();
   }
   const svgPt = (ev) => {
-    const r = svg.getBoundingClientRect();
+    const r = mapRect();
     const sc = vb.w / r.width;
     return { x: vb.x + (ev.clientX - r.left) * sc, y: vb.y + (ev.clientY - r.top) * sc };
   };
@@ -936,11 +994,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   $("#btnFit").onclick = () => { vb = { x: 0, y: 0, w: W, h: H }; applyVB(); };
   // sürekli ölçek: imleç noktası sabit kalır, kademe yok
   function zoomAt(k, p) {
-    const nw = Math.min(W, Math.max(W / 22, vb.w * k));
+    const nw = Math.min(W, Math.max(MINW, vb.w * k));
     const r = nw / vb.w;
     vb.x = p.x - (p.x - vb.x) * r;
     vb.y = p.y - (p.y - vb.y) * r;
-    vb.w = nw; applyVB();
+    vb.w = nw; glideVB();
   }
   // Dokunmatik yüzeyde iki parmak: kaydırma = pan, kıstırma = yakınlaşma.
   // macOS kıstırma hareketini ctrlKey'li wheel olayı olarak gönderir.
@@ -954,13 +1012,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       return;
     }
     if (e.shiftKey && !e.deltaX) {         // klasik fare tekerleği + shift: yatay
-      const sc = vb.w / svg.getBoundingClientRect().width;
-      vb.x += dy * sc; applyVB();
+      const sc = vb.w / mapRect().width;
+      vb.x += dy * sc; glideVB();
       return;
     }
     if (Math.abs(dx) > 0.5 || e.deltaMode === 0) {   // iki parmak kaydırma
-      const sc = vb.w / svg.getBoundingClientRect().width;
-      vb.x += dx * sc; vb.y += dy * sc; applyVB();
+      const sc = vb.w / mapRect().width;
+      vb.x += dx * sc; vb.y += dy * sc; glideVB();
       return;
     }
     zoomAt(Math.exp(dy * 0.004), svgPt(e));          // satır kipli fare tekerleği
@@ -990,10 +1048,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   svg.addEventListener("pointerdown", (e) => {
     if (e.button !== 0) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    rectCache = null;
     if (pointers.size === 2) {          // iki parmak: yakınlaştırma
       drag = null; svg.classList.remove("dragging"); tip.classList.remove("on");
       const [a, b] = [...pointers.values()];
-      pinch = { d: spread(), w: vb.w, mid: svgPt({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }) };
+      // Jest boyunca sabit kalacak harita noktası. Eskiden görüş kutusu bu
+      // noktaya ortalanıyordu ve harita ilk temasta bir "tık" sıçrıyordu.
+      pinch = { d: spread(), w: vb.w,
+                p: svgPt({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }) };
       return;
     }
     if (pointers.size > 2) return;
@@ -1009,18 +1071,22 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (pinch && pointers.size === 2) {
       const d = spread();
       if (d > 0) {
-        vb.w = Math.min(W, Math.max(W / 14, pinch.w * pinch.d / d));
+        const [a, b] = [...pointers.values()], r = mapRect();
+        const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
+        vb.w = Math.min(W, Math.max(MINW, pinch.w * pinch.d / d));
         vb.h = vb.w * H / W;
-        vb.x = pinch.mid.x - vb.w / 2; vb.y = pinch.mid.y - vb.h / 2;
-        applyVB();
+        // parmakların şu anki orta noktası, jestin başındaki yeri göstersin
+        vb.x = pinch.p.x - ((cx - r.left) / r.width) * vb.w;
+        vb.y = pinch.p.y - ((cy - r.top) / r.height) * vb.h;
+        glideVB();
       }
       return;
     }
     if (!drag) { hover(e); return; }
-    const r = svg.getBoundingClientRect(), sc = vb.w / r.width;
+    const sc = vb.w / mapRect().width;
     const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
     if (Math.abs(dx) + Math.abs(dy) > 3) { drag.moved = true; svg.classList.add("dragging"); tip.classList.remove("on"); }
-    vb.x = drag.vx - dx * sc; vb.y = drag.vy - dy * sc; applyVB();
+    vb.x = drag.vx - dx * sc; vb.y = drag.vy - dy * sc; glideVB();
   });
   const endDrag = (e) => {
     pointers.delete(e.pointerId);
@@ -1029,6 +1095,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       if (drag.sid) select(SB[drag.sid].p, drag.sid); else select(drag.id);
     }
     drag = null; svg.classList.remove("dragging");
+    if (gest) commitVB();                 // jest bitti: gerçek viewBox'a geç
   };
   svg.addEventListener("pointerup", endDrag);
   svg.addEventListener("pointercancel", (e) => { e.__cancel = true; endDrag(e); });
@@ -1266,7 +1333,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const f = state.filter, mg = f && f.t === "l" ? LG[f.k].g : null;
     lastMinor.forEach(([i]) => nodesOf(i).forEach((n) => {
       if (paint !== "fam") { n.style.fill = ""; n.style.fillOpacity = ""; return; }
-      n.style.fill = mg === "oth" ? "url(#hatch)" : `var(--g-${mg})`;
+      const lf = f && f.t === "l" ? LG[f.k] : null;
+      n.style.fill = mg === "oth" ? "url(#hatch)"
+                   : lf && lf.x ? `url(#hx-${mg})` : `var(--g-${mg})`;
       n.style.fillOpacity = mg === "oth" ? ".4" : ".45";
     }));
   }
@@ -1352,14 +1421,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
           pop: sub.pop, mix: sub.mix, c: sub.c, a: sub.a, sub: true,
           l2: C[sub.p].l2, l2country: !!C[sub.p].l2 }
       : C[id];
-    const l = LG[c.l] || LG[C[id].l], k = vb.w / W;
+    const l = LG[c.l] || LG[C[id].l], u = unit();
     if (c.a < 6) {
-      marks.innerHTML = `<circle class="pin" cx="${c.c[0]}" cy="${c.c[1]}" r="${(7 * k).toFixed(2)}"></circle>`;
+      marks.innerHTML = `<circle class="pin" cx="${c.c[0]}" cy="${c.c[1]}" r="${(8 * u).toFixed(2)}"></circle>`;
     }
-    const anchor = c.c[1] > H - 40 ? -10 : 16;
+    const anchor = (c.c[1] > H - 40 ? -12 : 18) * u;
     marks.insertAdjacentHTML("beforeend",
       `<text class="map-label" x="${c.c[0]}" y="${c.c[1] + anchor}" text-anchor="middle"
-        font-size="${(11 * k).toFixed(2)}">${esc(c.n)}</text>`);
+        font-size="${(13 * u).toFixed(2)}">${esc(c.n)}</text>`);
 
     const bars = (list, hue, cap, popOverride) => {
       const show = cap ? list.slice(0, cap) : list;

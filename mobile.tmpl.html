@@ -1,7 +1,9 @@
 <style>
 /* ============================================================ temel ===== */
 :root {
-  color-scheme: light;
+  /* İki temayı da desteklediğimizi bildirmezsek Android WebView sayfayı kendi
+     algoritmasıyla karartıyor ve açık temada bazı yüzeyler koyu kalıyor. */
+  color-scheme: light dark;
   --bg:        #eef1f4;
   --ocean:     #e3e8ec;
   --land-mute: #ccd1d7;
@@ -9,6 +11,7 @@
   --ink-2:     #454c57;
   --ink-3:     #6b7480;
   --rule:      rgba(23,26,32,.10);
+  --sheet:     #ffffff;
   --glass:     rgba(252,253,254,.62);
   --glass-2:   rgba(252,253,254,.82);
   --edge:      rgba(255,255,255,.55);
@@ -16,12 +19,12 @@
   --tint:      #1f6feb;
   --hatch:     rgba(23,26,32,.34);
   --sub-line:  rgba(23,26,32,.42);
-  --g-rom: #a83d09; --g-ger: #3ab1f8; --g-ine: #6a55c8;
-  --g-afa: #a2bb45; --g-nkg: #12a077; --g-aus: #e37ab3; --g-oth: #8d949e;
+  --g-rom: #9e0102; --g-ger: #5197db; --g-ine: #8d50d8; --g-trk: #9c681b;
+  --g-afa: #7ba204; --g-nkg: #03856c; --g-asi: #e554a1; --g-aus: #6c3d75;
+  --g-oth: #8d949e;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    color-scheme: dark;
     --bg:        #0d1014;
     --ocean:     #12151b;
     --land-mute: #272b33;
@@ -29,6 +32,7 @@
     --ink-2:     #b3bac4;
     --ink-3:     #838d99;
     --rule:      rgba(236,238,242,.12);
+    --sheet:     #191d24;
     --glass:     rgba(28,32,40,.62);
     --glass-2:   rgba(28,32,40,.84);
     --edge:      rgba(255,255,255,.10);
@@ -36,12 +40,12 @@
     --tint:      #62a8ff;
     --hatch:     rgba(236,238,242,.30);
     --sub-line:  rgba(236,238,242,.34);
-    --g-rom: #d1571a; --g-ger: #57bdff; --g-ine: #8a76e0;
-    --g-afa: #b6cf5c; --g-nkg: #2bbd8e; --g-aus: #f094c6; --g-oth: #99a1ac;
+    --g-rom: #be665a; --g-ger: #176d9b; --g-ine: #683ec3; --g-trk: #796500;
+    --g-afa: #899e01; --g-nkg: #079e92; --g-asi: #ab0e68; --g-aus: #bf6ccf;
+    --g-oth: #99a1ac;
   }
 }
 :root[data-theme="dark"] {
-  color-scheme: dark;
   --bg:        #0d1014;
   --ocean:     #12151b;
   --land-mute: #272b33;
@@ -49,6 +53,7 @@
   --ink-2:     #b3bac4;
   --ink-3:     #838d99;
   --rule:      rgba(236,238,242,.12);
+  --sheet:     #191d24;
   --glass:     rgba(28,32,40,.62);
   --glass-2:   rgba(28,32,40,.84);
   --edge:      rgba(255,255,255,.10);
@@ -56,8 +61,9 @@
   --tint:      #62a8ff;
   --hatch:     rgba(236,238,242,.30);
   --sub-line:  rgba(236,238,242,.34);
-  --g-rom: #d1571a; --g-ger: #57bdff; --g-ine: #8a76e0;
-  --g-afa: #b6cf5c; --g-nkg: #2bbd8e; --g-aus: #f094c6; --g-oth: #99a1ac;
+  --g-rom: #be665a; --g-ger: #176d9b; --g-ine: #683ec3; --g-trk: #796500;
+  --g-afa: #899e01; --g-nkg: #079e92; --g-asi: #ab0e68; --g-aus: #bf6ccf;
+  --g-oth: #99a1ac;
 }
 
 * { -webkit-tap-highlight-color: transparent; }
@@ -77,17 +83,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    veren şey bu ince kenar + yumuşak gölge. */
 .glass {
   background: var(--glass);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  backdrop-filter: blur(20px) saturate(135%);
   border: .5px solid var(--edge);
   box-shadow: 0 8px 30px var(--shade), inset 0 .5px 0 rgba(255,255,255,.30);
 }
-/* Harita parmakla sürüklenirken bulanıklık her karede yeniden hesaplanır ve
-   telefonu zorlar; hareket boyunca camı donuk yüzeye çeviriyoruz. */
-body.busy .glass {
-  -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--glass-2);
-}
-body.busy #map { shape-rendering: optimizeSpeed; }
+body.busy #map { shape-rendering: optimizeSpeed; will-change: transform; }
 body.busy .sheet { transition: none; }
 
 /* ============================================================ harita ==== */
@@ -116,12 +117,21 @@ body.zoomed .orn { opacity: 0; }
 .dot { stroke: var(--ocean); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .g-rom { fill: var(--g-rom); } .g-ger { fill: var(--g-ger); } .g-ine { fill: var(--g-ine); }
 .g-afa { fill: var(--g-afa); } .g-nkg { fill: var(--g-nkg); } .g-aus { fill: var(--g-aus); }
+.g-trk { fill: var(--g-trk); } .g-asi { fill: var(--g-asi); }
 .g-oth { fill: url(#hatch); }
+/* Kreoller kendi rengini almaz: kaynak dilin renginin taramalı hâliyle çizilir. */
+.crl.g-rom { fill: url(#hx-rom); } .crl.g-ger { fill: url(#hx-ger); }
+.crl.g-ine { fill: url(#hx-ine); } .crl.g-afa { fill: url(#hx-afa); }
+.crl.g-nkg { fill: url(#hx-nkg); } .crl.g-aus { fill: url(#hx-aus); }
+.crl.g-trk { fill: url(#hx-trk); } .crl.g-asi { fill: url(#hx-asi); }
 .subs, .sub-base { display: none; }
 .subs.on, .sub-base.on { display: inline; }
 .sbase { stroke: var(--ocean); stroke-width: 2; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
 .sub { stroke: var(--sub-line); stroke-width: .6; vector-effect: non-scaling-stroke; }
+/* küçük ülkelerin görünmez dokunma hedefi (Singapur, Malta, Bahreyn…) */
+.hitdot { fill: transparent; pointer-events: all; }
+.subs.on ~ .hits { pointer-events: none; }   /* bölge kipinde bölgeler öncelikli */
 .is-filtering .cty:not(.hit):not(.hit2), .is-filtering .dot:not(.hit):not(.hit2),
 .is-filtering .sub:not(.hit):not(.hit2) { fill: var(--land-mute); }
 .is-filtering .cty.hit2, .is-filtering .dot.hit2, .is-filtering .sub.hit2 {
@@ -132,6 +142,7 @@ body.zoomed .orn { opacity: 0; }
 .map-label {
   fill: var(--ink); paint-order: stroke; stroke: var(--ocean); stroke-width: 3.4;
   stroke-linejoin: round; font-weight: 650; letter-spacing: .01em;
+  vector-effect: non-scaling-stroke;
 }
 
 /* ============================================================ üst çubuk = */
@@ -163,9 +174,16 @@ body.zoomed .orn { opacity: 0; }
 .tools .lbl { font-size: .625rem; letter-spacing: .04em; text-transform: uppercase; }
 
 /* katman menüsü */
+/* Menü de opak: altındaki harita bulanıklaşınca renkler birbirine karışıp
+   metnin okunurluğunu düşürüyordu. Cam yalnızca üst çubukta ve araç sütununda. */
 .pop {
+  background: var(--sheet);
+  border: .5px solid var(--edge);
+  box-shadow: 0 10px 34px var(--shade);
   position: fixed; right: 12px; z-index: 6; width: min(300px, calc(100vw - 24px));
   border-radius: 18px; padding: 12px 13px 13px; display: grid; gap: 8px;
+  max-height: calc(100vh - env(safe-area-inset-top) - 132px); overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .pop[hidden] { display: none; }
 .pop-t { margin: 0; font-size: .75rem; font-weight: 600; letter-spacing: .03em;
@@ -173,7 +191,13 @@ body.zoomed .orn { opacity: 0; }
 .pop-n { margin: 2px 0 0; font-size: .75rem; color: var(--ink-3); line-height: 1.35; }
 
 /* ============================================================ sayfa ===== */
+/* Panel bilerek cam değil: bulanıklık her karede yeniden hesaplanıyordu ve
+   hareket başlayınca opaklık sıçrıyordu. Apple'ın harita panelleri de opak bir
+   malzeme kullanır — görünüm hiç değişmiyor, en pahalı iş de ortadan kalkıyor. */
 .sheet {
+  background: var(--sheet);
+  border: .5px solid var(--edge); border-bottom: 0;
+  box-shadow: 0 -6px 30px var(--shade);
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
   height: 92vh; border-radius: 22px 22px 0 0; padding: 0;
   display: flex; flex-direction: column;
@@ -344,7 +368,7 @@ body.zoomed .orn { opacity: 0; }
   <button id="btnFit" aria-label="En geniş görünüm">⤢</button>
 </div>
 
-<div class="pop glass" id="pop" hidden>
+<div class="pop" id="pop" hidden>
   <p class="pop-t">Renk ölçütü</p>
   <div class="seg" role="group" aria-label="Renk ölçütü">
     <button data-paint="fam" aria-pressed="true">Aile</button>
@@ -372,7 +396,7 @@ body.zoomed .orn { opacity: 0; }
   </div>
 </div>
 
-<div class="sheet glass" id="sheet">
+<div class="sheet" id="sheet">
   <div class="grab" id="grab"><i></i></div>
   <div class="sheet-head" id="head">
     <div class="searchbar">
@@ -394,7 +418,9 @@ body.zoomed .orn { opacity: 0; }
   "use strict";
   const D = JSON.parse(document.getElementById("data").textContent);
   const C = D.countries, LG = D.langs, GR = D.groups, SB = D.subs || {};
-  const GORDER = ["rom", "ger", "ine", "afa", "nkg", "aus", "oth"];
+  const GORDER = ["rom", "ger", "ine", "trk", "afa", "nkg", "asi", "aus", "oth"];
+  // sınıf listesi: kreoller kaynak dilin rengi + tarama
+  const gcls = (l) => l ? `g-${l.g}${l.x ? " crl" : ""}` : "g-oth";
   const ids = Object.keys(C), langIds = Object.keys(LG), subIds = Object.keys(SB);
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -538,25 +564,32 @@ body.zoomed .orn { opacity: 0; }
 
   /* ------------------------------------------------------------ harita */
   const svg = $("#map"), stage = $("#stage");
-  const W = D.w, H = D.h, DOT_AT = 2.2;
+  const W = D.w, H = D.h, DOT_AT = 2.2, HIT_AT = 26;
   const order = ids.slice().sort((a, b) => C[b].a - C[a].a);
   svg.innerHTML =
     `<defs><pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
        <rect width="7" height="7" fill="var(--g-oth)"></rect>
        <line x1="0" y1="0" x2="0" y2="7" stroke="var(--hatch)" stroke-width="1.6"></line>
-     </pattern></defs>` +
+     </pattern>` +
+     GORDER.filter((g) => g !== "oth").map((g) =>
+       `<pattern id="hx-${g}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="6" height="6" fill="var(--g-${g})"></rect>
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--hatch)" stroke-width="1.5"></line>
+        </pattern>`).join("") + `</defs>` +
     ornaments() +
     `<path class="sphere" d="${D.frame}"></path>` +
     `<g class="graticule"><path d="${D.grat}"></path></g>` +
     `<g class="lands">` + order.map((id) =>
-      `<path class="cty g-${LG[C[id].l].g}" data-id="${id}" d="${C[id].d}"></path>`).join("") + `</g>` +
+      `<path class="cty ${gcls(LG[C[id].l])}" data-id="${id}" d="${C[id].d}"></path>`).join("") + `</g>` +
     `<g class="sub-base">` + Object.keys(subsOf).map((cid) =>
-      `<path class="sbase g-${LG[C[cid].l].g}" data-id="${cid}" d="${
+      `<path class="sbase ${gcls(LG[C[cid].l])}" data-id="${cid}" d="${
         subsOf[cid].map((s) => SB[s].d).join("")}"></path>`).join("") + `</g>` +
     `<g class="subs">` + subIds.map((sid) =>
-      `<path class="sub g-${LG[SB[sid].l] ? LG[SB[sid].l].g : "oth"}" data-sid="${sid}" d="${SB[sid].d}"></path>`).join("") + `</g>` +
+      `<path class="sub ${gcls(LG[SB[sid].l])}" data-sid="${sid}" d="${SB[sid].d}"></path>`).join("") + `</g>` +
     `<g class="dots">` + order.filter((id) => C[id].a < DOT_AT).map((id) =>
-      `<circle class="dot g-${LG[C[id].l].g}" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="2.6"></circle>`).join("") + `</g>` +
+      `<circle class="dot ${gcls(LG[C[id].l])}" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="3"></circle>`).join("") + `</g>` +
+    `<g class="hits">` + order.filter((id) => C[id].a < HIT_AT).map((id) =>
+      `<circle class="hitdot" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="11"></circle>`).join("") + `</g>` +
     `<g class="marks"></g>`;
   const marks = svg.querySelector(".marks"), subG = svg.querySelector(".subs"),
         baseG = svg.querySelector(".sub-base");
@@ -568,30 +601,60 @@ body.zoomed .orn { opacity: 0; }
   let vb = { x: 0, y: 0, w: W, h: W };
   const aspect = () => stage.clientHeight / Math.max(1, stage.clientWidth);
   const maxW = () => Math.min(W, (H + 2 * PAD) / aspect());
-  const clampW = (w) => Math.min(maxW(), Math.max(W / 22, w));
+  // 160x: Singapur, Malta, Lüksemburg ve il merkezleri rahat seçilebilsin
+  const clampW = (w) => Math.min(maxW(), Math.max(W / 160, w));
 
   let raf = 0, busy = false;
-  function applyVB() {                      // kareye bir kez uygula
-    if (raf) return;
-    raf = requestAnimationFrame(() => { raf = 0; commitVB(); });
-  }
-  function commitVB() {
+  // Jest boyunca rasterize edilmiş hâlin görüş kutusu. Doluyken viewBox'a
+  // dokunmuyoruz: her kare 550 yolu yeniden çizmek yerine hazır katmanı
+  // compositor kaydırıp ölçekliyor. Parmak kalkınca gerçek viewBox yazılıyor.
+  let gest = null, drawn = { x: 0, y: 0, w: W };
+  function clampVB() {
     vb.w = clampW(vb.w);
     vb.h = vb.w * aspect();
     vb.x = vb.w >= W ? (W - vb.w) / 2 : Math.min(W - vb.w, Math.max(0, vb.x));
     vb.y = vb.h >= H + 2 * PAD ? (H - vb.h) / 2
                                : Math.min(H + PAD - vb.h, Math.max(-PAD, vb.y));
+  }
+  function applyVB() {                      // kareye bir kez uygula
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = 0; gest ? previewVB() : commitVB(); });
+  }
+  function previewVB() {
+    clampVB();
+    const s = mapRect().width / vb.w;
+    svg.style.transform =
+      `translate(${((gest.x - vb.x) * s).toFixed(2)}px, ${((gest.y - vb.y) * s).toFixed(2)}px) ` +
+      `scale(${(gest.w / vb.w).toFixed(5)})`;
+  }
+  function commitVB() {
+    clampVB();
+    svg.style.transform = "";
     svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-    if (!busy) refineMarks();               // parmak üzerindeyken atlanır
+    drawn = { x: vb.x, y: vb.y, w: vb.w };   // rasterize edilmiş hâl
+    refineMarks();
     document.body.classList.toggle("zoomed", vb.w < maxW() * .62);
     applyLod();
   }
+  // Bir CSS pikselinin kaç harita birimi ettiği. İşaretleri buna göre
+  // ölçekleyince yakınlaşmadan ve ekran genişliğinden bağımsız sabit kalırlar.
+  // Ölçüyü #map'ten değil #stage'ten alıyoruz: jest sırasında #map'e CSS
+  // dönüşümü uyguluyoruz ve getBoundingClientRect onu da hesaba katardı.
+  let rectCache = null;
+  const mapRect = () => rectCache || (rectCache = stage.getBoundingClientRect());
+  const unit = () => vb.w / Math.max(1, mapRect().width);
+  addEventListener("resize", () => { rectCache = null; });
+  addEventListener("scroll", () => { rectCache = null; }, true);
+  let dotNodes = null, hitNodes = null;
   function refineMarks() {
-    const k = vb.w / W;
-    svg.querySelectorAll(".dot").forEach((d) => d.setAttribute("r", (2.6 * k).toFixed(2)));
-    marks.querySelectorAll(".pin").forEach((p) => p.setAttribute("r", (7 * k).toFixed(2)));
+    const u = unit();
+    if (!dotNodes) dotNodes = svg.querySelectorAll(".dot");
+    dotNodes.forEach((d) => d.setAttribute("r", (3 * u).toFixed(2)));
+    if (!hitNodes) hitNodes = svg.querySelectorAll(".hitdot");
+    hitNodes.forEach((d) => d.setAttribute("r", (11 * u).toFixed(2)));
+    marks.querySelectorAll(".pin").forEach((p) => p.setAttribute("r", (8 * u).toFixed(2)));
     const lbl = marks.querySelector(".map-label");
-    if (lbl) lbl.setAttribute("font-size", (12 * k).toFixed(2));
+    if (lbl) lbl.setAttribute("font-size", (14 * u).toFixed(2));
   }
   // Cam bulanıklığı ve ince ayarlar hareket sırasında kapanır: telefonda
   // her karede yeniden bulanıklaştırmak en pahalı iş.
@@ -599,23 +662,26 @@ body.zoomed .orn { opacity: 0; }
     if (busy === on) return;
     busy = on;
     document.body.classList.toggle("busy", on);
-    if (!on) { refineMarks(); applyVB(); }
+    if (on) { gest = { x: drawn.x, y: drawn.y, w: drawn.w }; }
+    else { gest = null; commitVB(); }
   }
   const svgPt = (cx, cy) => {
-    const r = svg.getBoundingClientRect();
+    const r = mapRect();
     return { x: vb.x + (cx - r.left) * vb.w / r.width, y: vb.y + (cy - r.top) * vb.h / r.height };
   };
   function zoomAt(k, p) {
     const nw = clampW(vb.w * k), r = nw / vb.w;
     vb.x = p.x - (p.x - vb.x) * r; vb.y = p.y - (p.y - vb.y) * r; vb.w = nw; applyVB();
   }
+  // Görünür bant: üstte cam çubuk, altta panel. Seçilen yer ikisinin de
+  // altında kalmasın diye kutuyu bu bandın ortasına oturtuyoruz.
+  const TOPBAR = 86;
   function zoomTo(cx, cy, w) {
     vb.w = clampW(w); vb.h = vb.w * aspect();
     vb.x = cx - vb.w / 2;
-    // seçilen yer panelin altında kalmasın: görünür alanın ortasına al
     const st = stage.clientHeight || 1;
-    const visible = (sheetTop || st) / st;
-    vb.y = cy - vb.h * visible / 2;
+    const bot = sheetTop || st;
+    vb.y = cy - vb.h * ((TOPBAR + bot) / 2 / st);
     applyVB();
   }
   $("#btnIn").onclick = () => zoomAt(1 / 1.7, { x: vb.x + vb.w / 2, y: vb.y + vb.h / 2 });
@@ -632,15 +698,22 @@ body.zoomed .orn { opacity: 0; }
   const pts = new Map();
   let drag = null, pinch = null;
   const spread = () => { const [a, b] = [...pts.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
-  const mid = () => { const [a, b] = [...pts.values()];
-    return svgPt((a.x + b.x) / 2, (a.y + b.y) / 2); };
+  const midC = () => { const [a, b] = [...pts.values()];
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
   svg.addEventListener("pointerdown", (e) => {
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pts.size === 2) { drag = null; pinch = { d: spread(), w: vb.w, m: mid() }; return; }
+    if (pts.size === 2) {
+      drag = null; rectCache = null;
+      const c = midC();
+      // jest boyunca sabit kalacak harita noktası — parmakların altındaki yer
+      pinch = { d: spread(), w: vb.w, p: svgPt(c.x, c.y) };
+      return;
+    }
     if (pts.size > 2) return;
     const t = e.target.closest("[data-id]"), ts = subOn ? e.target.closest("[data-sid]") : null;
     drag = { sx: e.clientX, sy: e.clientY, vx: vb.x, vy: vb.y, moved: false,
              id: t ? t.dataset.id : null, sid: ts ? ts.dataset.sid : null };
+    rectCache = null;
     svg.setPointerCapture(e.pointerId);
   });
   svg.addEventListener("pointermove", (e) => {
@@ -649,9 +722,14 @@ body.zoomed .orn { opacity: 0; }
       const d = spread();
       if (d > 4) {
         setBusy(true);
-        const nw = clampW(pinch.w * pinch.d / d);
-        vb.w = nw; vb.h = nw * aspect();
-        vb.x = pinch.m.x - vb.w / 2; vb.y = pinch.m.y - vb.h / 2; applyVB();
+        const r = mapRect(), c = midC();
+        vb.w = clampW(pinch.w * pinch.d / d);
+        vb.h = vb.w * aspect();
+        // pinch.p, parmakların şu anki orta noktasının altında kalsın:
+        // hem sıçrama olmuyor hem iki parmakla kaydırma da çalışıyor
+        vb.x = pinch.p.x - ((c.x - r.left) / r.width) * vb.w;
+        vb.y = pinch.p.y - ((c.y - r.top) / r.height) * vb.h;
+        applyVB();
       }
       return;
     }
@@ -668,12 +746,36 @@ body.zoomed .orn { opacity: 0; }
     if (pts.size < 2) pinch = null;
     if (pts.size === 0) setBusy(false);
     if (drag && !drag.moved && !e.__cancel) {
-      if (drag.sid) select(SB[drag.sid].p, drag.sid);
-      else if (drag.id) select(drag.id);
+      let { id, sid } = drag;
+      // Parmak ucu bir noktadan geniştir: tam isabet yoksa çevrede ara.
+      // Singapur, Malta, Bahreyn gibi yerler böyle seçilebiliyor.
+      if (!id && !sid) {
+        const hit = nearHit(e.clientX, e.clientY);
+        if (hit) { id = hit.id; sid = hit.sid; }
+      }
+      if (sid) select(SB[sid].p, sid);
+      else if (id) select(id);
       else select(null);
     }
     drag = null;
   };
+  // dokunulan noktanın çevresini halka halka tarayarak en yakın alanı bul
+  const RINGS = [0, 10, 18, 26];
+  function nearHit(cx, cy) {
+    for (const r of RINGS) {
+      const steps = r === 0 ? 1 : 8;
+      for (let i = 0; i < steps; i++) {
+        const a = (i / steps) * 2 * Math.PI;
+        const el = document.elementFromPoint(cx + r * Math.cos(a), cy + r * Math.sin(a));
+        if (!el || !el.closest) continue;
+        const ts = subOn ? el.closest("[data-sid]") : null;
+        if (ts) return { sid: ts.dataset.sid, id: null };
+        const t = el.closest("[data-id]");
+        if (t) return { id: t.dataset.id, sid: null };
+      }
+    }
+    return null;
+  }
   svg.addEventListener("pointerup", endPtr);
   svg.addEventListener("pointercancel", (e) => { e.__cancel = true; endPtr(e); });
   svg.addEventListener("wheel", (e) => {                       // masaüstü tarayıcı için
@@ -817,18 +919,19 @@ body.zoomed .orn { opacity: 0; }
   };
   const sheetY = () => heights()[detent];
   function setDetent(d, quiet) {
+    if (!pop.hidden) setPop(false);      // menü panelle birlikte sürüklenmesin
     detent = d;
     const y = heights()[d];
     sheet.style.transform = `translate3d(0, ${y}px, 0)`;
     sheetTop = sheet.offsetTop + y;                  // araç sütunu ve harita için
     $("#tools").style.bottom = (stage.clientHeight - sheetTop + 12) + "px";
-    if (!pop.hidden) popPlace();
     if (!quiet) live(d === "peek" ? t().panelShut : t().panelOpen);
   }
   // sürükleme
   let sd = null;
   const startDrag = (e) => {
     if (e.target.closest("input, button")) return;
+    if (!pop.hidden) setPop(false);
     sd = { y: e.clientY, base: heights()[detent], t: Date.now() };
     sheet.classList.add("dragging");
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -1072,9 +1175,9 @@ body.zoomed .orn { opacity: 0; }
     const t = e.target.closest("[data-go],[data-l],[data-sort],[data-up],[data-sub],[data-close]");
     if (!t) return;
     const d = t.dataset;
-    if (d.go) { select(d.go); focusCountry(d.go); return; }
+    if (d.go) { setDetent("half", 1); select(d.go); focusCountry(d.go); return; }
     if (d.sort) { state.sort = d.sort; render(); return; }
-    if (d.up) { select(d.up); focusCountry(d.up); return; }
+    if (d.up) { setDetent("half", 1); select(d.up); focusCountry(d.up); return; }
     if (d.sub) { state.lod = "on"; applyLod(); focusCountry(d.sub); syncPop(); return; }
     if (d.close) { select(null); setDetent("peek"); return; }
     if (d.l) {
@@ -1112,13 +1215,13 @@ body.zoomed .orn { opacity: 0; }
     if (!id) { render(); return; }
     if (sid) { const n = subNode(sid); if (n) n.classList.add("sel"); }
     else nodesOf(id).forEach((n) => n.classList.add("sel"));
-    const o = sid ? SB[sid] : C[id], k = vb.w / W;
+    const o = sid ? SB[sid] : C[id], u = unit();
     if ((o.a || 0) < 6) {
-      marks.innerHTML = `<circle class="pin" cx="${o.c[0]}" cy="${o.c[1]}" r="${(7 * k).toFixed(2)}"></circle>`;
+      marks.innerHTML = `<circle class="pin" cx="${o.c[0]}" cy="${o.c[1]}" r="${(8 * u).toFixed(2)}"></circle>`;
     }
     marks.insertAdjacentHTML("beforeend",
-      `<text class="map-label" x="${o.c[0]}" y="${o.c[1] - 9 * k}" text-anchor="middle"
-        font-size="${(12 * k).toFixed(2)}">${esc(sid ? sn(o) : cn(o))}</text>`);
+      `<text class="map-label" x="${o.c[0]}" y="${o.c[1] - 12 * u}" text-anchor="middle"
+        font-size="${(14 * u).toFixed(2)}">${esc(sid ? sn(o) : cn(o))}</text>`);
     render();
     if (detent === "peek") setDetent("half");
   }
