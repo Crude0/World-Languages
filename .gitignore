@@ -1,0 +1,34 @@
+# üretilen veri ve sayfalar
+map_paths.json
+sub_paths.json
+data.json
+dunya-dilleri.html
+preview.html
+mobile-preview.html
+desktop/app.html
+android/assets/
+
+# indirilen kaynak (40 MB, build_subs.py otomatik indirir)
+ne_admin1_10m.json
+ne_admin1.json
+
+# derleme çıktıları
+desktop/out/
+desktop/dist/
+desktop/dmgroot/
+desktop/icon_*.html
+desktop/icon_*.png
+desktop/shoticon.mjs
+android/build/
+android/gen/
+
+# imzalama anahtarı — asla depoya girmemeli
+*.keystore
+*.jks
+*.idsig
+
+# araçlar
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store

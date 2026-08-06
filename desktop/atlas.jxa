@@ -1,0 +1,92 @@
+// macOS'ta gerçek bir uygulama penceresi: NSWindow + WKWebView.
+// osascript -l JavaScript atlas.jxa <html-yolu> [icns-yolu]
+// Herhangi bir hata olursa betik çıkış kodu 1 ile biter; başlatıcı o zaman
+// tarayıcı kipine düşer.
+ObjC.import('Cocoa');
+ObjC.import('WebKit');
+
+var TITLE = 'Dünya Dilleri Atlası';
+var keep = [];   // çöp toplayıcıdan korunacak nesneler
+
+function run(argv) {
+  var htmlPath = argv[0];
+  var iconPath = argv.length > 1 ? argv[1] : '';
+
+  var app = $.NSApplication.sharedApplication;
+  app.setActivationPolicy(0);              // NSApplicationActivationPolicyRegular
+
+  if (iconPath) {
+    var img = $.NSImage.alloc.initWithContentsOfFile(iconPath);
+    if (!img.isNil()) app.applicationIconImage = img;
+  }
+  try { $.NSProcessInfo.processInfo.setProcessName(TITLE); } catch (e) {}
+
+  buildMenu(app);
+
+  var rect = $.NSMakeRect(0, 0, 1440, 940);
+  var win = $.NSWindow.alloc.initWithContentRectStyleMaskBackingDefer(
+    rect, 15 /* Titled|Closable|Miniaturizable|Resizable */, 2 /* Buffered */, false);
+  win.title = TITLE;
+  win.setMinSize($.NSMakeSize(720, 520));
+  win.center;
+  keep.push(win);
+
+  var cfg = $.WKWebViewConfiguration.alloc.init;
+  var web = $.WKWebView.alloc.initWithFrameConfiguration(rect, cfg);
+  var url = $.NSURL.fileURLWithPath(htmlPath);
+  web.loadFileURLAllowingReadAccessToURL(url, url.URLByDeletingLastPathComponent);
+  win.contentView = web;
+  keep.push(web);
+
+  // pencere kapatılınca uygulamadan da çık
+  try {
+    ObjC.registerSubclass({
+      name: 'AtlasWindowDelegate',
+      superclass: 'NSObject',
+      methods: {
+        'windowWillClose:': {
+          types: ['void', ['id']],
+          implementation: function (n) { $.NSApp.terminate(null); }
+        }
+      }
+    });
+    var del = $.AtlasWindowDelegate.alloc.init;
+    keep.push(del);
+    win.delegate = del;
+  } catch (e) { /* delege kurulamazsa pencere yine açılır */ }
+
+  app.activateIgnoringOtherApps(true);
+  win.makeKeyAndOrderFront(null);
+  app.run;
+}
+
+function buildMenu(app) {
+  var bar = $.NSMenu.alloc.init;
+  keep.push(bar);
+
+  // [başlık, seçici, kısayol, hedef uygulama mı]
+  add(TITLE, [['Gizle', 'hide:', 'h', true],
+              ['Diğerlerini Gizle', 'hideOtherApplications:', '', true],
+              ['Çık', 'terminate:', 'q', true]]);
+  add('Düzen', [['Kopyala', 'copy:', 'c', false],
+                ['Tümünü Seç', 'selectAll:', 'a', false]]);
+  add('Pencere', [['Küçült', 'miniaturize:', 'm', false],
+                  ['Tam Ekran', 'toggleFullScreen:', 'f', false],
+                  ['Kapat', 'performClose:', 'w', false]]);
+  app.mainMenu = bar;
+
+  function add(name, items) {
+    var top = $.NSMenuItem.alloc.init;
+    var menu = $.NSMenu.alloc.initWithTitle(name);
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var mi = $.NSMenuItem.alloc.initWithTitleActionKeyEquivalent(
+        it[0], $.NSSelectorFromString(it[1]), it[2]);
+      if (it[3]) mi.setTarget(app);
+      menu.addItem(mi);
+    }
+    top.setSubmenu(menu);
+    bar.addItem(top);
+    keep.push(menu);
+  }
+}
