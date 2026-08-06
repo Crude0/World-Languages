@@ -1,0 +1,33 @@
+name: Depo bilgilerini ayarla (tek seferlik)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  metadata: read
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Açıklama ve site
+        continue-on-error: true
+        run: |
+          gh api -X PATCH "repos/$REPO" \
+            -f description="234 ülkede hangi dil konuşuluyor — çevrimdışı çalışan etkileşimli harita (web · macOS · Windows · Android)" \
+            -f homepage="https://crude0.github.io/World-Languages/" \
+            --jq '.description' && echo "AÇIKLAMA OK" || echo "AÇIKLAMA BAŞARISIZ"
+
+      - name: Topic'ler
+        continue-on-error: true
+        run: |
+          gh api -X PUT "repos/$REPO/topics" \
+            -H "Accept: application/vnd.github+json" \
+            -f "names[]=map" -f "names[]=languages" -f "names[]=dataviz" \
+            -f "names[]=offline" -f "names[]=svg" -f "names[]=linguistics" \
+            -f "names[]=webview" -f "names[]=turkish" \
+            --jq '.names | join(", ")' && echo "TOPIC OK" || echo "TOPIC BAŞARISIZ"
