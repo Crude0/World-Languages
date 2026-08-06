@@ -86,12 +86,14 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
+En güncel sürüm **v0.1.3** — değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 444 KB | İnternet izni yok |
-| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 6,7 MB | Evrensel (Intel + Apple Silicon) |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 433 KB | İnternet izni yok |
+| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 6,8 MB | Evrensel (Intel + Apple Silicon) |
 | Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,1 MB | Tek dosya, kurulum yok |
-| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,0 MB | Tek dosya, çift tıkla aç |
+| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,1 MB | Tek dosya, çift tıkla aç |
 
 Uygulamalar imzalı değil (Apple/Microsoft geliştirici sertifikası yok):
 
