@@ -143,6 +143,7 @@ body.zoomed .orn { opacity: 0; }
 .sub { stroke: none; vector-effect: non-scaling-stroke; }
 .inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
+.off { display: none; }          /* görüş alanı dışında */
 .inner-g { display: none; }
 .inner-g.on { display: inline; }
 /* küçük ülkelerin görünmez dokunma hedefi (Singapur, Malta, Bahreyn…) */
@@ -651,12 +652,38 @@ body.zoomed .orn { opacity: 0; }
     if (raf) return;
     raf = requestAnimationFrame(() => { raf = 0; commitVB(); });
   }
+  /* ------------------------------------------------- görüş alanı budaması
+     Ekranın dışında kalan yolu çizdirmenin anlamı yok. Sınırlayıcı kutular
+     bir kez hesaplanıyor (getBBox pahalı), sonra her karede yalnızca kutu
+     kesişimi bakılıyor — 550 karşılaştırma, ihmal edilebilir. Avrupa'ya
+     yaklaşmışken dünyanın geri kalanı çizim dışı kalıyor. */
+  let cullList = null;
+  function buildCull() {
+    cullList = [];
+    svg.querySelectorAll(".cty, .sub, .sbase, .inner, .dot").forEach((n) => {
+      try {
+        const b = n.getBBox();
+        if (b.width || b.height) cullList.push([n, b.x, b.y, b.x + b.width, b.y + b.height]);
+      } catch (_) { /* çizilmemiş yol */ }
+    });
+  }
+  function cull() {
+    if (!cullList) buildCull();
+    const m = vb.w * 0.08;                       // küçük pay: kenarda pop olmasın
+    const x0 = vb.x - m, y0 = vb.y - m, x1 = vb.x + vb.w + m, y1 = vb.y + vb.h + m;
+    for (let i = 0; i < cullList.length; i++) {
+      const c = cullList[i];
+      const off = c[3] < x0 || c[1] > x1 || c[4] < y0 || c[2] > y1;
+      if (off !== (c[5] === 1)) { c[0].classList.toggle("off", off); c[5] = off ? 1 : 0; }
+    }
+  }
   function commitVB() {
     clampVB();
     svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
     if (!busy) refineMarks();               // parmak üzerindeyken atlanır
     document.body.classList.toggle("zoomed", vb.w < maxW() * .62);
     applyLod();
+    cull();
   }
   // Bir CSS pikselinin kaç harita birimi ettiği. İşaretleri buna göre
   // ölçekleyince yakınlaşmadan ve ekran genişliğinden bağımsız sabit kalırlar.
@@ -799,10 +826,24 @@ body.zoomed .orn { opacity: 0; }
   }
   svg.addEventListener("pointerup", endPtr);
   svg.addEventListener("pointercancel", (e) => { e.__cancel = true; endPtr(e); });
-  svg.addEventListener("wheel", (e) => {                       // masaüstü tarayıcı için
+  // Masaüstü tarayıcı için. Fare tekerleği yakınlaştırır, dokunmatik yüzeyde
+  // iki parmak kaydırma haritayı kaydırır, kıstırma yakınlaştırır.
+  let wheelKind = null, wheelAt = 0;
+  svg.addEventListener("wheel", (e) => {
     e.preventDefault();
     if (e.ctrlKey) { zoomAt(Math.exp(e.deltaY * 0.01), svgPt(e.clientX, e.clientY)); return; }
-    const sc = vb.w / svg.getBoundingClientRect().width;
+    const now = performance.now();
+    if (now - wheelAt > 160) wheelKind = null;
+    wheelAt = now;
+    if (wheelKind === null) {
+      wheelKind = e.deltaMode !== 0
+        || (e.deltaX === 0 && Math.abs(e.deltaY) >= 48 && Number.isInteger(e.deltaY));
+    }
+    if (wheelKind) {
+      zoomAt(Math.exp(e.deltaY * (e.deltaMode ? 0.004 : 0.0016)), svgPt(e.clientX, e.clientY));
+      return;
+    }
+    const sc = vb.w / mapRect().width;
     vb.x += e.deltaX * sc; vb.y += e.deltaY * sc; applyVB();
   }, { passive: false });
 

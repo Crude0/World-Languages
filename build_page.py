@@ -32,10 +32,11 @@ tmpl = (HERE / "page.tmpl.html").read_text()
 html = tmpl.replace("__FONTS__", "\n".join(css)) \
            .replace("__DATA__", json.dumps(data, separators=(",", ":"), ensure_ascii=False))
 
-out = HERE / "dunya-dilleri.html"
-out.write_text(html)
-
-# tek dosyalık tam sayfa (tarayıcı önizlemesi ve masaüstü uygulaması için)
+# Tam bir HTML belgesi kur. Eskiden ham şablon çıktısı (doctype'sız,
+# charset'siz) ayrıca yazılıyor ve docs/index.html'e o kopyalanıyordu; charset
+# göndermeyen bir sunucudan servis edilince Türkçe karakterler bozulup sayfa
+# çöküyordu, telefon tarayıcısında da viewport meta'sı olmadığı için
+# ölçeklenmiyordu. Artık üç çıktı da aynı tam belge.
 title = "Dünya Dilleri Atlası"
 body = html.replace(f"<title>{title}</title>\n", "", 1)
 standalone = (
@@ -46,6 +47,8 @@ standalone = (
     '<meta name="color-scheme" content="light dark">'
     '<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>'
     f"</head><body>{body}</body></html>")
+out = HERE / "dunya-dilleri.html"
+out.write_text(standalone)
 (HERE / "preview.html").write_text(standalone)
 (HERE / "desktop" / "app.html").write_text(standalone)
 print(f"{out.name}: {len(html)/1024:.0f} KB (font {sum(len(c) for c in css)/1024:.0f} KB)")

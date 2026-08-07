@@ -10,6 +10,30 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.3.3 — 7 Ağustos 2026
+
+**Fare tekerleği yakınlaştırmıyordu.** Tekerlek olayı `deltaMode === 0` ile
+geliyor ve o dal doğrudan kaydırmaya gidiyordu — yakınlaştırma yalnızca satır
+kipinde (Firefox/Windows) çalışıyormuş. Artık jest başına bir kez karar
+veriliyor: seyrek, büyük ve tam sayı delta + yatay bileşen yok ise fare
+tekerleği (yakınlaştırır), aksi hâlde dokunmatik yüzey (kaydırır). Karar jest
+boyunca korunuyor, momentum evresindeki büyük deltalar kipi ortada değiştirmesin
+diye. Kıstırma (ctrl + tekerlek) eskisi gibi.
+
+**Görüş alanı dışındaki yollar artık çizilmiyor.** Sınırlayıcı kutular bir kez
+hesaplanıyor, her karede yalnızca kutu kesişimi bakılıyor. Ölçtüm: 4 kat
+yakınlıkta 616 yolun **582'si** (%94) çizim dışı kalıyor, 17 katta neredeyse
+hepsi. Masaüstünde fps'i değiştirmiyor (zaten 60'a dayalı), kazanç dolgu hızına
+takılan cihazlarda.
+
+**Yayımlanan sayfanın `<head>`'i eksikti.** `docs/index.html`'e ham şablon
+çıktısı kopyalanıyordu: `<!doctype>`, `<meta charset>`, `lang` ve viewport
+meta'sı yoktu. GitHub Pages charset'i HTTP başlığında gönderdiği için sorun
+görünmüyordu, ama charset göndermeyen bir sunucudan servis edilince Türkçe
+karakterler bozulup sayfa çöküyordu (bunu ölçüm yaparken yakaladım) ve telefon
+tarayıcısında viewport meta'sı olmadığı için ölçeklenmiyordu. Üç çıktı da artık
+aynı tam belge.
+
 ## v0.3.2 — 7 Ağustos 2026
 
 **Bir yere tıklayınca çıkan kalın çizgi düzeltildi.** 0.3.1'de iki hata birden

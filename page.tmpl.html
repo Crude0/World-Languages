@@ -255,6 +255,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .sub:hover { stroke: var(--ring); stroke-width: 1.2; }
 .inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
+.off { display: none; }          /* görüş alanı dışında */
 .inner-g { display: none; }
 .inner-g.on { display: inline; }
 .sub.sel { stroke: var(--ring); stroke-width: 1.6; }
@@ -980,6 +981,31 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     vb.x = Math.min(W - vb.w, Math.max(0, vb.x));
     vb.y = Math.min(H - vb.h, Math.max(0, vb.y));
   }
+  /* ------------------------------------------------- görüş alanı budaması
+     Ekranın dışında kalan yolu çizdirmenin anlamı yok. Sınırlayıcı kutular
+     bir kez hesaplanıyor (getBBox pahalı), sonra her karede yalnızca kutu
+     kesişimi bakılıyor — 550 karşılaştırma, ihmal edilebilir. Avrupa'ya
+     yaklaşmışken dünyanın geri kalanı çizim dışı kalıyor. */
+  let cullList = null;
+  function buildCull() {
+    cullList = [];
+    svg.querySelectorAll(".cty, .sub, .sbase, .inner, .dot").forEach((n) => {
+      try {
+        const b = n.getBBox();
+        if (b.width || b.height) cullList.push([n, b.x, b.y, b.x + b.width, b.y + b.height]);
+      } catch (_) { /* çizilmemiş yol */ }
+    });
+  }
+  function cull() {
+    if (!cullList) buildCull();
+    const m = vb.w * 0.08;                       // küçük pay: kenarda pop olmasın
+    const x0 = vb.x - m, y0 = vb.y - m, x1 = vb.x + vb.w + m, y1 = vb.y + vb.h + m;
+    for (let i = 0; i < cullList.length; i++) {
+      const c = cullList[i];
+      const off = c[3] < x0 || c[1] > x1 || c[4] < y0 || c[2] > y1;
+      if (off !== (c[5] === 1)) { c[0].classList.toggle("off", off); c[5] = off ? 1 : 0; }
+    }
+  }
   function commitVB() {
     clampVB();
     svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
@@ -990,6 +1016,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const lbl = marks.querySelector(".map-label");
     if (lbl) lbl.setAttribute("font-size", (13 * u).toFixed(2));
     applyLod();
+    cull();
   }
   function applyVB() {
     if (raf) return;
@@ -1023,6 +1050,23 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // Dokunmatik yüzeyde iki parmak: kaydırma = pan, kıstırma = yakınlaşma.
   // macOS kıstırma hareketini ctrlKey'li wheel olayı olarak gönderir.
   const LINE = 16;   // deltaMode satır ise piksel karşılığı
+  // Fare tekerleği mi dokunmatik yüzey mi? Tekerlek seyrek, büyük ve tam sayı
+  // delta üretir, yatay bileşeni yoktur; dokunmatik yüzey sık, küçük, çoğu
+  // zaman ondalıklı ve yatay bileşenlidir. Karar jest başına bir kez verilip
+  // jest boyunca korunuyor, yoksa momentum evresindeki büyük deltalar kipi
+  // ortasında değiştirir. (Eskiden deltaMode === 0 doğrudan kaydırmaya
+  // gidiyordu; fare tekerleği de bu kipte geldiği için hiç yakınlaştırmıyordu.)
+  let wheelKind = null, wheelAt = 0;
+  function mouseWheel(e) {
+    const now = performance.now();
+    if (now - wheelAt > 160) wheelKind = null;      // yeni jest
+    wheelAt = now;
+    if (wheelKind === null) {
+      wheelKind = e.deltaMode !== 0
+        || (e.deltaX === 0 && Math.abs(e.deltaY) >= 48 && Number.isInteger(e.deltaY));
+    }
+    return wheelKind;
+  }
   svg.addEventListener("wheel", (e) => {
     e.preventDefault();
     const unit = e.deltaMode === 1 ? LINE : (e.deltaMode === 2 ? 400 : 1);
@@ -1036,12 +1080,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       vb.x += dy * sc; applyVB();
       return;
     }
-    if (Math.abs(dx) > 0.5 || e.deltaMode === 0) {   // iki parmak kaydırma
-      const sc = vb.w / mapRect().width;
-      vb.x += dx * sc; vb.y += dy * sc; applyVB();
+    if (mouseWheel(e)) {                   // fare tekerleği: yakınlaş/uzaklaş
+      zoomAt(Math.exp(dy * (e.deltaMode ? 0.004 : 0.0016)), svgPt(e));
       return;
     }
-    zoomAt(Math.exp(dy * 0.004), svgPt(e));          // satır kipli fare tekerleği
+    const sc = vb.w / mapRect().width;     // dokunmatik yüzey: iki parmak kaydırma
+    vb.x += dx * sc; vb.y += dy * sc; applyVB();
   }, { passive: false });
 
   // Safari / WKWebView: kıstırma sürekli bir scale değeri verir — native his
