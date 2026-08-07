@@ -93,6 +93,56 @@ def simplify(ring, junction):
     return out
 
 
+def inner_borders(rings_by_country):
+    """Ülke içindeki il/eyalet sınırları: iki ilde birden geçen kenarlar.
+
+    İki komşu il ortak sınırı paylaşınca o kenar iki kez sayılır; bir kez geçen
+    kenarlar ise ülkenin dış çeperidir (kıyı ya da uluslararası sınır). Noktalar
+    ızgaraya oturtulduğu için kenarlar birebir eşleşir.
+
+    Bu ayrım gerekli: illerin yollarını olduğu gibi konturlamak ülke sınırını
+    değil *her* sınırı aynı biçimde çizer — ABD–Kanada sınırı eyalet çizgisinden
+    ayırt edilemiyordu, kıyılar da beyaz çerçeveli görünüyordu. Artık ülke sınırı
+    düz koyu, il sınırı koyu kılıf üstünde beyaz çekirdek.
+    """
+    out = {}
+    for cid, rings in rings_by_country.items():
+        count = defaultdict(int)
+        for ring in rings:
+            n = len(ring)
+            for i in range(n):
+                a, b = ring[i], ring[(i + 1) % n]
+                count[(a, b) if a <= b else (b, a)] += 1
+        edges = [e for e, c in count.items() if c >= 2]
+        adj = defaultdict(list)
+        for a, b in edges:
+            adj[a].append(b); adj[b].append(a)
+        used, paths = set(), []
+        for a, b in edges:
+            key = (a, b)
+            if key in used:
+                continue
+            used.add(key)
+            chain = [a, b]
+            # iki uçtan da büyüt
+            for _ in range(2):
+                while True:
+                    tip, prev = chain[-1], chain[-2]
+                    nxt = None
+                    for q in adj[tip]:
+                        k = (tip, q) if tip <= q else (q, tip)
+                        if q != prev and k not in used:
+                            nxt = q; used.add(k); break
+                    if nxt is None:
+                        break
+                    chain.append(nxt)
+                chain.reverse()
+            if len(chain) > 2:
+                paths.append(chain)
+        out[cid] = "".join("M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in c) for c in paths)
+    return out
+
+
 def rings_of(geom):
     if geom["type"] == "Polygon":
         return [geom["coordinates"]]
@@ -129,6 +179,7 @@ def main():
     junction = find_junctions([r for _, _, _, rings in feats for r, _h in rings])
 
     res = {}
+    by_country = defaultdict(list)          # ülke konturu için sadeleştirilmiş halkalar
     for sid, name, cid, rings in feats:
         parts = []
         for r, hole in rings:
@@ -140,6 +191,7 @@ def main():
         kept = [p for p in parts if p[0] >= MIN_AREA or p[0] == biggest]
         d = "".join("M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in pts) + "Z"
                     for _, pts, _ in kept)
+        by_country[cid].extend(pts for _, pts, _ in kept)
         cx, cy = label_anchor(kept)
         e = res.setdefault(sid, {"n": name, "p": cid, "d": "", "c": [0, 0], "a": 0.0})
         e["d"] += d
@@ -147,8 +199,11 @@ def main():
             e["c"] = [cx, cy]
         e["a"] = round(e["a"] + sum(p[0] for p in kept if not p[2]), 1)
 
-    json.dump({"w": round(W, 1), "h": round(H, 1), "s": res},
+    edge = inner_borders(by_country)
+    json.dump({"w": round(W, 1), "h": round(H, 1), "s": res, "inner": edge},
               open(OUT, "w"), separators=(",", ":"), ensure_ascii=False)
+    print("  iç sınır parçası:", {k: v.count("M") for k, v in edge.items()},
+          f" toplam {sum(len(v) for v in edge.values())/1024:.0f} KB")
     per = defaultdict(int)
     for v in res.values():
         per[v["p"]] += 1

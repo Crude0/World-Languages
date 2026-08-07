@@ -21,7 +21,10 @@ __FONTS__
   --g-nkg: #15bb77;  --g-aus: #db3bb6;  --g-trk: #d88c04;  --g-asi: #a40062;
   --g-oth: #9aa1ab;
   --hatch: rgba(23,26,32,.34);
-  --sub-line: rgba(23,26,32,.42);
+  /* Sınır hiyerarşisi: ülke sınırı koyu ve kalın, il/eyalet sınırı beyaz ve
+     ince. İki tema arasında anlam sabit — koyu çizgi her zaman ülke. */
+  --border:   rgba(10,12,16,.62);
+  --sub-line: rgba(255,255,255,.70);
   --on-color: #ffffff;
 }
 @media (prefers-color-scheme: dark) {
@@ -43,7 +46,8 @@ __FONTS__
     --g-nkg: #009a73;  --g-aus: #b529b8;  --g-trk: #c7810a;  --g-asi: #ff4b9d;
     --g-oth: #5f6772;
     --hatch: rgba(236,238,242,.30);
-    --sub-line: rgba(236,238,242,.34);
+    --border:   rgba(0,0,0,.66);
+    --sub-line: rgba(255,255,255,.58);
     --on-color: #0b0d11;
   }
 }
@@ -65,6 +69,8 @@ __FONTS__
   --g-nkg: #009a73;  --g-aus: #b529b8;  --g-trk: #c7810a;  --g-asi: #ff4b9d;
   --g-oth: #5f6772;
   --hatch: rgba(236,238,242,.30);
+  --border:   rgba(0,0,0,.66);
+  --sub-line: rgba(255,255,255,.58);
   --on-color: #0b0d11;
 }
 
@@ -215,7 +221,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .sphere { fill: var(--ocean); }
 .graticule { fill: none; stroke: var(--rule-2); stroke-width: .5; opacity: .55; }
 .graticule .eq { stroke-width: .8; opacity: .9; }
-.cty { stroke: var(--ocean); stroke-width: .5; vector-effect: non-scaling-stroke; }
+/* Ülke sınırı: koyu ve belirgin. Kıyıda okyanusa karışır (siluet bozulmaz),
+   iki ülke arasında ise net bir ayrım çizgisi olur. */
+.cty { stroke: var(--border); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
 .dot { stroke: var(--ocean); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .g-rom { fill: var(--g-rom); } .g-ger { fill: var(--g-ger); } .g-ine { fill: var(--g-ine); }
 .g-afa { fill: var(--g-afa); } .g-nkg { fill: var(--g-nkg); } .g-aus { fill: var(--g-aus); }
@@ -232,12 +240,21 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Zemin, bölgelerin birleşimi. Kalın okyanus renkli çizgisi il sınırlarında
    üstteki dolgularla örtülür, yalnızca ülkenin dış kenarında görünür kalır:
    ülke sınırı kalın, il sınırı ince — Paradox haritalarındaki iki kademe. */
+/* Sınır hiyerarşisi
+   ülke sınırı  : düz koyu çizgi
+   il/eyalet    : aynı koyu kılıfın üstünde beyaz çekirdek
+   Kılıf hem parlak hem koyu dolgularda çizgiyi okunur tutar; çekirdek de
+   il sınırını ülke sınırından ilk bakışta ayırır. */
 .sbase {
-  stroke: var(--ocean); stroke-width: 2.2; stroke-linejoin: round;
+  stroke: var(--border); stroke-width: 1.8; stroke-linejoin: round;
   vector-effect: non-scaling-stroke; pointer-events: none;
 }
-.sub { stroke: var(--sub-line); stroke-width: .6; vector-effect: non-scaling-stroke; }
-.sub:hover { stroke: var(--ring); stroke-width: 1.2; }
+.sub { stroke: none; }
+.sub:hover { stroke: var(--ring); stroke-width: 1.8; }
+.inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
+         vector-effect: non-scaling-stroke; pointer-events: none; }
+.inner-g { display: none; }
+.inner-g.on { display: inline; }
 .sub.sel { stroke: var(--ring); stroke-width: 1.6; }
 .is-filtering .sub:not(.hit):not(.hit2) { fill: var(--land-mute); }
 .is-filtering .sub.hit2 { stroke: var(--c-min, var(--ink-2)); stroke-width: 1.1; }
@@ -247,7 +264,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .is-filtering .cty.hit2, .is-filtering .dot.hit2 {
   stroke: var(--c-min, var(--ink-2)); stroke-width: 1.4;
 }
-.cty.sel, .dot.sel { stroke: var(--ring); stroke-width: 1.6; }
+.cty.sel, .dot.sel { stroke: var(--ring); stroke-width: 2.4; }
 .cty:hover, .dot:hover { stroke: var(--ring); stroke-width: 1.2; }
 .pin { fill: none; stroke: var(--ring); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
 /* font-size vermiyoruz: boyut öznitelikten geliyor ve CSS onu ezerdi.
@@ -781,8 +798,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       const c = C[id], l = LG[c.l];
       return `<circle class="dot g-${l.g}${l.x ? " crl" : ""}" data-id="${id}" cx="${c.c[0]}" cy="${c.c[1]}" r="3"></circle>`;
     }).join("") + `</g>` +
+    `<g class="inner-g">` + Object.keys(D.inner || {}).map((cid) =>
+      `<path class="inner" d="${D.inner[cid]}"></path>`).join("") + `</g>` +
     `<g class="marks"></g>`;
   const subG = svg.querySelector(".subs");
+  const innerG = svg.querySelector(".inner-g");
   const baseG = svg.querySelector(".sub-base");
 
   const marks = svg.querySelector(".marks");
@@ -814,6 +834,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     subOn = on;
     subG.classList.toggle("on", on);
     baseG.classList.toggle("on", on);
+    innerG.classList.toggle("on", on);
     // Bölgeler 10m, ülke sınırları 50m çözünürlükte. Ülke yolu altta kalmaya
     // devam eder: hem uluslararası sınırdaki çözünürlük farkını hem de göl
     // oyuklarını doldurur. Bölgelerden üretilen zemin de aradaki kılcal

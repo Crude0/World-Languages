@@ -551,8 +551,11 @@ for slug, (tr, endo, fam, grp) in L.items():
 
 # ---------------------------------------------------------------- alt bölgeler
 subs = {}
+inner = {}
 try:
-    sp = json.load(open("sub_paths.json"))["s"]
+    _sub = json.load(open("sub_paths.json"))
+    sp = _sub["s"]
+    inner = _sub.get("inner", {})      # ülke içi il sınırları (ayrı katman)
 except FileNotFoundError:
     sp = {}
     print("UYARI: sub_paths.json yok, alt bölge katmanı atlandı")
@@ -587,7 +590,7 @@ if sp:
             langs[slug]["sub"] = sorted(hits, key=lambda r: -r[1])
 
 out = {"w": mp["w"], "h": mp["h"], "grat": mp["grat"], "eq": mp["eq"], "frame": mp["frame"],
-       "countries": countries, "langs": langs, "subs": subs,
+       "countries": countries, "langs": langs, "subs": subs, "inner": inner,
        "groups": {k: {"n": v[0], "d": v[1],
                       "ne": i18n.GROUP_EN[k][0], "de": i18n.GROUP_EN[k][1]}
                   for k, v in GROUPS.items()},

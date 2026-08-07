@@ -18,7 +18,10 @@
   --shade:     rgba(16,20,28,.16);
   --tint:      #1f6feb;
   --hatch:     rgba(23,26,32,.34);
-  --sub-line:  rgba(23,26,32,.42);
+  /* Sınır hiyerarşisi: ülke sınırı koyu ve kalın, il/eyalet sınırı beyaz ve
+     ince. İki tema arasında anlam sabit — koyu çizgi her zaman ülke. */
+  --border:   rgba(10,12,16,.62);
+  --sub-line: rgba(255,255,255,.70);
   --g-rom: #ea231a; --g-ger: #0080ea; --g-ine: #7529ce; --g-trk: #d88c04;
   --g-afa: #06830f; --g-nkg: #15bb77; --g-asi: #a40062; --g-aus: #db3bb6;
   --g-oth: #8d949e;
@@ -39,7 +42,8 @@
     --shade:     rgba(0,0,0,.45);
     --tint:      #62a8ff;
     --hatch:     rgba(236,238,242,.30);
-    --sub-line:  rgba(236,238,242,.34);
+    --border:   rgba(0,0,0,.66);
+    --sub-line: rgba(255,255,255,.58);
     --g-rom: #db0002; --g-ger: #119efd; --g-ine: #6354f5; --g-trk: #c7810a;
     --g-afa: #81c90d; --g-nkg: #009a73; --g-asi: #ff4b9d; --g-aus: #b529b8;
     --g-oth: #99a1ac;
@@ -60,7 +64,8 @@
   --shade:     rgba(0,0,0,.45);
   --tint:      #62a8ff;
   --hatch:     rgba(236,238,242,.30);
-  --sub-line:  rgba(236,238,242,.34);
+  --border:   rgba(0,0,0,.66);
+  --sub-line: rgba(255,255,255,.58);
   --g-rom: #db0002; --g-ger: #119efd; --g-ine: #6354f5; --g-trk: #c7810a;
   --g-afa: #81c90d; --g-nkg: #009a73; --g-asi: #ff4b9d; --g-aus: #b529b8;
   --g-oth: #99a1ac;
@@ -113,7 +118,9 @@ body.zoomed .orn { opacity: 0; }
   50%      { transform: translateY(-1.6px) rotate(.6deg); }
 }
 .graticule path { fill: none; stroke: var(--rule); stroke-width: .6; vector-effect: non-scaling-stroke; }
-.cty { stroke: var(--ocean); stroke-width: .5; vector-effect: non-scaling-stroke; }
+/* Ülke sınırı: koyu ve belirgin. Kıyıda okyanusa karışır (siluet bozulmaz),
+   iki ülke arasında ise net bir ayrım çizgisi olur. */
+.cty { stroke: var(--border); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
 .dot { stroke: var(--ocean); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .g-rom { fill: var(--g-rom); } .g-ger { fill: var(--g-ger); } .g-ine { fill: var(--g-ine); }
 .g-afa { fill: var(--g-afa); } .g-nkg { fill: var(--g-nkg); } .g-aus { fill: var(--g-aus); }
@@ -126,9 +133,16 @@ body.zoomed .orn { opacity: 0; }
 .crl.g-trk { fill: url(#hx-trk); } .crl.g-asi { fill: url(#hx-asi); }
 .subs, .sub-base { display: none; }
 .subs.on, .sub-base.on { display: inline; }
-.sbase { stroke: var(--ocean); stroke-width: 2; stroke-linejoin: round;
+/* Sınır hiyerarşisi
+   ülke sınırı  : düz koyu çizgi
+   il/eyalet    : aynı koyu kılıfın üstünde beyaz çekirdek */
+.sbase { stroke: var(--border); stroke-width: 1.8; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
-.sub { stroke: var(--sub-line); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.sub { stroke: none; }
+.inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
+         vector-effect: non-scaling-stroke; pointer-events: none; }
+.inner-g { display: none; }
+.inner-g.on { display: inline; }
 /* küçük ülkelerin görünmez dokunma hedefi (Singapur, Malta, Bahreyn…) */
 .hitdot { fill: transparent; pointer-events: all; }
 .subs.on ~ .hits { pointer-events: none; }   /* bölge kipinde bölgeler öncelikli */
@@ -137,7 +151,7 @@ body.zoomed .orn { opacity: 0; }
 .is-filtering .cty.hit2, .is-filtering .dot.hit2, .is-filtering .sub.hit2 {
   stroke: var(--c-min, var(--ink-2)); stroke-width: 1.2;
 }
-.cty.sel, .dot.sel, .sub.sel { stroke: var(--ink); stroke-width: 2; }
+.cty.sel, .dot.sel, .sub.sel { stroke: var(--ink); stroke-width: 2.6; }
 .pin { fill: none; stroke: var(--ink); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
 .map-label {
   fill: var(--ink); paint-order: stroke; stroke: var(--ocean); stroke-width: 3.4;
@@ -601,11 +615,13 @@ body.zoomed .orn { opacity: 0; }
       `<path class="sub ${gcls(LG[SB[sid].l])}" data-sid="${sid}" d="${SB[sid].d}"></path>`).join("") + `</g>` +
     `<g class="dots">` + order.filter((id) => C[id].a < DOT_AT).map((id) =>
       `<circle class="dot ${gcls(LG[C[id].l])}" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="3"></circle>`).join("") + `</g>` +
+    `<g class="inner-g">` + Object.keys(D.inner || {}).map((cid) =>
+      `<path class="inner" d="${D.inner[cid]}"></path>`).join("") + `</g>` +
     `<g class="hits">` + order.filter((id) => C[id].a < HIT_AT).map((id) =>
       `<circle class="hitdot" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="11"></circle>`).join("") + `</g>` +
     `<g class="marks"></g>`;
   const marks = svg.querySelector(".marks"), subG = svg.querySelector(".subs"),
-        baseG = svg.querySelector(".sub-base");
+        baseG = svg.querySelector(".sub-base"), innerG = svg.querySelector(".inner-g");
   const nodesOf = (id) => svg.querySelectorAll(`[data-id="${id}"]`);
   const subNode = (sid) => subG.querySelector(`[data-sid="${CSS.escape(sid)}"]`);
 
@@ -825,6 +841,7 @@ body.zoomed .orn { opacity: 0; }
     subOn = on;
     subG.classList.toggle("on", on);
     baseG.classList.toggle("on", on);
+    innerG.classList.toggle("on", on);
     if (on) { markMap(); repaint(); }
     if (!on && state.selSub) select(state.sel);
   }

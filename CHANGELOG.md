@@ -10,6 +10,31 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.3.1 — 7 Ağustos 2026
+
+**Sınır çizgileri okunur hâle geldi.** İl/eyalet sınırı %34 saydam beyaz bir
+kıl çizgiydi; parlak dolguların üstünde görünmüyordu. Daha kötüsü, ülke sınırı
+ile il sınırı ayırt edilemiyordu: Belçika'nın kuzeyi Hollanda'ya, güneyi
+Fransa'ya bağlıymış gibi duruyordu.
+
+Kökeninde bir katman hatası vardı. Ülke konturu diye çizilen şey, illerin
+yollarının arka arkaya eklenmiş hâlinin konturuydu — yani ülke sınırını değil
+**her il sınırını** çiziyordu, üstelik iller onun üstüne çizildiği için
+ABD–Kanada sınırı da eyalet çizgisinden farksız kalıyordu. Kıyılar da bu yüzden
+beyaz çerçeveli görünüyordu.
+
+`build_subs.py` artık gerçek iç sınırları ayıklıyor: iki ilde birden geçen
+kenarlar iç sınır, bir kez geçenler ülkenin çeperi. Noktalar zaten ızgaraya
+oturtulduğu için kenarlar birebir eşleşiyor. Sonuçta:
+
+- **ülke sınırı** — düz koyu çizgi,
+- **il/eyalet sınırı** — aynı koyu kılıfın üstünde beyaz çekirdek,
+- **kıyı** — temiz, çerçevesiz.
+
+Anlam iki temada da sabit: koyu çizgi her zaman ülke. Ayrıca masaüstünde elle
+koyu tema seçildiğinde `--sub-line` tanımsız kalıyordu, açık temanın koyu çizgi
+değeri kullanılıyordu; o da düzeldi.
+
 ## v0.3.0 — 7 Ağustos 2026
 
 **Renkler canlandı.** Palet aramasında kromayı 0,20'de sınırlamıştım; bu benim
