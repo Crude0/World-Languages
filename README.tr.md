@@ -103,7 +103,7 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.3.1** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.3.2** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|

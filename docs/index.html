@@ -260,8 +260,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   stroke: var(--border); stroke-width: 1.8; stroke-linejoin: round;
   vector-effect: non-scaling-stroke; pointer-events: none;
 }
-.sub { stroke: none; }
-.sub:hover { stroke: var(--ring); stroke-width: 1.8; }
+/* stroke yok ama vector-effect kalmalı: seçim ve vurgu kuralları
+   kalınlığı bu özellik üzerinden CSS pikseline sabitliyor. */
+.sub { stroke: none; vector-effect: non-scaling-stroke; }
+.sub:hover { stroke: var(--ring); stroke-width: 1.2; }
 .inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
 .inner-g { display: none; }
@@ -275,7 +277,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .is-filtering .cty.hit2, .is-filtering .dot.hit2 {
   stroke: var(--c-min, var(--ink-2)); stroke-width: 1.4;
 }
-.cty.sel, .dot.sel { stroke: var(--ring); stroke-width: 2.4; }
+.cty.sel, .dot.sel { stroke: var(--ring); stroke-width: 1.6; }
 .cty:hover, .dot:hover { stroke: var(--ring); stroke-width: 1.2; }
 .pin { fill: none; stroke: var(--ring); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
 /* font-size vermiyoruz: boyut öznitelikten geliyor ve CSS onu ezerdi.

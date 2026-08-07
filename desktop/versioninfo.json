@@ -3,13 +3,13 @@
     "FileVersion": {
       "Major": 0,
       "Minor": 3,
-      "Patch": 1,
+      "Patch": 2,
       "Build": 0
     },
     "ProductVersion": {
       "Major": 0,
       "Minor": 3,
-      "Patch": 1,
+      "Patch": 2,
       "Build": 0
     },
     "FileFlagsMask": "3f",
@@ -23,8 +23,8 @@
     "FileDescription": "Dünya Dilleri Atlası — çevrimdışı interaktif harita",
     "InternalName": "DunyaDilleriAtlasi",
     "OriginalFilename": "Dunya Dilleri Atlasi.exe",
-    "FileVersion": "0.3.1.0",
-    "ProductVersion": "0.3.1.0",
+    "FileVersion": "0.3.2.0",
+    "ProductVersion": "0.3.2.0",
     "LegalCopyright": "Açık veri · Natural Earth sınırları"
   },
   "VarFileInfo": {

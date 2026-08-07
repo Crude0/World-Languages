@@ -10,6 +10,23 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.3.2 — 7 Ağustos 2026
+
+**Bir yere tıklayınca çıkan kalın çizgi düzeltildi.** 0.3.1'de iki hata birden
+yaptım:
+
+- İl sınırlarını ayrı bir katmana taşırken `.sub` kuralını `stroke: none` ile
+  değiştirdim ve **`vector-effect: non-scaling-stroke`'u da düşürdüm**. Bu özellik
+  olmadan seçim çizgisinin kalınlığı CSS pikseliyle değil harita birimiyle
+  ölçülüyor: yakınlaşınca 2 birimlik çizgi ekranda onlarca piksele çıkıp seçili
+  bölgeyi beyaz bir lekeye çeviriyordu. Özellik geri kondu; ölçtüm, çizgi artık
+  her yakınlıkta 2 piksel.
+- Seçim çizgisini kimse istemeden kalınlaştırmıştım (mobilde 2 → 2,6; masaüstünde
+  1,6 → 2,4 ve imleç vurgusunda 1,2 → 1,8). Hepsi eski değerine döndü.
+
+Sınır hiyerarşisinde bir değişiklik yok: ülke sınırı düz koyu, il sınırı koyu
+kılıf üstünde beyaz çekirdek.
+
 ## v0.3.1 — 7 Ağustos 2026
 
 **Sınır çizgileri okunur hâle geldi.** İl/eyalet sınırı %34 saydam beyaz bir

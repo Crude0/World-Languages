@@ -138,7 +138,9 @@ body.zoomed .orn { opacity: 0; }
    il/eyalet    : aynı koyu kılıfın üstünde beyaz çekirdek */
 .sbase { stroke: var(--border); stroke-width: 1.8; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
-.sub { stroke: none; }
+/* stroke yok ama vector-effect kalmalı: seçim ve vurgu kuralları
+   kalınlığı bu özellik üzerinden CSS pikseline sabitliyor. */
+.sub { stroke: none; vector-effect: non-scaling-stroke; }
 .inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
 .inner-g { display: none; }
@@ -151,7 +153,7 @@ body.zoomed .orn { opacity: 0; }
 .is-filtering .cty.hit2, .is-filtering .dot.hit2, .is-filtering .sub.hit2 {
   stroke: var(--c-min, var(--ink-2)); stroke-width: 1.2;
 }
-.cty.sel, .dot.sel, .sub.sel { stroke: var(--ink); stroke-width: 2.6; }
+.cty.sel, .dot.sel, .sub.sel { stroke: var(--ink); stroke-width: 2; }
 .pin { fill: none; stroke: var(--ink); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
 .map-label {
   fill: var(--ink); paint-order: stroke; stroke: var(--ocean); stroke-width: 3.4;
