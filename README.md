@@ -94,7 +94,7 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.1.4** — get it from the
+Latest release **v0.2.0** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 
@@ -176,6 +176,7 @@ build_data.py       joins every layer, computes speaker counts
 build_page.py       desktop page (single file, fonts embedded)
 build_mobile.py     phone interface (system fonts)
 anchor.py           label anchors (pole of inaccessibility)
+VERSION             single source for the version in every package
 page.tmpl.html      desktop interface
 mobile.tmpl.html    phone interface
 lang_mix.py         language distribution per country

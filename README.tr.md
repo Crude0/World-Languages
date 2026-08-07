@@ -101,7 +101,7 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.1.4** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.2.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
@@ -181,6 +181,7 @@ build_data.py       tüm katmanları birleştirir, konuşan sayılarını hesapl
 build_page.py       masaüstü sayfası (gömülü fontlarla tek dosya)
 build_mobile.py     telefon arayüzü (sistem fontları)
 anchor.py           etiket çapaları (erişilmezlik kutbu)
+VERSION             paketlerdeki sürüm numarasının tek kaynağı
 page.tmpl.html      masaüstü arayüzü
 mobile.tmpl.html    telefon arayüzü
 lang_mix.py         ülke başına dil dağılımı

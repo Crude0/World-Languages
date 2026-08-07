@@ -1,6 +1,15 @@
 # Sürüm geçmişi
 
-## v0.1.4 — 7 Ağustos 2026
+Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığını izler,
+1.0 öncesi ölçekte:
+
+- **0.0.x** — hata düzeltmesi, veri düzeltmesi. Görünüm ve davranış aynı kalır.
+- **0.x.0** — yeni bir yetenek ya da görünümü/davranışı değiştiren bir düzeltme
+  kümesi. Kullanıcı açtığında farkı görüyorsa buradadır.
+- **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
+  rakamlarının anket temelli olanları ayrıştırıldığında.
+
+## v0.2.0 — 7 Ağustos 2026
 
 **Dokuz renkli lejant.** Gri "diğer aileler" yığını 47 dilden 11'e indi: Türk
 dilleri ve Doğu-Güney Asya dilleri kendi renklerini aldı. Palet elle seçilmedi —
@@ -39,6 +48,13 @@ hizadan başlıyor.
 
 **Depo iki dilde.** Varsayılan README İngilizce, Türkçesi `README.tr.md`;
 veri belgesi de öyle.
+
+**Paket sürümleri artık etiketle aynı.** `.app`, `.exe` ve APK'nın içindeki
+numara 1.0'da kalmıştı; üçü de artık depo kökündeki `VERSION` dosyasından
+besleniyor.
+
+> Bu sürüm kısa süre `v0.1.4` etiketiyle yayımlandı; değişikliğin kapsamı
+> yama numarasına sığmadığı için `v0.2.0` olarak yeniden yayımlandı.
 
 ## v0.1.3 — 6 Ağustos 2026
 

@@ -19,6 +19,11 @@ python3 "$HERE/../build_mobile.py" >/dev/null
 echo "· kaynaklar derleniyor (aapt2 compile)"
 "$BT/aapt2" compile --dir "$HERE/res" -o "$OUT/res.zip"
 
+# sürüm depo kökündeki VERSION dosyasından; versionCode ondan türetilir
+VERSION="$(tr -d "[:space:]" < "$HERE/../VERSION")"
+VERSION_CODE="$(echo "$VERSION" | awk -F. '{printf "%d", $1*10000 + $2*100 + $3}')"
+echo "· sürüm $VERSION (code $VERSION_CODE)"
+
 echo "· paket bağlanıyor (aapt2 link)"
 "$BT/aapt2" link \
   -o "$OUT/base.apk" \
@@ -29,6 +34,8 @@ echo "· paket bağlanıyor (aapt2 link)"
   --java "$OUT/gen" \
   --min-sdk-version 24 \
   --target-sdk-version 34 \
+  --version-name "$VERSION" \
+  --version-code "$VERSION_CODE" \
   --auto-add-overlay
 
 echo "· java derleniyor"

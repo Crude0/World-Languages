@@ -8,7 +8,9 @@ DIST = HERE / "dist"
 APP_NAME = "Dünya Dilleri Atlası"
 BUNDLE = "Dunya Dilleri Atlasi"   # ISO9660 Unicode adları macOS'ta bozuyor
 EXEC_NAME = "dunya-dilleri-atlasi"
-VERSION = "1.0"
+# Sürüm tek yerden gelir: depo kökündeki VERSION dosyası. Etiket, release,
+# .app, .exe ve APK aynı numarayı taşısın diye.
+VERSION = (pathlib.Path(__file__).resolve().parent.parent / "VERSION").read_text().strip()
 
 CPU_TYPE = {"amd64": (0x01000007, 0x00000003), "arm64": (0x0100000C, 0x00000000)}
 
