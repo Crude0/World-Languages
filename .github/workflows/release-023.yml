@@ -1,0 +1,44 @@
+name: v0.2.3 (tek seferlik)
+on: { workflow_dispatch: }
+permissions: { contents: write }
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env: { GH_TOKEN: "${{ github.token }}", REPO: "${{ github.repository }}" }
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cat > notes.md <<'EOF'
+          **The automatic country/region switch is fixed.**
+
+          The threshold was written as a fraction of the map's own width
+          (`W / 1.5`), which ignores the shape of the screen. On a phone the widest
+          possible view is already a small fraction of the whole map, so the value
+          could never rise above the threshold: **on Android the regions were shown
+          even when fully zoomed out**, and had been since the first Android build.
+          On the desktop the opposite complaint — provinces appeared at only 1.5×,
+          far too early.
+
+          The criterion is no longer a fraction of the screen but **how many pixels
+          one map unit covers**: regions appear at 2.5 px/unit and disappear below
+          2.0 (hysteresis, so it does not flicker at the boundary). Because that
+          measure is device-independent, regions now appear at the same *apparent*
+          scale on a phone and on a desktop — roughly the zoom at which Türkiye is
+          about 170 pixels wide. On the desktop that is more than twice as late as
+          before. The manual **Country / Region** setting still overrides it.
+
+          ### Downloads
+
+          | Platform | File | Size |
+          |---|---|---|
+          | Android 7+ | `Dunya-Dilleri-Atlasi.apk` | 433 KB |
+          | macOS 10.15+ | `Dunya-Dilleri-Atlasi.dmg` | 6.8 MB |
+          | Windows 10+ | `Dunya Dilleri Atlasi.exe` | 4.1 MB |
+
+          The apps are unsigned: on macOS right-click → **Open**, on Windows pick
+          **More info** → **Run anyway**, on Android allow unknown sources.
+          EOF
+          gh release view v0.2.3 --repo "$REPO" >/dev/null 2>&1 && { echo "zaten var"; exit 0; }
+          gh release create v0.2.3 --repo "$REPO" --target "${{ github.sha }}" --latest \
+            --title "v0.2.3 — Automatic region threshold" --notes-file notes.md \
+            "dist/Dunya-Dilleri-Atlasi.apk" "dist/Dunya-Dilleri-Atlasi.dmg" "dist/Dunya Dilleri Atlasi.exe"
