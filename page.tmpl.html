@@ -794,10 +794,20 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // yakınlaşmaya bağlıdır; iki eşik arasında boşluk bırakılır ki sınırda
   // ileri geri titremesin.
   let subOn = false, lod = "auto";
-  const LOD_IN = W / 1.5, LOD_OUT = W / 1.25;
+  // Otomatik geçişin ölçütü ekranın kesri değil, bir harita biriminin kaç piksel
+  // ettiği. Böylece bölgeler telefonda da masaüstünde de aynı *görünür* ölçekte
+  // açılıyor. Eski eşik W'nin kesri olarak yazılmıştı (W/1.5); telefonda en
+  // geniş görünüm zaten W'nin çok altında kaldığı için bölgeler hiç kapanmıyor,
+  // masaüstünde ise 1,5x gibi erken bir yakınlıkta açılıyordu.
+  // 2.5 px/birim ≈ Türkiye ekranda ~170 piksel: iller okunur ama harita hâlâ
+  // bölgesel. Eski masaüstü eşiği 1,5x (0,78 px/birim) idi, iki katından
+  // fazla geç açılıyor artık. Elle "Bölge" seçimi bunu her zaman ezer.
+  const LOD_ON = 2.5, LOD_OFF = 2.0;      // piksel / harita birimi (histerezis)
+  const mapScale = () => mapRect().width / vb.w;
   function applyLod() {
+    const k = mapScale();
     const want = lod === "on" ? true : lod === "off" ? false
-      : (subOn ? vb.w < LOD_OUT : vb.w < LOD_IN);
+      : (subOn ? k > LOD_OFF : k > LOD_ON);
     if (want !== subOn) setSubs(want);
   }
   function setSubs(on) {

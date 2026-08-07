@@ -10,6 +10,22 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.2.3 — 7 Ağustos 2026
+
+**Otomatik ülke/bölge geçişi düzeltildi.** Eşik "haritanın kaçta kaçını
+görüyorsun" diye yazılmıştı (`W/1.5`), ama bu ekran oranını hesaba katmıyor.
+Telefonda en geniş görünüm zaten haritanın çok küçük bir kesri olduğu için
+eşiğin altına hiç çıkamıyordu: Android'de **en uzakta bile bölgeler açıktı**,
+ilk sürümden beri. Masaüstünde ise 1,5 katlık bir yakınlıkta açılıyordu, yani
+çok erken.
+
+Ölçüt artık ekranın kesri değil, **bir harita biriminin kaç piksel ettiği**:
+2,5 px/birim'de bölgeler açılıyor, 2,0'ın altına inince kapanıyor (histerezis,
+eşiğin başında titremesin diye). Bu ölçü cihazdan bağımsız olduğu için telefonda
+ve masaüstünde bölgeler artık aynı *görünür* ölçekte beliriyor — kabaca
+Türkiye'nin ekranda ~170 piksel geldiği yakınlık. Masaüstünde eski eşiğin iki
+katından fazla geç. Elle **Ülke / Bölge** seçimi her zaman bunu ezer.
+
 ## v0.2.2 — 7 Ağustos 2026
 
 **Katman menüsü yarım açılıyordu.** Menü araç sütununun üstüne konumlanıyor,
