@@ -1,0 +1,50 @@
+name: v0.2.1 (tek seferlik)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cat > notes.md <<'EOF'
+          A fix for a regression introduced in 0.2.0.
+
+          **Dragging the map pulled it out of its frame.** In 0.2.0 I stopped
+          writing the `viewBox` during a gesture and slid the rasterised layer with
+          a CSS transform instead. It was fast but wrong: a compositor can only move
+          pixels that were already painted, so on the desktop the map spilled 219
+          pixels outside its card and the direction you dragged towards was left
+          blank; it snapped back into place when you released the button. Mobile had
+          the same flaw, leaving a 140-pixel gap at the edge.
+
+          The trick is wrong for panning and has been removed. The real `viewBox` is
+          written every frame again — but coalesced through `requestAnimationFrame`,
+          so however many times the mouse moves within one frame, the map is drawn
+          once (the desktop did not do this before 0.2.0). Most of 0.2.0's
+          smoothness came from the sheet and layers menu becoming opaque surfaces
+          rather than glass, and that stays.
+
+          Reported on macOS; the same bug was present on Android and Windows.
+
+          ### Downloads
+
+          | Platform | File | Size |
+          |---|---|---|
+          | Android 7+ | `Dunya-Dilleri-Atlasi.apk` | 433 KB |
+          | macOS 10.15+ | `Dunya-Dilleri-Atlasi.dmg` | 6.8 MB |
+          | Windows 10+ | `Dunya Dilleri Atlasi.exe` | 4.1 MB |
+
+          The apps are unsigned: on macOS right-click → **Open**, on Windows pick
+          **More info** → **Run anyway**, on Android allow unknown sources.
+          EOF
+          gh release view v0.2.1 --repo "$REPO" >/dev/null 2>&1 && { echo "zaten var"; exit 0; }
+          gh release create v0.2.1 --repo "$REPO" --target "${{ github.sha }}" --latest \
+            --title "v0.2.1 — Drag fix" --notes-file notes.md \
+            "dist/Dunya-Dilleri-Atlasi.apk" "dist/Dunya-Dilleri-Atlasi.dmg" "dist/Dunya Dilleri Atlasi.exe"
+          gh release list --repo "$REPO"
