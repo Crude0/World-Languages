@@ -94,7 +94,7 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.2.0** — get it from the
+Latest release **v0.2.1** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 

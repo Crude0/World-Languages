@@ -935,11 +935,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const unit = () => vb.w / Math.max(1, mapRect().width);
   let dotNodes = null;
 
-  // Sürekli jestlerde (tekerlek, kıstırma, sürükleme) her karede viewBox
-  // yazmak bütün yolları yeniden rasterize ettirir. Onun yerine hazır katmanı
-  // compositor ile kaydırıp ölçekliyoruz; hareket durunca gerçek viewBox bir
-  // kez yazılıyor. Mac'te dokunmatik yüzey, Windows'ta 2K ekran bunu hissediyor.
-  let gest = null, drawn = { x: 0, y: 0, w: W }, settle = 0, raf = 0;
+  // Not: bir ara jest boyunca viewBox'ı dondurup katmanı CSS dönüşümüyle
+  // kaydırmayı denedim. Hızlıydı ama yanlıştı: compositor yalnızca zaten
+  // çizilmiş pikselleri taşıyabildiği için harita kartın dışına taşıyor,
+  // kaydırılan yönde de boş alan kalıyordu. Gerçek viewBox yazılıyor; rAF ile
+  // kareye bir kez — fare bir karede kaç kez kıpırdarsa kıpırdasın tek çizim.
+  let raf = 0;
   function clampVB() {
     vb.w = Math.min(W, Math.max(MINW, vb.w));
     vb.h = vb.w * H / W;
@@ -948,10 +949,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   }
   function commitVB() {
     clampVB();
-    gest = null;
-    svg.style.transform = "";
     svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-    drawn = { x: vb.x, y: vb.y, w: vb.w };
     const u = unit();
     if (!dotNodes) dotNodes = svg.querySelectorAll(".dot");
     dotNodes.forEach((d) => d.setAttribute("r", (3 * u).toFixed(2)));
@@ -960,20 +958,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (lbl) lbl.setAttribute("font-size", (13 * u).toFixed(2));
     applyLod();
   }
-  function previewVB() {
-    clampVB();
-    const sc = mapRect().width / vb.w;
-    svg.style.transform =
-      `translate(${((gest.x - vb.x) * sc).toFixed(2)}px, ${((gest.y - vb.y) * sc).toFixed(2)}px) ` +
-      `scale(${(gest.w / vb.w).toFixed(5)})`;
-  }
-  function applyVB() { clampVB(); commitVB(); }
-  // sürekli jest: kareye bir kez önizle, duruşta bir kez işle
-  function glideVB() {
-    if (!gest) gest = { x: drawn.x, y: drawn.y, w: drawn.w };
-    if (!raf) raf = requestAnimationFrame(() => { raf = 0; if (gest) previewVB(); });
-    clearTimeout(settle);
-    settle = setTimeout(commitVB, 140);
+  function applyVB() {
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = 0; commitVB(); });
   }
   function zoomTo(cx, cy, w) {
     vb.w = w; vb.h = w * H / W; vb.x = cx - vb.w / 2; vb.y = cy - vb.h / 2; applyVB();
@@ -998,7 +985,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const r = nw / vb.w;
     vb.x = p.x - (p.x - vb.x) * r;
     vb.y = p.y - (p.y - vb.y) * r;
-    vb.w = nw; glideVB();
+    vb.w = nw; applyVB();
   }
   // Dokunmatik yüzeyde iki parmak: kaydırma = pan, kıstırma = yakınlaşma.
   // macOS kıstırma hareketini ctrlKey'li wheel olayı olarak gönderir.
@@ -1013,12 +1000,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     }
     if (e.shiftKey && !e.deltaX) {         // klasik fare tekerleği + shift: yatay
       const sc = vb.w / mapRect().width;
-      vb.x += dy * sc; glideVB();
+      vb.x += dy * sc; applyVB();
       return;
     }
     if (Math.abs(dx) > 0.5 || e.deltaMode === 0) {   // iki parmak kaydırma
       const sc = vb.w / mapRect().width;
-      vb.x += dx * sc; vb.y += dy * sc; glideVB();
+      vb.x += dx * sc; vb.y += dy * sc; applyVB();
       return;
     }
     zoomAt(Math.exp(dy * 0.004), svgPt(e));          // satır kipli fare tekerleği
@@ -1078,7 +1065,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         // parmakların şu anki orta noktası, jestin başındaki yeri göstersin
         vb.x = pinch.p.x - ((cx - r.left) / r.width) * vb.w;
         vb.y = pinch.p.y - ((cy - r.top) / r.height) * vb.h;
-        glideVB();
+        applyVB();
       }
       return;
     }
@@ -1086,7 +1073,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const sc = vb.w / mapRect().width;
     const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
     if (Math.abs(dx) + Math.abs(dy) > 3) { drag.moved = true; svg.classList.add("dragging"); tip.classList.remove("on"); }
-    vb.x = drag.vx - dx * sc; vb.y = drag.vy - dy * sc; glideVB();
+    vb.x = drag.vx - dx * sc; vb.y = drag.vy - dy * sc; applyVB();
   });
   const endDrag = (e) => {
     pointers.delete(e.pointerId);
@@ -1095,7 +1082,6 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       if (drag.sid) select(SB[drag.sid].p, drag.sid); else select(drag.id);
     }
     drag = null; svg.classList.remove("dragging");
-    if (gest) commitVB();                 // jest bitti: gerçek viewBox'a geç
   };
   svg.addEventListener("pointerup", endDrag);
   svg.addEventListener("pointercancel", (e) => { e.__cancel = true; endDrag(e); });

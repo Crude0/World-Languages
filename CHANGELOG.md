@@ -9,6 +9,21 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.2.1 — 7 Ağustos 2026
+
+**Haritayı sürüklerken kayma düzeltildi.** 0.2.0'da jest boyunca `viewBox`
+yazmayı bırakıp katmanı CSS dönüşümüyle kaydırmaya başlamıştım. Hızlıydı ama
+yanlıştı: compositor yalnızca zaten çizilmiş pikselleri taşıyabildiği için
+masaüstünde harita kartının dışına taşıyor (ölçtüm: 219 piksel), kaydırılan
+yönde de içerik olmayan boş alan kalıyordu; parmak/fare kalkınca yerine
+oturuyordu. Mobilde de aynısı vardı, kenarda 140 piksel boşluk bırakıyordu.
+
+Bu numara kaydırma için doğru değil, kaldırıldı. Artık her karede gerçek
+`viewBox` yazılıyor — ama `requestAnimationFrame` ile kareye bir kez, yani fare
+bir karede kaç kez kıpırdarsa kıpırdasın tek çizim yapılıyor (masaüstünde bu
+eskiden yoktu). 0.2.0'ın akıcılık kazancının büyük kısmı zaten panelin ve
+menünün camdan opak yüzeye geçmesinden geliyordu, o duruyor.
+
 ## v0.2.0 — 7 Ağustos 2026
 
 **Dokuz renkli lejant.** Gri "diğer aileler" yığını 47 dilden 11'e indi: Türk

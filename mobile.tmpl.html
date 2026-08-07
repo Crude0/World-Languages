@@ -88,7 +88,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   border: .5px solid var(--edge);
   box-shadow: 0 8px 30px var(--shade), inset 0 .5px 0 rgba(255,255,255,.30);
 }
-body.busy #map { shape-rendering: optimizeSpeed; will-change: transform; }
+body.busy #map { shape-rendering: optimizeSpeed; }
 body.busy .sheet { transition: none; }
 
 /* ============================================================ harita ==== */
@@ -605,10 +605,10 @@ body.zoomed .orn { opacity: 0; }
   const clampW = (w) => Math.min(maxW(), Math.max(W / 160, w));
 
   let raf = 0, busy = false;
-  // Jest boyunca rasterize edilmiş hâlin görüş kutusu. Doluyken viewBox'a
-  // dokunmuyoruz: her kare 550 yolu yeniden çizmek yerine hazır katmanı
-  // compositor kaydırıp ölçekliyor. Parmak kalkınca gerçek viewBox yazılıyor.
-  let gest = null, drawn = { x: 0, y: 0, w: W };
+  // Not: bir ara jest boyunca viewBox'ı dondurup katmanı CSS dönüşümüyle
+  // kaydırmayı denedim. Hızlıydı ama yanlıştı: compositor yalnızca zaten
+  // çizilmiş pikselleri taşıyabildiği için kaydırırken kenarda boş alan
+  // kalıyordu. Her kare gerçek viewBox yazılıyor; rAF ile kareye bir kez.
   function clampVB() {
     vb.w = clampW(vb.w);
     vb.h = vb.w * aspect();
@@ -618,21 +618,12 @@ body.zoomed .orn { opacity: 0; }
   }
   function applyVB() {                      // kareye bir kez uygula
     if (raf) return;
-    raf = requestAnimationFrame(() => { raf = 0; gest ? previewVB() : commitVB(); });
-  }
-  function previewVB() {
-    clampVB();
-    const s = mapRect().width / vb.w;
-    svg.style.transform =
-      `translate(${((gest.x - vb.x) * s).toFixed(2)}px, ${((gest.y - vb.y) * s).toFixed(2)}px) ` +
-      `scale(${(gest.w / vb.w).toFixed(5)})`;
+    raf = requestAnimationFrame(() => { raf = 0; commitVB(); });
   }
   function commitVB() {
     clampVB();
-    svg.style.transform = "";
     svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-    drawn = { x: vb.x, y: vb.y, w: vb.w };   // rasterize edilmiş hâl
-    refineMarks();
+    if (!busy) refineMarks();               // parmak üzerindeyken atlanır
     document.body.classList.toggle("zoomed", vb.w < maxW() * .62);
     applyLod();
   }
@@ -662,8 +653,7 @@ body.zoomed .orn { opacity: 0; }
     if (busy === on) return;
     busy = on;
     document.body.classList.toggle("busy", on);
-    if (on) { gest = { x: drawn.x, y: drawn.y, w: drawn.w }; }
-    else { gest = null; commitVB(); }
+    if (!on) { refineMarks(); applyVB(); }
   }
   const svgPt = (cx, cy) => {
     const r = mapRect();
