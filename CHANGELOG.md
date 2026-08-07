@@ -4,10 +4,31 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 1.0 öncesi ölçekte:
 
 - **0.0.x** — hata düzeltmesi, veri düzeltmesi. Görünüm ve davranış aynı kalır.
-- **0.x.0** — yeni bir yetenek ya da görünümü/davranışı değiştiren bir düzeltme
-  kümesi. Kullanıcı açtığında farkı görüyorsa buradadır.
+- **0.x.0** — yeni bir yetenek ya da uygulamanın genelini elden geçiren bir
+  değişiklik kümesi. Tek tek görünür düzeltmeler değil; "epey şey değişmiş"
+  denecek kadarı.
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
+
+## v0.2.2 — 7 Ağustos 2026
+
+**Katman menüsü yarım açılıyordu.** Menü araç sütununun üstüne konumlanıyor,
+araç sütunu da panele bağlıydı; panel yukarıdayken menü ekranın 169 piksel
+üstünden taşıyor ve yalnızca alt yarısı görünüyordu. Artık menü açılınca panel
+en alt durağa iniyor, menü de tam sığacağı yerde kendi animasyonuyla açılıyor.
+Sığmayan ekranlarda yüksekliği görünür alana göre kısılıyor.
+
+**Araç sütunu ekrandan kırpılıyordu.** Aynı sebep: panel tam açıkken sütun üst
+çubuğun altına giriyordu. Artık üst çubuğun altına inmiyor, panelle birlikte
+yumuşak kayıyor (sürüklerken de anlık takip ediyor) ve yer kalmadığında
+görünmez oluyor.
+
+**Buzlu cam panele geri döndü.** 0.2.0'da tamamen kaldırmıştım; doğrusu ikisi
+arasında bir yerdeydi. Panel haritanın üstünde yüzerken (en alt durak) cam,
+yukarı çekilince — metin yoğunlaştığı ve okunurluk öne geçtiği için — opak.
+Pahalı olan durum "geniş bulanık alan + hareket eden harita"ydı, o hiç oluşmuyor;
+değişim de harita sürüklenirken değil, paneli çekerken ve onun animasyonuyla
+birlikte oluyor. 0.2.0 öncesindeki ani opaklık sıçraması geri gelmiyor.
 
 ## v0.2.1 — 7 Ağustos 2026
 

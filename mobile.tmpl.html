@@ -164,7 +164,12 @@ body.zoomed .orn { opacity: 0; }
 .tools {
   position: fixed; right: 12px; z-index: 5; display: grid; gap: 1px;
   border-radius: 18px; overflow: hidden; padding: 1px;
+  transition: bottom .34s cubic-bezier(.22,.9,.24,1), opacity .2s ease, transform .2s ease;
+  transform-origin: 100% 100%;
 }
+/* Panel yukarı çıkıp haritayı kapatınca araçlar çekilir — üst çubuğun altına
+   sıkışıp kırpılmaktansa (Apple Maps de panel açılınca denetimleri gizler). */
+.tools.away { opacity: 0; transform: scale(.86); pointer-events: none; }
 .tools button {
   width: 46px; height: 44px; display: grid; place-items: center;
   font-size: 1.15rem; font-weight: 500; color: var(--ink);
@@ -182,8 +187,7 @@ body.zoomed .orn { opacity: 0; }
   box-shadow: 0 10px 34px var(--shade);
   position: fixed; right: 12px; z-index: 6; width: min(300px, calc(100vw - 24px));
   border-radius: 18px; padding: 12px 13px 13px; display: grid; gap: 8px;
-  max-height: calc(100vh - env(safe-area-inset-top) - 132px); overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow-y: auto; overscroll-behavior: contain;
 }
 .pop[hidden] { display: none; }
 .pop-t { margin: 0; font-size: .75rem; font-weight: 600; letter-spacing: .03em;
@@ -191,19 +195,28 @@ body.zoomed .orn { opacity: 0; }
 .pop-n { margin: 2px 0 0; font-size: .75rem; color: var(--ink-3); line-height: 1.35; }
 
 /* ============================================================ sayfa ===== */
-/* Panel bilerek cam değil: bulanıklık her karede yeniden hesaplanıyordu ve
-   hareket başlayınca opaklık sıçrıyordu. Apple'ın harita panelleri de opak bir
-   malzeme kullanır — görünüm hiç değişmiyor, en pahalı iş de ortadan kalkıyor. */
+/* Panel haritanın üstünde yüzerken cam, yukarı çekilince opak.
+   Pahalı olan durum "geniş bulanık alan + hareket eden harita"ydı; panel
+   büyüdüğünde camı bırakınca o durum hiç oluşmuyor. Değişim de harita
+   sürüklenirken değil, paneli sen çekerken ve onun animasyonuyla birlikte
+   oluyor — 0.2.0 öncesindeki ani opaklık sıçramasının sebebi buydu. */
 .sheet {
-  background: var(--sheet);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  backdrop-filter: blur(20px) saturate(135%);
   border: .5px solid var(--edge); border-bottom: 0;
   box-shadow: 0 -6px 30px var(--shade);
+  transition: transform .34s cubic-bezier(.22,.9,.24,1),
+              background .34s ease, -webkit-backdrop-filter .34s ease,
+              backdrop-filter .34s ease;
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
   height: 92vh; border-radius: 22px 22px 0 0; padding: 0;
   display: flex; flex-direction: column;
   transform: translate3d(0, calc(100% - var(--peek, 128px)), 0);
-  transition: transform .34s cubic-bezier(.22,.9,.24,1);
-  border-bottom: 0;
+}
+.sheet.up {
+  background: var(--sheet);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
 }
 .sheet.dragging { transition: none; }
 /* Tutamak: çizgi ince görünür ama dokunma alanı iOS ölçüsünde (44px). */
@@ -908,13 +921,34 @@ body.zoomed .orn { opacity: 0; }
     return { peek: h - PEEK, half: h * 0.42, full: 0 };   // translateY değerleri
   };
   const sheetY = () => heights()[detent];
-  function setDetent(d, quiet) {
-    if (!pop.hidden) setPop(false);      // menü panelle birlikte sürüklenmesin
+  // Yüzen katmanların yerleşimi tek elden. Araç sütunu panelin üstünde durur
+  // ama üst çubuğun altına girmez; menü de araç sütununun üstünde açılır ve
+  // ekranın dışına taşmaz. Eskiden ikisi de panele bakıp körlemesine
+  // konumlanıyordu, panel yukarıdayken tepeden kırpılıyorlardı.
+  const tools = $("#tools");
+  const GAP = 12;
+  function placeFloaters(top) {
+    const st = stage.clientHeight || 1;
+    const th = tools.offsetHeight || 183;
+    const roof = st - (TOPBAR + 8) - th;             // daha yukarı çıkamaz
+    const away = roof < GAP;                          // hiç yer yok
+    const bottom = Math.min(Math.max(GAP, st - top + GAP), Math.max(GAP, roof));
+    tools.style.bottom = bottom + "px";
+    tools.classList.toggle("away", away);
+    if (!pop.hidden) {
+      const pb = st - (st - bottom - th) + 10;        // araç sütununun üstü
+      pop.style.bottom = pb + "px";
+      pop.style.maxHeight = Math.max(160, st - pb - (TOPBAR + 8)) + "px";
+    }
+  }
+  function setDetent(d, quiet, keepPop) {
+    if (!keepPop && !pop.hidden) setPop(false);   // menü panelle sürüklenmesin
     detent = d;
+    sheet.classList.toggle("up", d !== "peek");
     const y = heights()[d];
     sheet.style.transform = `translate3d(0, ${y}px, 0)`;
     sheetTop = sheet.offsetTop + y;                  // araç sütunu ve harita için
-    $("#tools").style.bottom = (stage.clientHeight - sheetTop + 12) + "px";
+    placeFloaters(sheetTop);
     if (!quiet) live(d === "peek" ? t().panelShut : t().panelOpen);
   }
   // sürükleme
@@ -924,17 +958,20 @@ body.zoomed .orn { opacity: 0; }
     if (!pop.hidden) setPop(false);
     sd = { y: e.clientY, base: heights()[detent], t: Date.now() };
     sheet.classList.add("dragging");
+    tools.style.transition = "none";     // parmakla birlikte anında kaysın
     e.currentTarget.setPointerCapture(e.pointerId);
   };
   const moveDrag = (e) => {
     if (!sd) return;
     const y = Math.max(0, Math.min(heights().peek, sd.base + (e.clientY - sd.y)));
     sheet.style.transform = `translate3d(0, ${y}px, 0)`;
+    placeFloaters(sheet.offsetTop + y);
     sd.last = y;
   };
   const endDrag = (e) => {
     if (!sd) return;
     sheet.classList.remove("dragging");
+    tools.style.transition = "";
     const h = heights(), y = sd.last === undefined ? sd.base : sd.last;
     const v = (e.clientY - sd.y) / Math.max(1, Date.now() - sd.t);   // px/ms
     let d;
@@ -1100,14 +1137,18 @@ body.zoomed .orn { opacity: 0; }
 
   /* ------------------------------------------------------ katman menüsü */
   const pop = $("#pop");
-  function popPlace() {
-    const t = $("#tools").getBoundingClientRect();
-    pop.style.bottom = (stage.clientHeight - t.top + 10) + "px";
-  }
   function setPop(on) {
-    pop.hidden = !on;
+    if (on) {
+      // Menü yarım açılmaktansa panel aşağı insin: panel en alt durağa
+      // kayarken menü kendi animasyonuyla, tam sığacağı yerde açılır.
+      setDetent("peek", 1, true);
+      pop.hidden = false;
+      placeFloaters(sheetTop);
+      syncPop();
+    } else {
+      pop.hidden = true;
+    }
     $("#btnLayers").setAttribute("aria-pressed", String(on));
-    if (on) { popPlace(); syncPop(); }
   }
   function syncPop() {
     const set = (sel, val) => pop.querySelectorAll(sel).forEach((b) =>
