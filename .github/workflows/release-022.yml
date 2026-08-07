@@ -1,0 +1,52 @@
+name: v0.2.2 (tek seferlik)
+on: { workflow_dispatch: }
+permissions: { contents: write }
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cat > notes.md <<'EOF'
+          Two layout bugs on the phone, and the frosted glass is back on the sheet.
+
+          **The layers menu opened half-cut.** It was anchored above the tool
+          column, which is itself anchored to the bottom sheet — so with the sheet
+          raised the menu ran 169 pixels off the top of the screen and only its
+          lower half was visible. Opening the menu now slides the sheet down to its
+          lowest detent first, and the menu animates in where it actually fits. On
+          screens where it still cannot fit, its height is capped to the visible
+          band and it scrolls.
+
+          **The tool column was clipped.** Same cause: with the sheet fully open the
+          column was pushed up under the top bar. It now stops below the top bar,
+          moves with the sheet smoothly (and tracks your finger while you drag it),
+          and fades away when there is no room left.
+
+          **Frosted glass is back on the sheet.** Removing it entirely in 0.2.0 was
+          too blunt. The sheet is glass while it floats over the map (lowest
+          detent) and turns opaque once you pull it up, where the text gets dense
+          and legibility comes first. The expensive case was "large blurred area +
+          moving map", which now never happens, and the change is tied to you
+          dragging the sheet — not to the map moving — so the abrupt opacity jump
+          from before 0.2.0 does not come back.
+
+          ### Downloads
+
+          | Platform | File | Size |
+          |---|---|---|
+          | Android 7+ | `Dunya-Dilleri-Atlasi.apk` | 433 KB |
+          | macOS 10.15+ | `Dunya-Dilleri-Atlasi.dmg` | 6.8 MB |
+          | Windows 10+ | `Dunya Dilleri Atlasi.exe` | 4.1 MB |
+
+          The apps are unsigned: on macOS right-click → **Open**, on Windows pick
+          **More info** → **Run anyway**, on Android allow unknown sources.
+          EOF
+          gh release view v0.2.2 --repo "$REPO" >/dev/null 2>&1 && { echo "zaten var"; exit 0; }
+          gh release create v0.2.2 --repo "$REPO" --target "${{ github.sha }}" --latest \
+            --title "v0.2.2 — Menu and tool column layout, glass restored" --notes-file notes.md \
+            "dist/Dunya-Dilleri-Atlasi.apk" "dist/Dunya-Dilleri-Atlasi.dmg" "dist/Dunya Dilleri Atlasi.exe"
+          gh release list --repo "$REPO"
