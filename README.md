@@ -70,7 +70,9 @@ Nine legend entries: eight language-family colours plus a neutral "other". The
 palette is not hand-picked — the eight hues are searched in OKLCH space and
 verified with a colour-vision-deficiency simulation (Machado 2009, protanopia /
 deuteranopia / tritanopia) so that **every pair**, not just neighbours, stays
-apart. Worst pair: ΔE 11.2 in light mode, 8.2 in dark.
+apart, and among the palettes that clear the threshold the search then maximises
+saturation. Worst pair: ΔE 9.1 in light mode, 9.0 in dark (normal vision 17.3 /
+17.4).
 
 Creole languages do not get a colour of their own: they are drawn in the colour
 of their lexifier — the language that gave them their vocabulary — with a
@@ -94,7 +96,7 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.2.3** — get it from the
+Latest release **v0.3.0** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 

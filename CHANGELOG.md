@@ -10,6 +10,31 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.3.0 — 7 Ağustos 2026
+
+**Renkler canlandı.** Palet aramasında kromayı 0,20'de sınırlamıştım; bu benim
+"editoryal görünüm" tercihimdi, ayrım ölçütünün gereği değildi — tersine
+doygunluk ayrımı artırıyor. İki şey değişti:
+
+- Arama artık **iki kademeli**: önce ayrım eşiği tutsun, tutuyorsa doygunluğu
+  maksimize etsin. Eskiden yalnızca en kötü çift büyütülüyordu, eşiği çoktan
+  geçmiş renkler gereksiz yere soluk kalıyordu. Ortalama kroma 0,15 → 0,20.
+- **Aydınlık bandı** genişletildi. Asıl darboğaz kroma değil bandmış: L ≤ 0,665
+  içinde sRGB gamut'u canlı turuncu ve yeşil vermiyor, kahve ve zeytin veriyor.
+  Koyu temada band 0,56–0,76'ya çıktı.
+
+Sonuç ölçülebilir olarak da daha iyi: koyu temada en kötü çift ΔE 8,2 → **9,0**
+(renk körlüğü), 15,3 → **17,4** (normal görüş), ve yüzeye karşı kontrast artık
+uyarı vermeden geçiyor. Açık temada 11,2 → **9,1** / 20,6 → **17,3**; ikisi de
+eşiğin üstünde.
+
+> Not: koyu temada aydınlık bandı, dataviz kılavuzunun ince işaretler için
+> önerdiği 0,48–0,67 aralığının üstüne çıkıyor. Bilinçli bir sapma: burada ince
+> çizgiler değil, neredeyse siyah bir okyanus üstünde büyük dolgu alanları var;
+> dar bantta sekiz canlı renk ayrım eşiğini tutturamıyordu (0,915). Güvenlikle
+> ilgili denetimler — renk körlüğü ayrımı, normal görüş tabanı, kontrast —
+> hepsi geçiyor.
+
 ## v0.2.3 — 7 Ağustos 2026
 
 **Otomatik ülke/bölge geçişi düzeltildi.** Eşik "haritanın kaçta kaçını

@@ -68,7 +68,9 @@ Kürtçe %82 ile batısında %3; Ukrayna'nın doğusunda Rusça %70 ile batısı
 Lejantta dokuz satır var: sekiz dil ailesi rengi ve nötr bir "diğer". Palet elle
 seçilmedi — sekiz ton OKLCH uzayında arandı ve renk körlüğü benzetimiyle
 (Machado 2009; protanopi / döteranopi / tritanopi) doğrulandı; yalnızca komşular
-değil **bütün çiftler** ayrılıyor. En kötü çift: açık temada ΔE 11,2, koyuda 8,2.
+değil **bütün çiftler** ayrılıyor; eşiği geçen paletler arasından da en doygun
+olanı seçiliyor. En kötü çift: açık temada ΔE 9,1, koyuda 9,0 (normal görüşte
+17,3 / 17,4).
 
 Kreol diller kendi rengini almıyor: sözcük dağarcığını aldıkları kaynak dilin
 renginde, üstünde çapraz taramayla çiziliyorlar. Böylece Haiti Kreolü taramalı
@@ -101,7 +103,7 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.2.3** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.3.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
