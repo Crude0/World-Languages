@@ -1,0 +1,44 @@
+name: release
+
+# Etiket ve Release'i GitHub'ın kendi altyapısında oluşturur. Elle tetiklenir:
+# sürüm numarası depo kökündeki VERSION dosyasından okunur, notlar
+# CHANGELOG.md'nin en üstteki bölümünden alınır.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: sürümü oku
+        id: v
+        run: echo "version=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: sürüm notlarını çıkar
+        run: |
+          awk '/^## v/{n++} n==1' CHANGELOG.md > RELEASE_NOTES.md
+          head -3 RELEASE_NOTES.md
+
+      - name: etiket ve release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.v.outputs.version }}
+        run: |
+          if gh release view "v$V" >/dev/null 2>&1; then
+            echo "v$V zaten var, atlanıyor"; exit 0
+          fi
+          git tag -f "v$V"
+          git push -f origin "v$V"
+          gh release create "v$V" \
+            --title "v$V" \
+            --notes-file RELEASE_NOTES.md \
+            "dist/Dunya-Dilleri-Atlasi.apk" \
+            "dist/Dunya-Dilleri-Atlasi.dmg" \
+            "dist/Dunya Dilleri Atlasi.exe"
