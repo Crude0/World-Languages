@@ -96,16 +96,16 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.3.3** — get it from the
+Latest release **v0.4.0** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Platform | File | Size | Note |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 457 KB | No internet permission |
-| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 7.0 MB | Universal (Intel + Apple Silicon) |
-| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4.2 MB | Single file, no installer |
-| Browser | [`docs/index.html`](docs/index.html) | 1.2 MB | One file, just open it |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 509 KB | No internet permission |
+| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 7.3 MB | Universal (Intel + Apple Silicon) |
+| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4.4 MB | Single file, no installer |
+| Browser | [`docs/index.html`](docs/index.html) | 1.4 MB | One file, just open it |
 
 The apps are unsigned (there is no Apple/Microsoft developer certificate):
 
@@ -213,10 +213,14 @@ A few details that turned out to be interesting:
   colour-blindness model, then checked against the all-pairs threshold. Ten
   colours could not clear it in dark mode's narrow lightness band — which is why
   creoles carry texture instead of a colour of their own.
-- **Gestures do not rewrite the viewBox.** Redrawing 550 paths every frame is
-  what made a mid-range Android stutter. During a gesture the already-rasterised
-  layer is moved and scaled with a CSS transform, and the real viewBox is written
-  once when your finger lifts.
+- **The stutter while panning was strokes, not fills.** It was chased by guesswork
+  for a long time; in the end Chrome's own trace records were used to measure
+  rasterisation time. 70–80% of it goes into stroking: fills, hatch patterns and
+  ornaments cost nothing measurable. Three things followed — country outlines are
+  drawn from a coarser geometry when zoomed out (computed in the browser at
+  startup, so it adds no bytes to the file), antialiasing is switched off while
+  a gesture is in progress, and in region mode the same line is no longer stroked
+  several times over. Rasterisation halved in the world view.
 - **The 180th meridian**: Russia's and Fiji's rings are cut at the edge and split
   into separate pieces, otherwise a horizontal band is drawn across the map.
 - **The ISO 9660 trap on macOS**: files with Turkish characters inside the DMG

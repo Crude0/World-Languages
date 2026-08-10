@@ -93,19 +93,53 @@ def simplify(ring, junction):
     return out
 
 
-def inner_borders(rings_by_country):
-    """Ülke içindeki il/eyalet sınırları: iki ilde birden geçen kenarlar.
+def _chain(edges):
+    """Kenar kümesini uçtan uca birleştirip polylinelara çevir."""
+    adj = defaultdict(list)
+    for a, b in edges:
+        adj[a].append(b); adj[b].append(a)
+    used, paths = set(), []
+    for a, b in edges:
+        key = (a, b)
+        if key in used:
+            continue
+        used.add(key)
+        chain = [a, b]
+        # iki uçtan da büyüt
+        for _ in range(2):
+            while True:
+                tip, prev = chain[-1], chain[-2]
+                nxt = None
+                for q in adj[tip]:
+                    k = (tip, q) if tip <= q else (q, tip)
+                    if q != prev and k not in used:
+                        nxt = q; used.add(k); break
+                if nxt is None:
+                    break
+                chain.append(nxt)
+            chain.reverse()
+        paths.append(chain)
+    return "".join("M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in c) for c in paths)
+
+
+def border_network(rings_by_country):
+    """Bölgelerin kenarlarını sayıp iki ağa ayır: iç sınır ve dış çeper.
 
     İki komşu il ortak sınırı paylaşınca o kenar iki kez sayılır; bir kez geçen
     kenarlar ise ülkenin dış çeperidir (kıyı ya da uluslararası sınır). Noktalar
     ızgaraya oturtulduğu için kenarlar birebir eşleşir.
 
-    Bu ayrım gerekli: illerin yollarını olduğu gibi konturlamak ülke sınırını
-    değil *her* sınırı aynı biçimde çizer — ABD–Kanada sınırı eyalet çizgisinden
-    ayırt edilemiyordu, kıyılar da beyaz çerçeveli görünüyordu. Artık ülke sınırı
+    Bu ayrım iki işe yarıyor. Görsel olan: illerin yollarını olduğu gibi
+    konturlamak ülke sınırını değil *her* sınırı aynı biçimde çizer —
+    ABD–Kanada sınırı eyalet çizgisinden ayırt edilemiyordu. Artık ülke sınırı
     düz koyu, il sınırı koyu kılıf üstünde beyaz çekirdek.
+
+    Performans olan: eskiden ülkenin dış çeperi, tüm il yollarının konturlanıp
+    üstlerinin dolguyla örtülmesiyle elde ediliyordu (`.sbase`). Yani her iç
+    sınır iki kez konturlanıp sonra saklanıyordu. Dış çeperi ayrı bir ağ olarak
+    üretmek aynı görüntüyü, geometrinin yarısıyla veriyor.
     """
-    out = {}
+    inner, outer = {}, {}
     for cid, rings in rings_by_country.items():
         count = defaultdict(int)
         for ring in rings:
@@ -113,34 +147,13 @@ def inner_borders(rings_by_country):
             for i in range(n):
                 a, b = ring[i], ring[(i + 1) % n]
                 count[(a, b) if a <= b else (b, a)] += 1
-        edges = [e for e, c in count.items() if c >= 2]
-        adj = defaultdict(list)
-        for a, b in edges:
-            adj[a].append(b); adj[b].append(a)
-        used, paths = set(), []
-        for a, b in edges:
-            key = (a, b)
-            if key in used:
-                continue
-            used.add(key)
-            chain = [a, b]
-            # iki uçtan da büyüt
-            for _ in range(2):
-                while True:
-                    tip, prev = chain[-1], chain[-2]
-                    nxt = None
-                    for q in adj[tip]:
-                        k = (tip, q) if tip <= q else (q, tip)
-                        if q != prev and k not in used:
-                            nxt = q; used.add(k); break
-                    if nxt is None:
-                        break
-                    chain.append(nxt)
-                chain.reverse()
-            if len(chain) > 2:
-                paths.append(chain)
-        out[cid] = "".join("M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in c) for c in paths)
-    return out
+        inner[cid] = _chain([e for e, c in count.items() if c >= 2])
+        outer[cid] = _chain([e for e, c in count.items() if c == 1])
+    return inner, outer
+
+
+def pts_of(res):
+    return sum(v["d"].count("L") + v["d"].count("M") for v in res.values())
 
 
 def rings_of(geom):
@@ -199,15 +212,18 @@ def main():
             e["c"] = [cx, cy]
         e["a"] = round(e["a"] + sum(p[0] for p in kept if not p[2]), 1)
 
-    edge = inner_borders(by_country)
-    json.dump({"w": round(W, 1), "h": round(H, 1), "s": res, "inner": edge},
+    inner, outer = border_network(by_country)
+    json.dump({"w": round(W, 1), "h": round(H, 1), "s": res,
+               "inner": inner, "outer": outer},
               open(OUT, "w"), separators=(",", ":"), ensure_ascii=False)
-    print("  iç sınır parçası:", {k: v.count("M") for k, v in edge.items()},
-          f" toplam {sum(len(v) for v in edge.values())/1024:.0f} KB")
+    ipts = sum(v.count("L") + v.count("M") for v in inner.values())
+    opts = sum(v.count("L") + v.count("M") for v in outer.values())
+    print(f"  sınır ağı: iç {ipts} nokta, dış {opts} nokta "
+          f"(eskiden dış çeper için {pts_of(res)} nokta konturlanıyordu)")
     per = defaultdict(int)
     for v in res.values():
         per[v["p"]] += 1
-    pts = sum(v["d"].count("L") + v["d"].count("M") for v in res.values())
+    pts = pts_of(res)
     print(f"alt bölge: {len(res)}  nokta: {pts}  "
           f"boyut: {len(json.dumps(res, ensure_ascii=False))/1024:.0f} KB")
     print("  ülke başına:", dict(per))

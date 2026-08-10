@@ -134,18 +134,24 @@ body.zoomed .orn { opacity: 0; }
 .subs, .sub-base { display: none; }
 .subs.on, .sub-base.on { display: inline; }
 /* Sınır hiyerarşisi
-   ülke sınırı  : düz koyu çizgi
-   il/eyalet    : aynı koyu kılıfın üstünde beyaz çekirdek */
-.sbase { stroke: var(--border); stroke-width: 1.8; stroke-linejoin: round;
-         vector-effect: non-scaling-stroke; pointer-events: none; }
+   ülke sınırı  : düz koyu çizgi (.outer bölge kipinde, .cty ülke kipinde)
+   il/eyalet    : beyaz çekirdek (.inner)
+   Zemin (.sbase) yalnızca dolgu; dış çeper ayrı ve tekilleştirilmiş bir ağ.
+   Gerekçesi masaüstü şablonundaki açıklamada. */
+.sbase { stroke: none; pointer-events: none; }
 /* stroke yok ama vector-effect kalmalı: seçim ve vurgu kuralları
    kalınlığı bu özellik üzerinden CSS pikseline sabitliyor. */
 .sub { stroke: none; vector-effect: non-scaling-stroke; }
+.outer { fill: none; stroke: var(--border); stroke-width: 1.2; stroke-linejoin: round;
+         vector-effect: non-scaling-stroke; pointer-events: none; }
 .inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
+/* Bölge kipinde alt bölgeli ülkelerin ülke konturu gereksiz: aynı sınırı
+   .outer çiziyor ve ülke yolu bölge dolgularının altında kalıyor. */
+.subs-on .cty.hassub:not(.sel):not(.hit2) { stroke: none; }
 .off { display: none; }          /* görüş alanı dışında */
-.inner-g { display: none; }
-.inner-g.on { display: inline; }
+.inner-g, .outer-g { display: none; }
+.inner-g.on, .outer-g.on { display: inline; }
 /* küçük ülkelerin görünmez dokunma hedefi (Singapur, Malta, Bahreyn…) */
 .hitdot { fill: transparent; pointer-events: all; }
 .subs.on ~ .hits { pointer-events: none; }   /* bölge kipinde bölgeler öncelikli */
@@ -610,12 +616,16 @@ body.zoomed .orn { opacity: 0; }
     `<path class="sphere" d="${D.frame}"></path>` +
     `<g class="graticule"><path d="${D.grat}"></path></g>` +
     `<g class="lands">` + order.map((id) =>
-      `<path class="cty ${gcls(LG[C[id].l])}" data-id="${id}" d="${C[id].d}"></path>`).join("") + `</g>` +
+      `<path class="cty ${gcls(LG[C[id].l])}${subsOf[id] ? " hassub" : ""}" data-id="${id}" d="${C[id].d}"></path>`).join("") + `</g>` +
     `<g class="sub-base">` + Object.keys(subsOf).map((cid) =>
       `<path class="sbase ${gcls(LG[C[cid].l])}" data-id="${cid}" d="${
         subsOf[cid].map((s) => SB[s].d).join("")}"></path>`).join("") + `</g>` +
     `<g class="subs">` + subIds.map((sid) =>
       `<path class="sub ${gcls(LG[SB[sid].l])}" data-sid="${sid}" d="${SB[sid].d}"></path>`).join("") + `</g>` +
+    // Ülkenin dış çeperi; bölge dolgularının üstünde (masaüstü şablonundaki
+    // açıklamaya bak).
+    `<g class="outer-g">` + Object.keys(D.outer || {}).map((cid) =>
+      `<path class="outer" d="${D.outer[cid]}"></path>`).join("") + `</g>` +
     `<g class="dots">` + order.filter((id) => C[id].a < DOT_AT).map((id) =>
       `<circle class="dot ${gcls(LG[C[id].l])}" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="3"></circle>`).join("") + `</g>` +
     `<g class="inner-g">` + Object.keys(D.inner || {}).map((cid) =>
@@ -624,7 +634,8 @@ body.zoomed .orn { opacity: 0; }
       `<circle class="hitdot" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="11"></circle>`).join("") + `</g>` +
     `<g class="marks"></g>`;
   const marks = svg.querySelector(".marks"), subG = svg.querySelector(".subs"),
-        baseG = svg.querySelector(".sub-base"), innerG = svg.querySelector(".inner-g");
+        baseG = svg.querySelector(".sub-base"), innerG = svg.querySelector(".inner-g"),
+        outerG = svg.querySelector(".outer-g");
   const nodesOf = (id) => svg.querySelectorAll(`[data-id="${id}"]`);
   const subNode = (sid) => subG.querySelector(`[data-sid="${CSS.escape(sid)}"]`);
 
@@ -660,7 +671,11 @@ body.zoomed .orn { opacity: 0; }
   let cullList = null;
   function buildCull() {
     cullList = [];
-    svg.querySelectorAll(".cty, .sub, .sbase, .inner, .dot").forEach((n) => {
+    const nodes = svg.querySelectorAll(".cty, .sub, .sbase, .outer, .inner, .dot, .hitdot");
+    // getBBox gizli öğe için 0x0 döner; liste yeniden kurulurken gizli olan
+    // yollar listeden düşer ve bir daha geri gelmezdi.
+    nodes.forEach((n) => n.classList.remove("off"));
+    nodes.forEach((n) => {
       try {
         const b = n.getBBox();
         if (b.width || b.height) cullList.push([n, b.x, b.y, b.x + b.width, b.y + b.height]);
@@ -677,12 +692,78 @@ body.zoomed .orn { opacity: 0; }
       if (off !== (c[5] === 1)) { c[0].classList.toggle("off", off); c[5] = off ? 1 : 0; }
     }
   }
+  /* --------------------------------------------- geometri ayrıntı düzeyi
+     Konturun maliyeti boyadığı piksele bağlı ve dünya görünümünde ülke
+     yollarının noktalarının çoğu piksel altı ayrıntı. Ölçtüm: 20 547 noktayı
+     7 715'e indirmek rasterizasyonu %58 düşürüyor, görüntüde fark yok. Kaba
+     sürüm açılıştan sonra bir kez hesaplanıyor, veriye eklenmiyor. */
+  function rdp(pts, tol) {
+    if (pts.length < 3) return pts;
+    const keep = new Array(pts.length).fill(false);
+    keep[0] = keep[pts.length - 1] = true;
+    const st = [[0, pts.length - 1]], t2 = tol * tol;
+    while (st.length) {
+      const [a, b] = st.pop();
+      if (b <= a + 1) continue;
+      const ax = pts[a][0], ay = pts[a][1];
+      const dx = pts[b][0] - ax, dy = pts[b][1] - ay, d2 = dx * dx + dy * dy;
+      let worst = -1, idx = -1;
+      for (let i = a + 1; i < b; i++) {
+        const px = pts[i][0], py = pts[i][1];
+        let dist;
+        if (!d2) dist = (px - ax) * (px - ax) + (py - ay) * (py - ay);
+        else {
+          let t = ((px - ax) * dx + (py - ay) * dy) / d2;
+          t = t < 0 ? 0 : t > 1 ? 1 : t;
+          const cx = ax + t * dx, cy = ay + t * dy;
+          dist = (px - cx) * (px - cx) + (py - cy) * (py - cy);
+        }
+        if (dist > worst) { worst = dist; idx = i; }
+      }
+      if (worst > t2) { keep[idx] = true; st.push([a, idx], [idx, b]); }
+    }
+    return pts.filter((_, i) => keep[i]);
+  }
+  function simplifyPath(d, tol) {
+    const out = [];
+    for (const sub of d.split("M").slice(1)) {
+      const close = sub.endsWith("Z");
+      const body = close ? sub.slice(0, -1) : sub;
+      const pts = body.split("L").map((s) => { const p = s.split(" "); return [+p[0], +p[1]]; });
+      const s = rdp(pts, tol);
+      if (s.length < 3) { out.push("M" + body + (close ? "Z" : "")); continue; }
+      out.push("M" + s.map((p) => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") + (close ? "Z" : ""));
+    }
+    return out.join("");
+  }
+  const GEO_COARSE = 1.0, GEO_FINE = 1.3;   // piksel/birim, histerezisli
+  const GEO_TOL = 0.7;                      // kaba düzeyin sadeleştirme payı
+  let geo = null, geoLevel = "fine";
+  function buildGeo() {
+    geo = [];
+    svg.querySelectorAll(".cty").forEach((n) => {
+      const d = n.getAttribute("d");
+      geo.push([n, d, simplifyPath(d, GEO_TOL)]);
+    });
+  }
+  function applyGeoLod() {
+    if (!geo) return;
+    const k = mapScale();
+    const want = geoLevel === "coarse" ? (k > GEO_FINE ? "fine" : "coarse")
+                                       : (k < GEO_COARSE ? "coarse" : "fine");
+    if (want === geoLevel) return;
+    geoLevel = want;
+    const i = want === "coarse" ? 2 : 1;
+    for (const g of geo) g[0].setAttribute("d", g[i]);
+    cullList = null;                     // sınırlayıcı kutular değişti
+  }
   function commitVB() {
     clampVB();
     svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
     if (!busy) refineMarks();               // parmak üzerindeyken atlanır
     document.body.classList.toggle("zoomed", vb.w < maxW() * .62);
     applyLod();
+    applyGeoLod();
     cull();
   }
   // Bir CSS pikselinin kaç harita birimi ettiği. İşaretleri buna göre
@@ -884,7 +965,9 @@ body.zoomed .orn { opacity: 0; }
     subOn = on;
     subG.classList.toggle("on", on);
     baseG.classList.toggle("on", on);
+    outerG.classList.toggle("on", on);
     innerG.classList.toggle("on", on);
+    svg.classList.toggle("subs-on", on);
     if (on) { markMap(); repaint(); }
     if (!on && state.selSub) select(state.sel);
   }
@@ -1362,5 +1445,7 @@ body.zoomed .orn { opacity: 0; }
   render();
   setDetent("peek", true);
   homeView();
+  // Kaba geometri ilk kareden sonra hesaplanıyor: açılışı geciktirmesin.
+  setTimeout(() => { buildGeo(); applyGeoLod(); }, 0);
 })();
 </script>

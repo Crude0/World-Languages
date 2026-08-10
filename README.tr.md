@@ -103,14 +103,14 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.3.3** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.4.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 457 KB | İnternet izni yok |
-| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 7,0 MB | Evrensel (Intel + Apple Silicon) |
-| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,2 MB | Tek dosya, kurulum yok |
-| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,2 MB | Tek dosya, çift tıkla aç |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 509 KB | İnternet izni yok |
+| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 7,3 MB | Evrensel (Intel + Apple Silicon) |
+| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,4 MB | Tek dosya, kurulum yok |
+| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,4 MB | Tek dosya, çift tıkla aç |
 
 Uygulamalar imzalı değil (Apple/Microsoft geliştirici sertifikası yok):
 
@@ -219,10 +219,14 @@ Projede ilginç çıkan birkaç ayrıntı:
   benzetimi, ardından tüm-çiftler eşiğine karşı denetim. On renk koyu temanın dar
   aydınlık bandında eşiği geçemedi — kreollerin kendi rengi yerine doku
   taşımasının sebebi bu.
-- **Jestler viewBox'ı yeniden yazmıyor.** Her karede 550 yolu yeniden çizmek orta
-  sınıf bir Android'i kastıran şeydi. Jest boyunca hazır rasterize katman CSS
-  dönüşümüyle kaydırılıp ölçekleniyor, gerçek viewBox parmak kalkınca bir kez
-  yazılıyor.
+- **Kaydırmadaki kasmanın sebebi konturmuş, dolgu değil.** Uzun süre tahminle
+  kovalandı; sonunda Chrome'un iz kayıtlarından rasterizasyon süresi ölçüldü.
+  Zamanın %70–80'i konturlarda: dolgular, tarama desenleri ve süslemeler
+  ölçülebilir bir yük getirmiyor. Üç şey yapıldı — uzakta ülke sınırları kaba
+  geometriyle çiziliyor (tarayıcıda açılışta hesaplanıyor, dosyaya bir bayt
+  eklemiyor), jest sırasında kenar yumuşatma kapanıyor, ve bölge kipinde aynı
+  çizgi birden çok kez konturlanmıyor. Rasterizasyon dünya görünümünde yarıya
+  indi.
 - **180. meridyen**: Rusya ve Fiji'nin halkaları kenardan kesilip ayrı parçalara
   bölünüyor, yoksa harita boyunca yatay bir şerit oluşuyor.
 - **macOS'ta ISO9660 tuzağı**: DMG içindeki Türkçe karakterli dosya adları

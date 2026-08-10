@@ -218,6 +218,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 #map { display: block; width: 100%; height: auto; touch-action: none; cursor: grab; }
 #map.dragging { cursor: grabbing; }
+#map:focus { outline: none; }
+#map:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+/* Jest sırasında kenar yumuşatma kapalı: konturlar rasterizasyonun neredeyse
+   tamamını yiyor ve hareket hâlindeki bir haritada aradaki fark görünmüyor. */
+#map.dragging { shape-rendering: optimizeSpeed; }
 .sphere { fill: var(--ocean); }
 .graticule { fill: none; stroke: var(--rule-2); stroke-width: .5; opacity: .55; }
 .graticule .eq { stroke-width: .8; opacity: .9; }
@@ -237,27 +242,31 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* alt bölgeler: eyalet / il / kanton */
 .subs, .sub-base { display: none; }
 .subs.on, .sub-base.on { display: inline; }
-/* Zemin, bölgelerin birleşimi. Kalın okyanus renkli çizgisi il sınırlarında
-   üstteki dolgularla örtülür, yalnızca ülkenin dış kenarında görünür kalır:
-   ülke sınırı kalın, il sınırı ince — Paradox haritalarındaki iki kademe. */
-/* Sınır hiyerarşisi
-   ülke sınırı  : düz koyu çizgi
-   il/eyalet    : aynı koyu kılıfın üstünde beyaz çekirdek
-   Kılıf hem parlak hem koyu dolgularda çizgiyi okunur tutar; çekirdek de
-   il sınırını ülke sınırından ilk bakışta ayırır. */
-.sbase {
-  stroke: var(--border); stroke-width: 1.8; stroke-linejoin: round;
-  vector-effect: non-scaling-stroke; pointer-events: none;
-}
+/* Sınır hiyerarşisi — Paradox haritalarındaki iki kademe:
+   ülke sınırı  : düz koyu çizgi (.outer, bölge kipinde; .cty, ülke kipinde)
+   il/eyalet    : beyaz çekirdek (.inner)
+
+   .sbase bölgelerin birleşimi ve artık yalnızca dolgu. Eskiden konturlanıyordu:
+   ülkenin dış çeperi, *tüm* il yolları çizilip üstleri il dolgularıyla
+   örtülerek elde ediliyordu — yani her iç sınır iki kez konturlanıp sonra
+   saklanıyordu, 21 628 nokta, yalnızca kenarda görünen bir hale için.
+   Çeper artık veriden tekilleştirilmiş geliyor: .outer, 12 173 nokta. */
+.sbase { stroke: none; pointer-events: none; }
 /* stroke yok ama vector-effect kalmalı: seçim ve vurgu kuralları
    kalınlığı bu özellik üzerinden CSS pikseline sabitliyor. */
 .sub { stroke: none; vector-effect: non-scaling-stroke; }
 .sub:hover { stroke: var(--ring); stroke-width: 1.2; }
+.outer { fill: none; stroke: var(--border); stroke-width: 1.2; stroke-linejoin: round;
+         vector-effect: non-scaling-stroke; pointer-events: none; }
 .inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
          vector-effect: non-scaling-stroke; pointer-events: none; }
+/* Bölge kipinde alt bölgeli ülkelerin ülke konturu gereksiz: aynı sınırı
+   .outer zaten çiziyor ve ülke yolu bölge dolgularının altında kalıyor.
+   Seçim, vurgu ve süzgeç çizgileri elbette çizilmeye devam ediyor. */
+.subs-on .cty.hassub:not(.sel):not(.hit2):not(:hover) { stroke: none; }
 .off { display: none; }          /* görüş alanı dışında */
-.inner-g { display: none; }
-.inner-g.on { display: inline; }
+.inner-g, .outer-g { display: none; }
+.inner-g.on, .outer-g.on { display: inline; }
 .sub.sel { stroke: var(--ring); stroke-width: 1.6; }
 .is-filtering .sub:not(.hit):not(.hit2) { fill: var(--land-mute); }
 .is-filtering .sub.hit2 { stroke: var(--c-min, var(--ink-2)); stroke-width: 1.1; }
@@ -518,7 +527,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
 
       <div class="map-area" id="mapArea">
         <div class="map-wrap" id="mapWrap">
-          <svg id="map" role="img" aria-label="Dünya haritası: ülkelerde çoğunluğun konuştuğu dilin ailesi"></svg>
+          <svg id="map" role="img" tabindex="0" aria-label="Dünya haritası: ülkelerde çoğunluğun konuştuğu dilin ailesi"></svg>
           <div class="tip" id="tip" aria-hidden="true"></div>
         </div>
       </div>
@@ -784,7 +793,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     `<g class="graticule"><path d="${D.grat}"></path><path class="eq" d="${D.eq}"></path></g>` +
     `<g class="lands">` + sorted.map((id) => {
       const c = C[id], l = LG[c.l];
-      return `<path class="cty g-${l.g}${l.x ? " crl" : ""}" data-id="${id}" d="${c.d}"></path>`;
+      return `<path class="cty g-${l.g}${l.x ? " crl" : ""}${subsOf[id] ? " hassub" : ""}" data-id="${id}" d="${c.d}"></path>`;
     }).join("") + `</g>` +
     // Zemin: bir ülkenin tüm bölgelerinin birleşimi. Bölgeler arasında kalan
     // kılcal boşluklar ve göl oyukları bunun üstüne düşer, tırtık görünmez.
@@ -797,6 +806,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       const s = SB[sid], l = LG[s.l];
       return `<path class="sub g-${l ? l.g : "oth"}${l && l.x ? " crl" : ""}" data-sid="${sid}" d="${s.d}"></path>`;
     }).join("") + `</g>` +
+    // Ülkenin dış çeperi: bölge dolgularının üstünde, ülke kipindeki .cty ile
+    // aynı kalınlıkta. Böylece ülke sınırı iki kipte de aynı görünüyor.
+    `<g class="outer-g">` + Object.keys(D.outer || {}).map((cid) =>
+      `<path class="outer" d="${D.outer[cid]}"></path>`).join("") + `</g>` +
     `<g class="dots">` + sorted.filter((id) => C[id].a < DOT_AT).map((id) => {
       const c = C[id], l = LG[c.l];
       return `<circle class="dot g-${l.g}${l.x ? " crl" : ""}" data-id="${id}" cx="${c.c[0]}" cy="${c.c[1]}" r="3"></circle>`;
@@ -806,6 +819,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     `<g class="marks"></g>`;
   const subG = svg.querySelector(".subs");
   const innerG = svg.querySelector(".inner-g");
+  const outerG = svg.querySelector(".outer-g");
   const baseG = svg.querySelector(".sub-base");
 
   const marks = svg.querySelector(".marks");
@@ -837,7 +851,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     subOn = on;
     subG.classList.toggle("on", on);
     baseG.classList.toggle("on", on);
+    outerG.classList.toggle("on", on);
     innerG.classList.toggle("on", on);
+    svg.classList.toggle("subs-on", on);
     // Bölgeler 10m, ülke sınırları 50m çözünürlükte. Ülke yolu altta kalmaya
     // devam eder: hem uluslararası sınırdaki çözünürlük farkını hem de göl
     // oyuklarını doldurur. Bölgelerden üretilen zemin de aradaki kılcal
@@ -989,7 +1005,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   let cullList = null;
   function buildCull() {
     cullList = [];
-    svg.querySelectorAll(".cty, .sub, .sbase, .inner, .dot").forEach((n) => {
+    const nodes = svg.querySelectorAll(".cty, .sub, .sbase, .outer, .inner, .dot");
+    // getBBox gizli (display:none) bir öğe için 0x0 döner. Liste ilk kez
+    // kurulurken bunun önemi yoktu, ama geometri düzeyi değişince liste
+    // yeniden kuruluyor ve o an bir şeyler gizli oluyor: ölçemediğimiz her
+    // yol listeden düşer ve bir daha geri gelmezdi.
+    nodes.forEach((n) => n.classList.remove("off"));
+    nodes.forEach((n) => {
       try {
         const b = n.getBBox();
         if (b.width || b.height) cullList.push([n, b.x, b.y, b.x + b.width, b.y + b.height]);
@@ -1006,6 +1028,72 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       if (off !== (c[5] === 1)) { c[0].classList.toggle("off", off); c[5] = off ? 1 : 0; }
     }
   }
+  /* --------------------------------------------- geometri ayrıntı düzeyi
+     Konturun maliyeti boyadığı piksele bağlı ve dünya görünümünde ülke
+     yollarının noktalarının çoğu piksel altı ayrıntı. Ölçtüm: 20 547 noktayı
+     7 715'e indirmek rasterizasyonu **%58** düşürüyor ve görüntüde fark yok —
+     bu yakınlıkta 1 harita birimi 0,7 piksel. Kaba sürüm açılıştan hemen sonra
+     bir kez hesaplanıyor; veriye eklenmiyor, dosya büyümüyor. */
+  function rdp(pts, tol) {
+    if (pts.length < 3) return pts;
+    const keep = new Array(pts.length).fill(false);
+    keep[0] = keep[pts.length - 1] = true;
+    const st = [[0, pts.length - 1]], t2 = tol * tol;
+    while (st.length) {
+      const [a, b] = st.pop();
+      if (b <= a + 1) continue;
+      const ax = pts[a][0], ay = pts[a][1];
+      const dx = pts[b][0] - ax, dy = pts[b][1] - ay, d2 = dx * dx + dy * dy;
+      let worst = -1, idx = -1;
+      for (let i = a + 1; i < b; i++) {
+        const px = pts[i][0], py = pts[i][1];
+        let dist;
+        if (!d2) dist = (px - ax) * (px - ax) + (py - ay) * (py - ay);
+        else {
+          let t = ((px - ax) * dx + (py - ay) * dy) / d2;
+          t = t < 0 ? 0 : t > 1 ? 1 : t;
+          const cx = ax + t * dx, cy = ay + t * dy;
+          dist = (px - cx) * (px - cx) + (py - cy) * (py - cy);
+        }
+        if (dist > worst) { worst = dist; idx = i; }
+      }
+      if (worst > t2) { keep[idx] = true; st.push([a, idx], [idx, b]); }
+    }
+    return pts.filter((_, i) => keep[i]);
+  }
+  function simplifyPath(d, tol) {
+    const out = [];
+    for (const sub of d.split("M").slice(1)) {
+      const close = sub.endsWith("Z");
+      const body = close ? sub.slice(0, -1) : sub;
+      const pts = body.split("L").map((s) => { const p = s.split(" "); return [+p[0], +p[1]]; });
+      const s = rdp(pts, tol);
+      if (s.length < 3) { out.push("M" + body + (close ? "Z" : "")); continue; }
+      out.push("M" + s.map((p) => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") + (close ? "Z" : ""));
+    }
+    return out.join("");
+  }
+  const GEO_COARSE = 1.0, GEO_FINE = 1.3;   // piksel/birim, histerezisli
+  const GEO_TOL = 0.7;                      // kaba düzeyin sadeleştirme payı
+  let geo = null, geoLevel = "fine";
+  function buildGeo() {
+    geo = [];
+    svg.querySelectorAll(".cty").forEach((n) => {
+      const d = n.getAttribute("d");
+      geo.push([n, d, simplifyPath(d, GEO_TOL)]);
+    });
+  }
+  function applyGeoLod() {
+    if (!geo) return;
+    const k = mapScale();
+    const want = geoLevel === "coarse" ? (k > GEO_FINE ? "fine" : "coarse")
+                                       : (k < GEO_COARSE ? "coarse" : "fine");
+    if (want === geoLevel) return;
+    geoLevel = want;
+    const i = want === "coarse" ? 2 : 1;
+    for (const g of geo) g[0].setAttribute("d", g[i]);
+    cullList = null;                     // sınırlayıcı kutular değişti
+  }
   function commitVB() {
     clampVB();
     svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
@@ -1016,6 +1104,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const lbl = marks.querySelector(".map-label");
     if (lbl) lbl.setAttribute("font-size", (13 * u).toFixed(2));
     applyLod();
+    applyGeoLod();
     cull();
   }
   function applyVB() {
@@ -1039,6 +1128,20 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   $("#btnIn").onclick = () => zoomBy(1 / 1.6);
   $("#btnOut").onclick = () => zoomBy(1.6);
   $("#btnFit").onclick = () => { vb = { x: 0, y: 0, w: W, h: H }; applyVB(); };
+  // Harita klavyeyle de gezilebilmeli: fare olmadan yakınlaşmanın yolu yoktu.
+  // Adım görüş kutusunun kesri, böylece her yakınlıkta aynı oranda kayıyor.
+  svg.addEventListener("keydown", (e) => {
+    const PAN = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    const p = PAN[e.key];
+    if (p) {
+      const step = (e.shiftKey ? 0.4 : 0.12);
+      vb.x += p[0] * vb.w * step; vb.y += p[1] * vb.h * step; applyVB();
+    } else if (e.key === "+" || e.key === "=") { zoomBy(1 / 1.6); }
+    else if (e.key === "-" || e.key === "_") { zoomBy(1.6); }
+    else if (e.key === "0") { vb = { x: 0, y: 0, w: W, h: H }; applyVB(); }
+    else { return; }
+    e.preventDefault();
+  });
   // sürekli ölçek: imleç noktası sabit kalır, kademe yok
   function zoomAt(k, p) {
     const nw = Math.min(W, Math.max(MINW, vb.w * k));
@@ -1669,6 +1772,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   applyUi();
   renderIndex();
   applyVB();
+  // Kaba geometri ilk kareden sonra hesaplanıyor: açılışı geciktirmesin.
+  setTimeout(() => { buildGeo(); applyGeoLod(); }, 0);
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { if (state.sel) select(null); else if (state.filter) setFilter(null); }
   });

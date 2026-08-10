@@ -10,6 +10,75 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.4.0 — 10 Ağustos 2026
+
+**Kaydırırken kasma: sebebi bulundu ve ölçüldü.** Bu sorun turlardır tahminle
+kovalanıyordu — compositor dönüşümü denendi (yanlıştı, kenarda boşluk
+bırakıyordu), canvas düşünüldü (ölçüldü, daha yavaş çıktı), görüş alanı budaması
+eklendi (doğruydu ama tek başına yetmedi). Bu kez tahmin edilmedi: Chrome'un iz
+kayıtlarından, sabit bir 2 saniyelik kaydırma boyunca harcanan `RasterTask`
+süresi ölçüldü. Her tekrar sayfayı baştan yükleyip aynı görüş kutusuna geliyor,
+yoksa kaydırmanın bıraktığı yer bir sonraki ölçümü %25 kaydırıyor.
+
+Sonuç net: **zamanın %70–80'i kontur çizmekte.** Dolgular, kreollerin tarama
+desenleri, süslemeler ve paralel/meridyen ağı ölçülebilir bir yük getirmiyor —
+hepsini düz renge çevirmek hiçbir şeyi değiştirmedi. Konturların hepsini
+kapatmak ise dünya görünümünde 2 535 ms'yi 451 ms'ye indiriyor.
+
+Konturun maliyeti iki şeye bağlı çıktı: boyadığı piksel sayısı (kalınlığı
+1,2'den 0,5'e düşürmek maliyeti üçte ikisine indiriyor) ve nokta sayısı (20 547
+noktayı 7 715'e indirmek %58 kazandırıyor). Buradan üç düzeltme çıktı:
+
+- **Uzakta kaba geometri.** Dünya görünümünde bir harita birimi 0,74 piksel;
+  ülke sınırlarının noktalarının çoğu piksel altı ayrıntı. Yakınlık 1,0
+  piksel/birimin altındayken sadeleştirilmiş yol (20 547 → 10 417 nokta),
+  üstündeyken tam yol kullanılıyor; arada histerezis var. Kaba sürüm açılıştan
+  hemen sonra tarayıcıda bir kez hesaplanıyor — **veri dosyasına bir bayt bile
+  eklemiyor.**
+- **Jest sırasında kenar yumuşatma kapalı.** Telefon arayüzünde zaten vardı,
+  masaüstünde yoktu. Hareket hâlindeki haritada fark görünmüyor; ölçümde tek
+  başına %20–29 kazandırıyor.
+- **Aynı çizgi bir kez konturlanıyor.** Bölge kipinde ülkenin dış çeperi
+  eskiden şöyle elde ediliyordu: *tüm* il yolları konturlanıyor, sonra üstleri
+  il dolgularıyla örtülüyordu. Yani her iç sınır iki kez çizilip saklanıyordu —
+  21 628 noktalık kontur, yalnızca kenarda görünen ince bir çizgi için.
+  `build_subs.py` zaten kenarları sayıyordu; artık bir kez geçen kenarları da
+  ayrı bir ağ olarak veriyor (`outer`, 12 173 nokta) ve zemin yalnızca dolgu.
+  Ayrıca bölge kipinde alt bölgeli ülkelerin ülke konturu çizilmiyor: aynı
+  sınırı yeni ağ zaten çiziyor.
+
+Ölçülen sonuç (1440×900, 2 sn kaydırma, rasterizasyon süresi):
+
+| görünüm | eski | yeni |
+|---|---|---|
+| dünya (ülke kipi) | 2 535 ms | **1 234 ms** (−51%) |
+| bölge kipi, 3,6 px/birim | 2 252 ms | **1 539 ms** (−32%) |
+| bölge kipi, 8 px/birim | 1 404 ms | **1 212 ms** (−14%) |
+
+**Denenip elenenler de var.** TopoJSON yayları zaten paylaşımlı olduğu için
+ülke sınırlarını tekilleştirmek cazip görünüyordu; sayınca kazancın yalnızca
+%20 geometri olduğu çıktı (yayların 1 841'inin 1 482'si tek ülkede geçiyor,
+yani kıyı — zaten bir kez çiziliyor) ve ölçünce fark %2'de kaldı. Konturu
+dolgulu yoldan ayırıp dolgusuz bir ağa taşımak da hiçbir şey kazandırmadı.
+İkisi de yapılmadı.
+
+**Yan kazanç: uluslararası sınır artık il sınırından ayırt ediliyor.** 0.3.1'de
+bunun düzeltildiği yazılmıştı ama iş yarım kalmıştı — ABD–Kanada sınırı hâlâ
+eyalet çizgisiyle aynı görünüyordu. Yeni dış çeper ağı bunu gerçekten çözüyor.
+
+**Budama listesi hatası.** Görüş alanı dışındaki yolları eleyen liste, geometri
+düzeyi değişince yeniden kuruluyor. `getBBox` gizli bir öğe için 0×0 döndüğü
+için, o sırada ekran dışında olan yollar listeden düşüp bir daha geri
+gelmiyordu (dünya görünümüne dönünce 234 ülkenin 19'u kayıp). Liste kurulmadan
+önce gizlemeler kaldırılıyor artık.
+
+**Harita klavyeyle geziliyor.** `#map` odaklanabilir oldu; ok tuşları
+kaydırıyor (Shift ile büyük adım), `+`/`−` yakınlaştırıyor, `0` dünyaya
+döndürüyor. Fare olmadan haritada yakınlaşmanın yolu yoktu.
+
+Telefon arayüzünde küçük ülkelerin görünmez dokunma hedefleri de budama
+listesine eklendi.
+
 ## v0.3.3 — 7 Ağustos 2026
 
 **Fare tekerleği yakınlaştırmıyordu.** Tekerlek olayı `deltaMode === 0` ile
