@@ -1,8 +1,11 @@
 name: release
 
-# Etiket ve Release'i GitHub'ın kendi altyapısında oluşturur. Elle tetiklenir:
-# sürüm numarası depo kökündeki VERSION dosyasından okunur, notlar
-# CHANGELOG.md'nin en üstteki bölümünden alınır.
+# Etiket ve Release'i GitHub'ın kendi altyapısında oluşturur. Elle tetiklenir.
+# Sürüm numarası depo kökündeki VERSION dosyasından okunur.
+#
+# Notlar `.github/release-notes.md` dosyasından alınır ve **İngilizce** yazılır:
+# CHANGELOG.md Türkçe ama deponun dışa bakan yüzü (README, açıklama, önceki
+# bütün Release'ler) İngilizce. Release zaten varsa notları güncellenir.
 on:
   workflow_dispatch:
 
@@ -21,24 +24,23 @@ jobs:
         id: v
         run: echo "version=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
 
-      - name: sürüm notlarını çıkar
-        run: |
-          awk '/^## v/{n++} n==1' CHANGELOG.md > RELEASE_NOTES.md
-          head -3 RELEASE_NOTES.md
-
       - name: etiket ve release
         env:
           GH_TOKEN: ${{ github.token }}
           V: ${{ steps.v.outputs.version }}
         run: |
+          NOTES=.github/release-notes.md
+          test -s "$NOTES" || { echo "$NOTES boş ya da yok"; exit 1; }
           if gh release view "v$V" >/dev/null 2>&1; then
-            echo "v$V zaten var, atlanıyor"; exit 0
+            echo "v$V var, notlar güncelleniyor"
+            gh release edit "v$V" --notes-file "$NOTES"
+            exit 0
           fi
           git tag -f "v$V"
           git push -f origin "v$V"
           gh release create "v$V" \
             --title "v$V" \
-            --notes-file RELEASE_NOTES.md \
+            --notes-file "$NOTES" \
             "dist/Dunya-Dilleri-Atlasi.apk" \
             "dist/Dunya-Dilleri-Atlasi.dmg" \
             "dist/Dunya Dilleri Atlasi.exe"
