@@ -1,62 +1,38 @@
-**Every view now has a link.** Until now nothing you built on the map could be
-shared: filter to a language, zoom into Anatolia, and the only way to show
-someone was to tell them to do the same thing themselves. What is on screen now
-lives in the address bar —
+**The DMG finally opens a proper install window.** Until now the disk image
+opened bare: no background, no place for the icons. You had to find the .app
+yourself and drag it to your Applications folder.
 
-```
-#l=en&p=pct&d=on&f=l.tr&v=489,208,422
-```
+How a disk image looks on macOS is written in a `.DS_Store` file at its root:
+the window size, the view mode, the background image and the coordinates of
+every icon. Normally you have Finder write that file on a Mac; there is no Mac
+here, so `desktop/dmg_window.py` produces it directly. The window is 768×512
+with the sidebar and toolbar off, the app on the left and Applications on the
+right — both centred in the dashed frames of the background art.
 
-— interface language, colouring (family / density / head count), detail level
-(country / region), the filter, the selected country or province, the table
-view and the viewport. A **Link** button in the toolbar copies the current
-view's address to the clipboard. The format is the same in both interfaces, so
-a link made on the desktop page opens correctly in the phone version.
+The background is stored at 1x and 2x in a single TIFF so it stays sharp on a
+Retina display. JPEG compression brings it from 6.3 MB down to 1.7 MB.
 
-Two deliberate decisions:
+The mounted volume now carries the app's icon through `.VolumeIcon.icns`, so it
+is something you spot in the Finder sidebar rather than something you hunt for.
 
-- **The theme is not in the link.** Light or dark is the reader's own
-  preference and should not be imposed by a URL. The language is part of the
-  content, so it does travel — and overrides the saved preference.
-- **Writing is delayed.** Calling `history.replaceState` on every frame while
-  panning is both expensive and hits Safari's rate limit; the URL is written
-  once, 400 ms after the movement stops.
+**Two bugs in the application icon.** When writing the `.icns`, `make_icon.py`
+did not include the 8-byte header in each chunk's length field, so the file
+could not be parsed past the second chunk — of the eight sizes in it, only the
+first was readable. The icon was also still being drawn with the washed-out
+palette from before 0.3.0; it now uses the app's own colours.
 
-A broken or invented link does not break the page: every field that is not
-recognised is quietly ignored and the default view opens.
-
-**The browser version is installable and works offline.** A manifest, a service
-worker and icons were added to the `docs/` copies; pick "Install" in Chrome or
-"Add to Home Screen" on iOS and it opens like an app with no address bar, and
-keeps working with the network completely down (measured: with the server
-stopped the page still opens and makes zero requests). The desktop and phone
-interfaces use separate manifests — otherwise installing from the phone would
-have opened the desktop page.
-
-This concerns only the published site. The packaged builds
-(`dunya-dilleri.html`, the desktop app, the APK) are untouched: they are
-already offline, and a service worker registration over `file://` is
-meaningless.
-
-**Continuous integration was added.** On every push and pull request: the data
-and pages are built from scratch, **the published copy is verified to match the
-templates**, and both interfaces are checked with Playwright. That last step
-would have caught most of the regressions found by hand in this session.
-
-**`build_subs.py` now actually downloads its source file.** The README had long
-claimed it "downloads Natural Earth's 40 MB subdivision file on its first run",
-but there was no download in the code — the file had been fetched by hand, and
-`make` did not work in a clean checkout. Because the download can be truncated
-silently (the first attempt returned 35 MB instead of 40 and the JSON stopped
-mid-file), both the length and the parse are verified, and it retries on
-failure.
+**What could not be done:** having the window open by itself when the image is
+mounted. That flag lives in the HFS+ volume header, and this image is ISO9660 —
+there is no tooling to produce HFS+ on Linux. Finder usually opens the volume
+on its own when you double-click a .dmg; when it does not, it cannot be forced
+from the image.
 
 ### Downloads
 
 | Platform | File | Size |
 |---|---|---|
 | Android 7+ | `Dunya-Dilleri-Atlasi.apk` | 513 KB |
-| macOS 10.15+ | `Dunya-Dilleri-Atlasi.dmg` | 7.3 MB |
+| macOS 10.15+ | `Dunya-Dilleri-Atlasi.dmg` | 9.5 MB |
 | Windows 10+ | `Dunya Dilleri Atlasi.exe` | 4.4 MB |
 
 The apps are unsigned: on macOS right-click → **Open**, on Windows pick

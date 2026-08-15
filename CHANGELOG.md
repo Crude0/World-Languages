@@ -10,6 +10,36 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.5.1 — 15 Ağustos 2026
+
+**DMG artık düzgün bir kurulum penceresi açıyor.** Şimdiye kadar disk imajı
+süssüz açılıyordu: ne arka plan vardı, ne ikonların bir yeri. Kullanıcı .app'i
+kendisi bulup Applications klasörüne sürüklemek zorundaydı.
+
+macOS'ta bir disk imajının nasıl göründüğü kökteki `.DS_Store` dosyasında
+yazılı: pencerenin boyu, görünüm kipi, arka plan resmi ve her ikonun
+koordinatı. Normalde bu dosya bir Mac'te Finder'a yazdırılır; Mac olmadığı için
+`desktop/dmg_window.py` doğrudan üretiyor. Pencere 768×512, kenar çubuğu ve
+araç çubuğu kapalı, uygulama solda, Applications sağda — ikisi de arka plandaki
+kesikli çerçevelerin tam ortasında.
+
+Arka plan resmi 1x ve 2x olarak tek TIFF'te; Retina ekranda bulanık görünmesin
+diye. JPEG sıkıştırmayla 6,3 MB yerine 1,7 MB.
+
+Bağlanan birim `.VolumeIcon.icns` ile uygulamanın simgesini taşıyor: Finder
+kenar çubuğunda ve masaüstünde aranacak bir şey olmaktan çıkıyor.
+
+**Uygulama simgesinde iki hata.** `make_icon.py` `.icns` yazarken parça
+uzunluğuna 8 baytlık başlığı katmıyordu; dosya ikinci parçadan sonra
+ayrıştırılamıyordu (sekiz boyuttan yalnızca ilki okunabiliyordu). Ayrıca simge
+hâlâ 0.3.0 öncesinin soluk paletiyle çiziliyordu — uygulamanın kendi renklerine
+geçirildi.
+
+**Yapamadığım şey:** imaj takıldığında penceresinin kendiliğinden açılması.
+O ayar HFS+ birim başlığında duruyor, bizim imaj ise ISO9660 ve Linux'ta HFS+
+üretecek araç yok. Finder .dmg'ye çift tıklandığında birimi genelde kendisi
+açıyor; açmadığı durumda zorlanamıyor.
+
 ## v0.5.0 — 15 Ağustos 2026
 
 **Her görünümün artık bir bağlantısı var.** Şimdiye kadar haritada kurduğunuz

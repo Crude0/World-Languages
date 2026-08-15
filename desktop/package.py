@@ -144,7 +144,7 @@ def build_dmg(app):
     shutil.copy(HERE / "AppIcon.icns", root / ".VolumeIcon.icns")
     # Pencerenin görünümü: arka plan, ikon yerleri, pencere ölçüsü.
     # Bunlar kökteki .DS_Store'da duruyor; olmazsa DMG yine çalışır.
-    dmg_window.build(root, VOLUME, app.name, os.environ.get("PW_CHROME"))
+    dmg_window.build(root, VOLUME, app.name)
     dmg = DIST / "Dunya-Dilleri-Atlasi.dmg"
     dmg.unlink(missing_ok=True)
     # -hidden: nokta ile başlayan girdiler ISO9660 tarafında da gizli işaretli
