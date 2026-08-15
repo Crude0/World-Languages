@@ -10,6 +10,33 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.5.3 — 15 Ağustos 2026
+
+**DMG artık gerçek bir Mac'te üretiliyor.** Arka plan resmini iki sürüm
+boyunca yerleştiremedim: 0.5.1'de alias kaydını elle kurdum, olmadı; 0.5.2'de
+kaydı `mac_alias`'ın Mac'te ürettiği biçime getirip resmi de düz PNG yaptım,
+yine olmadı. İkisinde de pencere ölçüsü ve ikon yerleri tutuyordu — yani
+`.DS_Store` okunuyordu — ama arka plan gelmiyordu.
+
+Sebebi artık açık: Finder'ın arka planı bulmak için kullandığı alias kaydı
+dosyanın gerçek CNID'sini ve birimin gerçek oluşturma tarihini taşıyor. İkisi
+de ancak imaj bağlıyken, macOS'un kendi çağrılarıyla üretilebiliyor; Linux'ta
+ikisi de uydurma oluyor ve Finder kaydı çözemiyor. Elle daha fazla denemenin
+anlamı yok.
+
+Bu yüzden yayımlanan disk imajı artık GitHub'ın **macos koşucusunda**
+`dmgbuild` ile üretiliyor: pencereyi, ikon yerlerini ve arka planı macOS'un
+kendi kodu yazıyor. İki kazanç daha var:
+
+- İmaj ISO9660 değil **HFS+**. Böylece `bless --openfolder` işe yarıyor:
+  imaj takılınca penceresi **kendiliğinden açılıyor**. Bu, ISO9660'ta
+  yapılamayan tek şeydi.
+- Retina temsili `tiffutil` ile ekleniyor — arka plan hem 1x hem 2x, ve
+  bunu üreten Apple'ın kendi aracı.
+
+Depodaki `make desktop` hâlâ Linux'ta çalışıyor ve bir DMG üretiyor; o imaj
+süssüz (düz ISO9660). Yayımlanan sürüm Mac'te üretilen.
+
 ## v0.5.2 — 15 Ağustos 2026
 
 **Arka plan resmi gerçek Mac'te gelmemişti.** 0.5.1'i denediğimizde pencere

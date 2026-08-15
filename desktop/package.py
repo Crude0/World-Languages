@@ -2,8 +2,6 @@
 """macOS .app + .dmg ve Windows .exe paketleri."""
 import os, pathlib, shutil, struct, subprocess, sys
 
-import dmg_window
-
 HERE = pathlib.Path(__file__).parent
 OUT = HERE / "out"
 DIST = HERE / "dist"
@@ -144,15 +142,14 @@ def build_dmg(app):
     # Bağlanan birimin simgesi: Finder kenar çubuğunda ve masaüstünde
     # uygulamanın ikonu görünsün, kullanıcı "hangisiydi bu" diye aramasın.
     shutil.copy(HERE / "AppIcon.icns", root / ".VolumeIcon.icns")
-    # Pencerenin görünümü: arka plan, ikon yerleri, pencere ölçüsü.
-    # Bunlar kökteki .DS_Store'da duruyor; olmazsa DMG yine çalışır.
-    dmg_window.build(root, VOLUME, app.name)
+    # Buradaki DMG yalnızca yerel derleme için: düz bir ISO9660 imajı,
+    # penceresi süssüz. Yayımlanan sürüm gerçek bir Mac'te üretiliyor
+    # (.github/workflows/release.yml + desktop/dmg_settings.py) — arka plan
+    # resmini tanıtan alias kaydı ancak orada doğru üretilebiliyor, imaj da
+    # orada HFS+ oluyor.
     dmg = DIST / "Dunya-Dilleri-Atlasi.dmg"
     dmg.unlink(missing_ok=True)
-    # -hidden: nokta ile başlayan girdiler ISO9660 tarafında da gizli işaretli
     subprocess.run(["genisoimage", "-quiet", "-V", VOLUME, "-D", "-r",
-                    "-hidden", ".DS_Store", "-hidden", ".background",
-                    "-hidden", ".VolumeIcon.icns",
                     "-o", str(dmg), str(root)], check=True)
     return dmg
 

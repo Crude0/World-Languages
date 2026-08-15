@@ -13,12 +13,81 @@ permissions:
   contents: write
 
 jobs:
+  # macOS disk imajı gerçek bir Mac'te üretiliyor. Linux'ta elle .DS_Store
+  # yazıp arka planı alias kaydıyla tanıtmak iki kez denendi ve tutmadı:
+  # alias'ın taşıması gereken CNID ve birim oluşturma tarihi ancak imaj
+  # bağlıyken, macOS'un kendi çağrılarıyla doğru üretilebiliyor. Burada işi
+  # hdiutil ve dmgbuild yapıyor; imaj da ISO9660 yerine HFS+ oluyor, böylece
+  # takılınca pencerenin kendiliğinden açılması da mümkün.
+  dmg:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: araçlar
+        run: pip install --quiet dmgbuild pillow
+
+      - name: uygulamayı çıkar
+        run: |
+          mkdir -p _mac
+          ditto -x -k "dist/Dunya-Dilleri-Atlasi-mac.zip" _mac
+          ls -la _mac
+
+      - name: arka planı iki çözünürlükte hazırla
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          src = Image.open("desktop/dmg-background.jpg").convert("RGB")
+          src.resize((768, 512), Image.LANCZOS).save("bg-1x.png")
+          src.resize((1536, 1024), Image.LANCZOS).save("bg-2x.png")
+          PY
+          # Retina temsili macOS'un kendi aracıyla ekleniyor; Pillow'un ürettiği
+          # çok temsilli TIFF'e güvenmek yerine tiffutil kullanılıyor.
+          tiffutil -cathidpicheck bg-1x.png bg-2x.png -out background.tiff
+          ls -la background.tiff
+
+      - name: disk imajı
+        run: |
+          set -euo pipefail
+          APP="_mac/Dunya Dilleri Atlasi.app"
+          # Önce yazılabilir imaj: takılıp "açılışta bu klasörü göster"
+          # bayrağı konacak, sonra sıkıştırılmış sürüme çevrilecek.
+          dmgbuild -s desktop/dmg_settings.py \
+                   -D app="$APP" -D bg=background.tiff \
+                   -D volicon=desktop/AppIcon.icns -D format=UDRW \
+                   "Dunya Dilleri Atlasi" rw.dmg
+
+          MOUNT=$(hdiutil attach rw.dmg -nobrowse -noverify | tail -1 | sed 's/.*\(\/Volumes\/.*\)$/\1/')
+          echo "bağlandı: $MOUNT"
+          sudo bless --folder "$MOUNT" --openfolder "$MOUNT" || echo "bless atlandı"
+          hdiutil detach "$MOUNT"
+
+          hdiutil convert rw.dmg -format UDZO -imagekey zlib-level=9 \
+                  -o Dunya-Dilleri-Atlasi.dmg
+          ls -la Dunya-Dilleri-Atlasi.dmg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dmg
+          path: Dunya-Dilleri-Atlasi.dmg
+          retention-days: 1
+
   release:
+    needs: dmg
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dmg
+          path: macdmg
 
       - name: sürümü oku
         id: v
@@ -31,9 +100,16 @@ jobs:
         run: |
           NOTES=.github/release-notes.md
           test -s "$NOTES" || { echo "$NOTES boş ya da yok"; exit 1; }
+          # Mac'te üretilen imaj depodakinin yerine geçiyor
+          cp macdmg/Dunya-Dilleri-Atlasi.dmg dist/Dunya-Dilleri-Atlasi.dmg
           if gh release view "v$V" >/dev/null 2>&1; then
-            echo "v$V var, notlar güncelleniyor"
+            echo "v$V var, notlar ve dosyalar güncelleniyor"
             gh release edit "v$V" --notes-file "$NOTES"
+            gh release upload "v$V" --clobber \
+              "dist/Dunya-Dilleri-Atlasi.apk" \
+              "dist/Dunya-Dilleri-Atlasi.dmg" \
+              "dist/Dunya-Dilleri-Atlasi-mac.zip" \
+              "dist/Dunya Dilleri Atlasi.exe"
             exit 0
           fi
           git tag -f "v$V"

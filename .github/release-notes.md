@@ -1,38 +1,35 @@
-**The background image never showed up on a real Mac.** When 0.5.1 was tried,
-the window size and the icon positions took effect — so the `.DS_Store` was
-being read — but the background stayed black. The problem was the alias record
-Finder uses to find the image. I went through what `mac_alias` writes on an
-actual Mac line by line and rebuilt it the same way: the POSIX path relative to
-the volume and **with a leading slash** (`/.background/bg.png` — the previous
-attempt had no slash), the Carbon path in the library's own joining format. A
-`pBBk` bookmark is now written alongside it, since modern Finder can read the
-background from there too — whichever resolves.
+**The DMG is now built on a real Mac.** I could not get the background image
+in place across two releases: in 0.5.1 I built the alias record by hand, which
+did not work; in 0.5.2 I reshaped that record to match exactly what
+`mac_alias` writes on a Mac and made the image a plain PNG, which also did not
+work. In both, the window size and the icon positions did take effect — the
+`.DS_Store` was being read — but the background never appeared.
 
-The second suspect is gone as well: the background is no longer a
-multi-representation, JPEG-compressed TIFF but a **plain PNG**. It is a touch
-softer on a Retina display, but there is nothing left in it that could fail to
-decode. Sharpness is easy to bring back once the image is confirmed to appear.
+The reason is now clear: the alias record Finder uses to find the background
+carries the file's real CNID and the volume's real creation date. Both can only
+be produced while the image is mounted, by macOS's own calls; on Linux both are
+invented, and Finder cannot resolve the record. There was no point guessing at
+it a third time.
 
-**OKU-BENI.txt is out of the DMG.** It stuck out as a third icon in that
-otherwise clean window (and made Finder say "3 items"). The text moved inside
-the app, at `Dunya Dilleri Atlasi.app/Contents/Resources/OKU-BENI.txt`. The
-install and first-launch notes are also here in the release and in the README.
+So the published disk image is now built by `dmgbuild` on a **macOS runner**:
+the window, the icon positions and the background are written by macOS itself.
+Two further gains come with it:
 
-**A .zip for people who do not want a disk image.** The app was already being
-packaged as a `.zip`, it just was not published; it is in Releases now. Unzip
-it, drag the app to Applications, done — no mounting step at all. Having the
-window open by itself on mount is not something I can arrange: that flag lives
-in the HFS+ volume header, this image is ISO9660, and there is no tooling to
-produce HFS+ on Linux (the one candidate, `machfs`, writes only the old HFS
-that Catalina no longer mounts). So for anyone the mount dance annoys, the zip
-is the honest answer.
+- The image is **HFS+** rather than ISO9660, which makes `bless --openfolder`
+  work: the window now **opens by itself** when the image is mounted. That was
+  the one thing that could not be done on ISO9660.
+- The Retina representation is added with `tiffutil`, so the background is both
+  1x and 2x — produced by Apple's own tool rather than guessed at.
+
+`make desktop` still works on Linux and still produces a DMG; that one is plain
+(ISO9660, no window styling). The published build is the macOS one.
 
 ### Downloads
 
 | Platform | File | Size |
 |---|---|---|
 | Android 7+ | `Dunya-Dilleri-Atlasi.apk` | 513 KB |
-| macOS 10.15+ | `Dunya-Dilleri-Atlasi.dmg` | 8.6 MB |
+| macOS 10.15+ | `Dunya-Dilleri-Atlasi.dmg` | ~8 MB |
 | macOS, no disk image | `Dunya-Dilleri-Atlasi-mac.zip` | 3.2 MB |
 | Windows 10+ | `Dunya Dilleri Atlasi.exe` | 4.4 MB |
 
