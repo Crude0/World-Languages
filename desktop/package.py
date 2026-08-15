@@ -2,6 +2,8 @@
 """macOS .app + .dmg ve Windows .exe paketleri."""
 import os, pathlib, shutil, struct, subprocess, sys
 
+import dmg_window
+
 HERE = pathlib.Path(__file__).parent
 OUT = HERE / "out"
 DIST = HERE / "dist"
@@ -126,6 +128,9 @@ def build_mac():
     return app
 
 
+VOLUME = "Dunya Dilleri Atlasi"
+
+
 def build_dmg(app):
     root = HERE / "dmgroot"
     if root.exists():
@@ -134,10 +139,19 @@ def build_dmg(app):
     shutil.copytree(app, root / app.name, symlinks=True)
     os.symlink("/Applications", root / "Applications")
     (root / "OKU-BENI.txt").write_text(README)
+    # Bağlanan birimin simgesi: Finder kenar çubuğunda ve masaüstünde
+    # uygulamanın ikonu görünsün, kullanıcı "hangisiydi bu" diye aramasın.
+    shutil.copy(HERE / "AppIcon.icns", root / ".VolumeIcon.icns")
+    # Pencerenin görünümü: arka plan, ikon yerleri, pencere ölçüsü.
+    # Bunlar kökteki .DS_Store'da duruyor; olmazsa DMG yine çalışır.
+    dmg_window.build(root, VOLUME, app.name, os.environ.get("PW_CHROME"))
     dmg = DIST / "Dunya-Dilleri-Atlasi.dmg"
     dmg.unlink(missing_ok=True)
-    subprocess.run(["genisoimage", "-quiet", "-V", "Dunya Dilleri Atlasi",
-                    "-D", "-r", "-o", str(dmg), str(root)], check=True)
+    # -hidden: nokta ile başlayan girdiler ISO9660 tarafında da gizli işaretli
+    subprocess.run(["genisoimage", "-quiet", "-V", VOLUME, "-D", "-r",
+                    "-hidden", ".DS_Store", "-hidden", ".background",
+                    "-hidden", ".VolumeIcon.icns",
+                    "-o", str(dmg), str(root)], check=True)
     return dmg
 
 

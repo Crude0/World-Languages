@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Uygulama ikonu: haritanın Avrupa–Afrika kesitinden .icns ve .ico üretir."""
-import json, math, pathlib, subprocess, sys
+import json, math, os, pathlib, subprocess, sys
 
 HERE = pathlib.Path(__file__).parent
 SC = HERE.parent
@@ -8,8 +8,11 @@ SC = HERE.parent
 data = json.load(open(SC / "data.json"))
 C, LG = data["countries"], data["langs"]
 
-COL = {"rom": "#a83d09", "ger": "#3ab1f8", "ine": "#6a55c8", "afa": "#a2bb45",
-       "nkg": "#12a077", "aus": "#e37ab3", "oth": "#8d949e"}
+# Uygulamanın koyu tema paleti (0.3.0'da canlandırıldı). Eskiden burada
+# hâlâ o sürümden önceki soluk renkler duruyordu: ikon uygulamaya benzemiyordu.
+COL = {"rom": "#db0002", "ger": "#119efd", "ine": "#6354f5", "afa": "#81c90d",
+       "nkg": "#009a73", "aus": "#b529b8", "trk": "#c7810a", "asi": "#ff4b9d",
+       "oth": "#5f6772"}
 OCEAN = "#141821"
 EDGE = "#0e1116"
 
@@ -47,7 +50,8 @@ side = max(bx - ax, by - ay)
 vb = f"{cx - side / 2:.1f} {cy - side / 2:.1f} {side:.1f} {side:.1f}"
 
 paths = "".join(
-    f'<path d="{c["d"]}" fill="{COL[LG[c["l"]]["g"]]}"/>' for c in C.values())
+    f'<path d="{c["d"]}" fill="{COL.get(LG[c["l"]]["g"], "#5f6772")}"/>'
+    for c in C.values() if c.get("d"))
 
 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vb}" width="1024" height="1024">'
        f'<rect x="{cx - side:.1f}" y="{cy - side:.1f}" width="{side * 2:.1f}" height="{side * 2:.1f}" fill="{OCEAN}"/>'
@@ -65,20 +69,25 @@ html,body{{margin:0;background:transparent}}
 (HERE / "icon_mac.html").write_text(tpl.format(size=824, radius=185, ring=3, svg=svg))
 (HERE / "icon_win.html").write_text(tpl.format(size=1000, radius=110, ring=3, svg=svg))
 
-shot = HERE / "shoticon.mjs"
-shot.write_text("""
+# Playwright tools/node_modules altında kurulu ve ESM çözümlemesi betiğin
+# bulunduğu dizine bakıyor; bu yüzden betik dosyaya yazılmadan, tools/
+# içinden -e ile çalıştırılıyor.
+shot = """
 import { chromium } from "playwright";
-const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
+const b = await chromium.launch(%s);
 for (const name of ["mac", "win"]) {
   const p = await b.newPage({ viewport: { width: 1024, height: 1024 }, deviceScaleFactor: 1 });
-  await p.goto("file://" + process.cwd() + "/icon_" + name + ".html");
+  await p.goto("file://%s/icon_" + name + ".html");
   await p.waitForTimeout(300);
-  await p.screenshot({ path: "icon_" + name + ".png", omitBackground: true });
+  await p.screenshot({ path: "%s/icon_" + name + ".png", omitBackground: true });
   await p.close();
 }
 await b.close();
-""")
-subprocess.run(["node", "shoticon.mjs"], cwd=HERE, check=True)
+""" % (
+    '{ executablePath: "%s" }' % os.environ["PW_CHROME"] if os.environ.get("PW_CHROME") else "{}",
+    HERE, HERE)
+subprocess.run(["node", "--input-type=module", "-e", shot],
+               cwd=SC / "tools", check=True)
 
 from PIL import Image
 
@@ -94,7 +103,9 @@ for typ, px in ICNS:
     mac.resize((px, px), Image.LANCZOS).save(buf, "PNG")
     raw = buf.read_bytes()
     buf.unlink()
-    chunks += typ.encode("ascii") + len(raw).to_bytes(4, "big") + raw
+    # Uzunluk alanı 8 baytlık başlığı da sayar. Eskiden yalnız yükün boyu
+    # yazılıyordu; dosya ikinci parçadan itibaren ayrıştırılamıyordu.
+    chunks += typ.encode("ascii") + (len(raw) + 8).to_bytes(4, "big") + raw
 icns = b"icns" + (len(chunks) + 8).to_bytes(4, "big") + chunks
 (HERE / "AppIcon.icns").write_bytes(icns)
 
