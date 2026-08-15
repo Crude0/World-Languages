@@ -10,6 +10,58 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.5.0 — 15 Ağustos 2026
+
+**Her görünümün artık bir bağlantısı var.** Şimdiye kadar haritada kurduğunuz
+hiçbir şey paylaşılamıyordu: bir dili süzüp Anadolu'ya yaklaşsanız bile
+karşınızdakine "sen de aynısını yap" demekten başka yol yoktu. Artık ne
+gösterildiği adres çubuğunda duruyor —
+
+```
+#l=en&p=pct&d=on&f=l.tr&v=489,208,422
+```
+
+— arayüz dili, boyama ölçütü (aile / yoğunluk / kişi), ayrıntı düzeyi (ülke /
+bölge), süzgeç, seçili ülke ya da il, tablo görünümü ve görüş kutusu. Araç
+çubuğuna **Bağlantı** düğmesi eklendi: mevcut görünümün adresini panoya
+kopyalıyor. Biçim iki arayüzde de aynı, yani masaüstünde üretilen bir bağlantı
+telefon sürümünde de açılıyor.
+
+İki karar bilinçli:
+
+- **Tema bağlantıda yok.** Açık/koyu okuyanın kendi tercihi; linkle
+  dayatılmamalı. Dil ise içeriğin bir parçası olduğu için taşınıyor ve kayıtlı
+  tercihi eziyor.
+- **Yazma geciktiriliyor.** Kaydırırken her karede `history.replaceState`
+  çağırmak hem pahalı hem de Safari'nin oran sınırına takılıp hata veriyor;
+  hareket durduktan 400 ms sonra bir kez yazılıyor.
+
+Bozuk ya da uydurma bir bağlantı sayfayı kırmıyor: tanınmayan her alan sessizce
+yok sayılıyor ve varsayılan görünüm açılıyor.
+
+**Tarayıcı sürümü kurulabilir ve çevrimdışı hâle geldi.** `docs/` kopyalarına
+manifest, hizmet çalışanı ve ikon eklendi; Chrome'da "Yükle", iOS'ta "Ana
+ekrana ekle" dediğinizde adres çubuğu olmayan bir uygulama gibi açılıyor ve ağ
+tamamen kapalıyken de çalışıyor (ölçtüm: sunucu kapalıyken sayfa açılıyor ve
+tek istek gitmiyor). Masaüstü ve telefon arayüzleri ayrı manifest kullanıyor,
+yoksa telefondan kurulan uygulama masaüstü sayfasını açardı.
+
+Bu yalnızca yayımlanan siteyi ilgilendiriyor: paketlenen sürümler
+(`dunya-dilleri.html`, masaüstü uygulaması, APK) dokunulmadan kalıyor — onlar
+zaten çevrimdışı ve `file://` üzerinden hizmet çalışanı kaydı anlamsız.
+
+**Sürekli tümleştirme eklendi.** Her itmede ve her PR'da: veri ve sayfalar
+sıfırdan derleniyor, **yayımlanan kopyanın şablonlarla uyumlu olduğu**
+doğrulanıyor ve iki arayüz Playwright'la denetleniyor. Bu oturumda elle
+yakaladığım regresyonların çoğunu son adım yakalardı.
+
+**`build_subs.py` artık kaynak dosyayı gerçekten indiriyor.** README uzun
+süredir "ilk çalıştırmada 40 MB'lık Natural Earth dosyasını indirir" diyordu
+ama kodda indirme yoktu; dosya elle indirilmişti ve temiz bir kopyada `make`
+çalışmıyordu. İndirme sessizce yarıda kesilebildiği için (ilk denemede 40 MB
+yerine 35 MB gelip JSON ortasından koptu) hem uzunluk hem de ayrıştırma
+doğrulanıyor, tutmazsa yeniden deneniyor.
+
 ## v0.4.0 — 10 Ağustos 2026
 
 **Kaydırırken kasma: sebebi bulundu ve ölçüldü.** Bu sorun turlardır tahminle

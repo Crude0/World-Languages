@@ -519,6 +519,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
           </div>
           <button class="tool" id="btnReset" hidden>Süzgeci kaldır</button>
           <button class="tool" id="btnTable" aria-pressed="false">Tablo</button>
+          <button class="tool" id="btnLink">Bağlantı</button>
           <button class="tool icon" id="btnOut" aria-label="Uzaklaş">−</button>
           <button class="tool icon" id="btnIn" aria-label="Yakınlaş">+</button>
           <button class="tool icon" id="btnFit" aria-label="Haritayı sığdır">⤢</button>
@@ -646,6 +647,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       pFam: "Aile", pPct: "Yoğunluk", pPpl: "Kişi",
       dAuto: "Oto", dOff: "Ülke", dOn: "Bölge",
       reset: "Süzgeci kaldır", table: "Tablo",
+      link: "Bağlantı", linkOk: "Kopyalandı", linkFail: "Kopyalanamadı",
       capAll: "Dünya · çoğunluğun konuştuğu dil",
       capAllSub: (n) => `${n} ülke ve bölge, ailelerine göre renklendirildi.`,
       countries: "Ülkeler", noHit: (q) => `“${q}” için sonuç yok.`,
@@ -697,6 +699,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       pFam: "Family", pPct: "Density", pPpl: "People",
       dAuto: "Auto", dOff: "Country", dOn: "Region",
       reset: "Clear filter", table: "Table",
+      link: "Link", linkOk: "Copied", linkFail: "Copy failed",
       capAll: "World · majority language",
       capAllSub: (n) => `${n} countries and territories, coloured by family.`,
       countries: "Countries", noHit: (q) => `No results for “${q}”.`,
@@ -747,6 +750,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   let ui = localStorage.getItem("wl-ui")
     || ((navigator.language || "").toLowerCase().startsWith("tr") ? "tr" : "en");
   if (!T[ui]) ui = "tr";
+  // Linkle gelen dil, kayıtlı tercihi ezer: paylaşılan görünüm neyse o açılsın.
+  const H0 = parseHash();
+  if (H0 && T[H0.l]) ui = H0.l;
   const t = () => T[ui];
   const cn = (c) => ui === "en" ? (c.en || c.n) : c.n;
   const sn = (o) => ui === "en" ? (o.ne || o.n) : o.n;
@@ -758,6 +764,50 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const noteOf = (c) => ui === "en" ? (c.note_en || "") : (c.note || "");
 
   const state = { filter: null, sel: null, sort: "fam", q: "", table: false };
+
+  /* --------------------------------------------------------- URL'de durum
+     Bir görünümü paylaşabilmek için ne gösterildiği adres çubuğunda tutuluyor:
+     arayüz dili, boyama ölçütü, ayrıntı düzeyi, süzgeç, seçim, tablo ve görüş
+     kutusu. Tema kasten yok — o okuyanın kendi tercihi, linkle dayatılmamalı.
+
+     Yazma geciktiriliyor: kaydırma sırasında her karede history.replaceState
+     çağırmak hem pahalı hem de Safari'de oran sınırına takılıp hata veriyor. */
+  let hashLock = false, hashTimer = 0;
+  function hashOf() {
+    const p = [];
+    if (ui !== "tr") p.push("l=" + ui);
+    if (paint !== "fam") p.push("p=" + paint);
+    if (lod !== "auto") p.push("d=" + lod);
+    if (state.filter) p.push("f=" + state.filter.t + "." + state.filter.k);
+    if (state.selSub) p.push("u=" + encodeURIComponent(state.selSub));
+    else if (state.sel) p.push("s=" + state.sel);
+    if (state.table) p.push("t=1");
+    const r = (n) => Math.round(n);
+    if (r(vb.w) !== r(W) || r(vb.x) || r(vb.y)) p.push(`v=${r(vb.x)},${r(vb.y)},${r(vb.w)}`);
+    return p.length ? "#" + p.join("&") : "";
+  }
+  function writeHash() {
+    if (hashLock) return;
+    const h = hashOf();
+    if (h === location.hash || (!h && !location.hash)) return;
+    try {
+      history.replaceState(null, "", h || location.pathname + location.search);
+    } catch (_) { /* oran sınırı: bir sonraki yazmada tutar */ }
+  }
+  function queueHash() {
+    clearTimeout(hashTimer);
+    hashTimer = setTimeout(writeHash, 400);
+  }
+  function parseHash() {
+    const h = location.hash.replace(/^#/, "");
+    if (!h) return null;
+    const o = {};
+    for (const part of h.split("&")) {
+      const i = part.indexOf("=");
+      if (i > 0) o[part.slice(0, i)] = decodeURIComponent(part.slice(i + 1));
+    }
+    return o;
+  }
 
   /* ------------------------------------------------------------- masthead */
   const nCountry = ids.filter((i) => !C[i].t).length;
@@ -861,13 +911,17 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (on) { markMap(); repaint(); }
     if (state.sel && !on && state.selSub) select(state.sel);   // bölge seçimi ülkeye düşsün
   }
+  function setLodMode(v) {
+    lod = v;
+    ["auto", "off", "on"].forEach((j) => {
+      const b = $("#lod" + j[0].toUpperCase() + j.slice(1));
+      if (b) b.setAttribute("aria-pressed", String(j === v));
+    });
+    applyLod();
+    queueHash();
+  }
   ["Auto", "Off", "On"].forEach((k) => {
-    $("#lod" + k).onclick = () => {
-      lod = k.toLowerCase();
-      ["Auto", "Off", "On"].forEach((j) =>
-        $("#lod" + j).setAttribute("aria-pressed", String(j === k)));
-      applyLod();
-    };
+    $("#lod" + k).onclick = () => setLodMode(k.toLowerCase());
   });
 
   /* ------------------------------------------------- yoğunluk boyaması */
@@ -955,14 +1009,18 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       `</span>`;
     box.hidden = false;
   }
+  function setPaint(v) {
+    paint = v;
+    ["fam", "pct", "ppl"].forEach((j) => {
+      const b = $("#paint" + j[0].toUpperCase() + j.slice(1));
+      if (b) b.setAttribute("aria-pressed", String(j === v));
+    });
+    rampKey = "";
+    repaint();
+    queueHash();
+  }
   ["Fam", "Pct", "Ppl"].forEach((k) => {
-    $("#paint" + k).onclick = () => {
-      paint = k.toLowerCase();
-      ["Fam", "Pct", "Ppl"].forEach((j) =>
-        $("#paint" + j).setAttribute("aria-pressed", String(j === k)));
-      rampKey = "";
-      repaint();
-    };
+    $("#paint" + k).onclick = () => setPaint(k.toLowerCase());
   });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
     rampKey = ""; repaint();
@@ -1106,6 +1164,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     applyLod();
     applyGeoLod();
     cull();
+    queueHash();
   }
   function applyVB() {
     if (raf) return;
@@ -1566,6 +1625,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     rampKey = "";
     repaint();
     if (state.table) renderTable();
+    queueHash();
   }
   btnReset.onclick = () => { setFilter(null); };
   function live(t) { $("#live").textContent = t; }
@@ -1574,6 +1634,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const detail = $("#detail");
   function select(id, sid) {
     state.sel = id; state.selSub = sid || null;
+    queueHash();
     svg.querySelectorAll(".sel").forEach((n) => n.classList.remove("sel"));
     marks.innerHTML = "";
     if (!id) { detail.classList.remove("on"); return; }
@@ -1702,6 +1763,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   });
   function setTable(on) {
     state.table = on;
+    queueHash();
     $("#btnTable").setAttribute("aria-pressed", String(on));
     $("#tableWrap").classList.toggle("on", on);
     $("#mapArea").style.display = on ? "none" : "";
@@ -1711,6 +1773,28 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (on) renderTable();
   }
   $("#btnTable").onclick = () => setTable(!state.table);
+
+  /* Bağlantıyı kopyala: adres çubuğunda zaten duran durumu panoya alır.
+     Dosyadan (file://) açıldığında kopyalanacak anlamlı bir adres yok. */
+  const btnLink = $("#btnLink");
+  btnLink.onclick = async () => {
+    writeHash();
+    const url = location.href;
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(url);
+      ok = true;
+    } catch (_) {
+      const ta = document.createElement("textarea");
+      ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { ok = document.execCommand("copy"); } catch (_) { ok = false; }
+      ta.remove();
+    }
+    btnLink.textContent = ok ? t().linkOk : t().linkFail;
+    live(ok ? t().linkOk : t().linkFail);
+    setTimeout(() => { btnLink.textContent = t().link; }, 1800);
+  };
 
   /* ------------------------------------------------- tema ve arayüz dili */
   let FOOT_TR = null;
@@ -1736,7 +1820,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     set("#paintFam", t().pFam); set("#paintPct", t().pPct); set("#paintPpl", t().pPpl);
     set("#lodAuto", t().dAuto); set("#lodOff", t().dOff); set("#lodOn", t().dOn);
     set("#rankSpk", t().rankSpk); set("#rankAll", t().rankAll); set("#rankCnt", t().rankCnt);
-    set("#btnReset", t().reset); set("#btnTable", t().table);
+    set("#btnReset", t().reset); set("#btnTable", t().table); set("#btnLink", t().link);
     set("#noteProj", t().proj); set("#noteAnt", t().noAnt);
     set("#noteCount", t().nCount(ids.length));
     set("#navHint", matchMedia("(pointer: coarse)").matches ? t().navTouch : t().navMouse);
@@ -1763,15 +1847,46 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   document.addEventListener("click", (e) => {
     const b = e.target.closest("[data-ui],.prefs [data-theme]");
     if (!b) return;
-    if (b.dataset.ui) { ui = b.dataset.ui; localStorage.setItem("wl-ui", ui); applyUi(); }
+    if (b.dataset.ui) { ui = b.dataset.ui; localStorage.setItem("wl-ui", ui); applyUi(); queueHash(); }
     else { theme = b.dataset.theme; localStorage.setItem("wl-theme", theme); applyTheme(); }
   });
+
+  /* --------------------------------------------------- linkten gelen durum */
+  function applyHash(h) {
+    if (!h) return;
+    hashLock = true;
+    try {
+      if (T[h.l] && h.l !== ui) { ui = h.l; applyUi(); }
+      if (["fam", "pct", "ppl"].includes(h.p)) setPaint(h.p);
+      if (["auto", "off", "on"].includes(h.d)) setLodMode(h.d);
+      if (h.f) {
+        const [tp, ...rest] = h.f.split(".");
+        const k = rest.join(".");
+        if (tp === "l" && LG[k]) setFilter({ t: "l", k });
+        else if (tp === "g" && GR[k]) setFilter({ t: "g", k });
+      }
+      if (h.v) {
+        const [x, y, w] = h.v.split(",").map(Number);
+        if ([x, y, w].every(Number.isFinite) && w > 0) {
+          vb.w = w; vb.h = w * H / W; vb.x = x; vb.y = y; commitVB();
+        }
+      }
+      // Seçim görüş kutusundan sonra: bölge seçimi ayrıntı düzeyini açtırıyor.
+      if (h.u && SB[h.u]) { setLodMode("on"); select(SB[h.u].p, h.u); }
+      else if (h.s && C[h.s]) select(h.s);
+      if (h.t === "1") setTable(true);
+    } finally {
+      hashLock = false;
+    }
+  }
+  addEventListener("hashchange", () => { applyHash(parseHash()); });
 
   /* ------------------------------------------------------------- go */
   applyTheme();
   applyUi();
   renderIndex();
   applyVB();
+  applyHash(H0);
   // Kaba geometri ilk kareden sonra hesaplanıyor: açılışı geciktirmesin.
   setTimeout(() => { buildGeo(); applyGeoLod(); }, 0);
   document.addEventListener("keydown", (e) => {

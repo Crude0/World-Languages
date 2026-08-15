@@ -19,6 +19,7 @@ web: data
 	@mkdir -p docs
 	@cp preview.html docs/index.html
 	@cp mobile-preview.html docs/mobile.html
+	$(PY) pwa.py
 	@echo "hazır: docs/index.html"
 
 ## desktop: macOS .app + .dmg, Windows .exe  (Go 1.21+ gerekir)

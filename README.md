@@ -96,16 +96,21 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.4.0** — get it from the
+Latest release **v0.5.0** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Platform | File | Size | Note |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 509 KB | No internet permission |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 513 KB | No internet permission |
 | macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 7.3 MB | Universal (Intel + Apple Silicon) |
 | Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4.4 MB | Single file, no installer |
 | Browser | [`docs/index.html`](docs/index.html) | 1.4 MB | One file, just open it |
+
+The browser version is **installable**: open it in Chrome or Safari and pick
+"Install" / "Add to Home Screen" and it runs like an app, offline, with no
+address bar. Any view you build — a language, a country, a zoom level — has its
+own link: press **Link** and share it.
 
 The apps are unsigned (there is no Apple/Microsoft developer certificate):
 
@@ -177,6 +182,7 @@ build_subs.py       state/province borders; topology-preserving simplification
 build_data.py       joins every layer, computes speaker counts
 build_page.py       desktop page (single file, fonts embedded)
 build_mobile.py     phone interface (system fonts)
+pwa.py              manifest, service worker and icon wiring for docs/
 anchor.py           label anchors (pole of inaccessibility)
 VERSION             single source for the version in every package
 page.tmpl.html      desktop interface

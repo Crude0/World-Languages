@@ -8,12 +8,17 @@ noktalarda yaylara (arc) bölünür ve her yay bir kez sadeleştirilir. RDP yön
 bağımsız olduğu için iki komşu aynı yayda birebir aynı sonucu üretir.
 """
 import json
+import os
+import shutil
 import sys
+import urllib.request
 from anchor import label_anchor
 from collections import defaultdict
 from build_map import rdp, ring_area, to_svg, W, H   # aynı projeksiyon
 
 SRC = "ne_admin1_10m.json"
+URL = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/"
+       "geojson/ne_10m_admin_1_states_provinces.geojson")
 OUT = "sub_paths.json"
 Q = 0.05              # ızgara: ortak noktaların birebir çakışması için
 TOL = 0.22            # yay başına RDP toleransı (svg birimi)
@@ -162,7 +167,46 @@ def rings_of(geom):
     return geom["coordinates"]
 
 
+def fetch_source():
+    """Kaynak dosya yoksa indir. 40 MB, depoda tutulmuyor.
+
+    README uzun süredir bunu vaat ediyordu ama kod yoktu: dosya elle
+    indirilmişti ve temiz bir kopyada `make` çalışmıyordu.
+
+    İndirme sessizce yarıda kesilebiliyor (ilk denemede 40 MB yerine 35 MB
+    geldi ve JSON ortasından koptu). Bu yüzden hem uzunluk hem de ayrıştırma
+    doğrulanıyor; tutmazsa yeniden deneniyor.
+    """
+    if os.path.exists(SRC):
+        return
+    tmp = SRC + ".part"
+    last = ""
+    for attempt in range(1, 4):
+        print(f"· {SRC} yok, Natural Earth'ten indiriliyor (~40 MB, deneme {attempt})")
+        try:
+            req = urllib.request.Request(URL, headers={"User-Agent": "world-languages-build"})
+            with urllib.request.urlopen(req, timeout=300) as r:
+                want = int(r.headers.get("Content-Length") or 0)
+                with open(tmp, "wb") as f:
+                    shutil.copyfileobj(r, f)
+            got = os.path.getsize(tmp)
+            if want and got != want:
+                last = f"eksik indi: {got} / {want} bayt"
+                continue
+            with open(tmp, encoding="utf-8") as f:
+                json.load(f)                     # bozuksa burada patlar
+            os.replace(tmp, SRC)
+            print(f"· indirildi: {got/1024/1024:.0f} MB")
+            return
+        except Exception as e:                   # ağ ya da ayrıştırma hatası
+            last = f"{type(e).__name__}: {e}"
+    if os.path.exists(tmp):
+        os.remove(tmp)
+    sys.exit(f"{SRC} indirilemedi ({last}).\nElle indirip depo köküne koyun:\n  {URL}")
+
+
 def main():
+    fetch_source()
     data = json.load(open(SRC))
     feats = []                                # (sid, ad, ülke, kod, [halkalar])
     for feat in data["features"]:

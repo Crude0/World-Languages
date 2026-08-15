@@ -1,0 +1,54 @@
+name: ci
+
+# Her itmede veriyi ve sayfaları sıfırdan derler, yayımlanan kopyanın
+# şablonlarla uyumlu olduğunu doğrular ve iki arayüzü Playwright'la denetler.
+# Bu oturumda elle yakalanan regresyonların çoğunu buradaki üç adım yakalardı.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # 40 MB'lık Natural Earth alt bölge dosyası depoda yok; build_subs.py
+      # indiriyor. Her koşuda yeniden indirmemek için önbelleğe alınıyor.
+      - name: Natural Earth alt bölge dosyası
+        uses: actions/cache@v4
+        with:
+          path: ne_admin1_10m.json
+          key: ne-admin1-10m-v1
+
+      - name: veri ve sayfaları derle
+        run: make
+
+      - name: yayımlanan kopya güncel mi
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::docs/ şablonlarla uyumsuz — 'make' çalıştırıp sonucu işleyin"
+            exit 1
+          fi
+
+      - name: playwright
+        working-directory: tools
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: arayüz denetimi
+        working-directory: tools
+        run: |
+          node check-desktop.mjs
+          node check-mobile.mjs

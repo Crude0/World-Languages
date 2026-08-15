@@ -103,14 +103,19 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.4.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.5.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 509 KB | İnternet izni yok |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 513 KB | İnternet izni yok |
 | macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 7,3 MB | Evrensel (Intel + Apple Silicon) |
 | Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,4 MB | Tek dosya, kurulum yok |
 | Tarayıcı | [`docs/index.html`](docs/index.html) | 1,4 MB | Tek dosya, çift tıkla aç |
+
+Tarayıcı sürümü **kurulabilir**: Chrome ya da Safari'de açıp "Yükle" /
+"Ana ekrana ekle" dediğinizde uygulama gibi, çevrimdışı, adres çubuğu olmadan
+çalışır. Kurduğunuz her görünümün — bir dil, bir ülke, bir yakınlık — kendi
+bağlantısı var: **Bağlantı** düğmesine basıp paylaşabilirsiniz.
 
 Uygulamalar imzalı değil (Apple/Microsoft geliştirici sertifikası yok):
 
@@ -182,6 +187,7 @@ build_subs.py       eyalet/il sınırları; topoloji koruyan sadeleştirme
 build_data.py       tüm katmanları birleştirir, konuşan sayılarını hesaplar
 build_page.py       masaüstü sayfası (gömülü fontlarla tek dosya)
 build_mobile.py     telefon arayüzü (sistem fontları)
+pwa.py              docs/ için manifest, hizmet çalışanı ve ikon bağlama
 anchor.py           etiket çapaları (erişilmezlik kutbu)
 VERSION             paketlerdeki sürüm numarasının tek kaynağı
 page.tmpl.html      masaüstü arayüzü

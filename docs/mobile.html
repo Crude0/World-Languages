@@ -1,4 +1,10 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Dünya Dilleri</title><meta name="color-scheme" content="light dark"><style>*,*::before,*::after{box-sizing:border-box}</style></head><body><style>
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Dünya Dilleri</title><meta name="color-scheme" content="light dark"><style>*,*::before,*::after{box-sizing:border-box}</style><link rel="manifest" href="manifest-mobile.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef0f3">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101318">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head><body><style>
 /* ============================================================ temel ===== */
 :root {
   /* İki temayı da desteklediğimizi bildirmezsek Android WebView sayfayı kendi
@@ -540,6 +546,9 @@ body.zoomed .orn { opacity: 0; }
   let ui = localStorage.getItem("wl-ui")
     || ((navigator.language || "").toLowerCase().startsWith("tr") ? "tr" : "en");
   if (!T[ui]) ui = "tr";
+  // Linkle gelen dil, kayıtlı tercihi ezer: paylaşılan görünüm neyse o açılsın.
+  const H0 = parseHash();
+  if (H0 && T[H0.l]) ui = H0.l;
   const t = () => T[ui];
   const cn = (c) => ui === "en" ? (c.en || c.n) : c.n;        // ülke adı
   const sn = (s) => ui === "en" ? (s.ne || s.n) : s.n;        // bölge adı
@@ -549,6 +558,47 @@ body.zoomed .orn { opacity: 0; }
   const noteOf = (c) => ui === "en" ? (c.note_en || "") : (c.note || "");
 
   const state = { filter: null, sel: null, selSub: null, q: "", sort: "spk", paint: "fam", lod: "auto" };
+
+  /* --------------------------------------------------------- URL'de durum
+     Masaüstü sayfasıyla aynı biçim: bir link iki arayüzde de aynı görünümü
+     açsın. Tema burada yok, o okuyanın kendi tercihi. Yazma geciktiriliyor —
+     kaydırma sırasında her karede replaceState çağırmak Safari'de oran
+     sınırına takılıyor. */
+  let hashLock = false, hashTimer = 0;
+  function hashOf() {
+    const p = [];
+    if (ui !== "tr") p.push("l=" + ui);
+    if (state.paint !== "fam") p.push("p=" + state.paint);
+    if (state.lod !== "auto") p.push("d=" + state.lod);
+    if (state.filter) p.push("f=" + state.filter.t + "." + state.filter.k);
+    if (state.selSub) p.push("u=" + encodeURIComponent(state.selSub));
+    else if (state.sel) p.push("s=" + state.sel);
+    const r = (n) => Math.round(n);
+    if (r(vb.w) !== r(W) || r(vb.x) || r(vb.y)) p.push(`v=${r(vb.x)},${r(vb.y)},${r(vb.w)}`);
+    return p.length ? "#" + p.join("&") : "";
+  }
+  function writeHash() {
+    if (hashLock) return;
+    const h = hashOf();
+    if (h === location.hash || (!h && !location.hash)) return;
+    try {
+      history.replaceState(null, "", h || location.pathname + location.search);
+    } catch (_) { /* oran sınırı: bir sonraki yazmada tutar */ }
+  }
+  function queueHash() {
+    clearTimeout(hashTimer);
+    hashTimer = setTimeout(writeHash, 400);
+  }
+  function parseHash() {
+    const h = location.hash.replace(/^#/, "");
+    if (!h) return null;
+    const o = {};
+    for (const part of h.split("&")) {
+      const i = part.indexOf("=");
+      if (i > 0) o[part.slice(0, i)] = decodeURIComponent(part.slice(i + 1));
+    }
+    return o;
+  }
 
   /* --------------------------------------------------- kenar süslemeleri */
   // Eski deniz haritalarının kenar boşluklarındaki pusula gülü, yelkenli ve
@@ -765,6 +815,7 @@ body.zoomed .orn { opacity: 0; }
     applyLod();
     applyGeoLod();
     cull();
+    queueHash();
   }
   // Bir CSS pikselinin kaç harita birimi ettiği. İşaretleri buna göre
   // ölçekleyince yakınlaşmadan ve ekran genişliğinden bağımsız sabit kalırlar.
@@ -1328,8 +1379,8 @@ body.zoomed .orn { opacity: 0; }
     const b = e.target.closest("[data-paint],[data-lod],[data-theme],[data-ui]");
     if (!b) return;
     const d = b.dataset;
-    if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); }
-    else if (d.lod) { state.lod = d.lod; applyLod(); }
+    if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); queueHash(); }
+    else if (d.lod) { state.lod = d.lod; applyLod(); queueHash(); }
     else if (d.theme) { setTheme(d.theme); }
     else if (d.ui) { setUi(d.ui); }
     syncPop();
@@ -1346,6 +1397,7 @@ body.zoomed .orn { opacity: 0; }
   }
   function setUi(v) {
     ui = v;
+    queueHash();
     localStorage.setItem("wl-ui", v);
     document.documentElement.lang = v;
     $("#q").placeholder = t().search;
@@ -1374,6 +1426,7 @@ body.zoomed .orn { opacity: 0; }
   /* ------------------------------------------------------------ süzgeç */
   function setFilter(f) {
     state.filter = f;
+    queueHash();
     markMap();
     rampKey = ""; repaint();
     $("#btnClear").hidden = !f;
@@ -1394,6 +1447,7 @@ body.zoomed .orn { opacity: 0; }
   /* ------------------------------------------------------------- seçim */
   function select(id, sid) {
     state.sel = id || null; state.selSub = sid || null;
+    queueHash();
     svg.querySelectorAll(".sel").forEach((n) => n.classList.remove("sel"));
     marks.innerHTML = "";
     if (!id) { render(); return; }
@@ -1445,8 +1499,46 @@ body.zoomed .orn { opacity: 0; }
   render();
   setDetent("peek", true);
   homeView();
+
+  /* --------------------------------------------------- linkten gelen durum */
+  function applyHash(h) {
+    if (!h) return;
+    hashLock = true;
+    try {
+      if (T[h.l] && h.l !== ui) setUi(h.l);
+      if (["fam", "pct", "ppl"].includes(h.p)) { state.paint = h.p; rampKey = ""; repaint(); }
+      if (["auto", "off", "on"].includes(h.d)) { state.lod = h.d; applyLod(); }
+      if (h.f) {
+        const [tp, ...rest] = h.f.split(".");
+        const k = rest.join(".");
+        if (tp === "l" && LG[k]) setFilter({ t: "l", k });
+      }
+      if (h.v) {
+        const [x, y, w] = h.v.split(",").map(Number);
+        if ([x, y, w].every(Number.isFinite) && w > 0) {
+          vb.w = w; vb.h = w * aspect(); vb.x = x; vb.y = y; commitVB();
+        }
+      }
+      // Seçim görüş kutusundan sonra: bölge seçimi ayrıntı düzeyini açtırıyor.
+      if (h.u && SB[h.u]) { state.lod = "on"; applyLod(); select(SB[h.u].p, h.u); }
+      else if (h.s && C[h.s]) select(h.s);
+      if (h.u || h.s) setDetent("half", true);
+      syncPop();
+    } finally {
+      hashLock = false;
+    }
+  }
+  addEventListener("hashchange", () => { applyHash(parseHash()); });
+  applyHash(H0);
+
   // Kaba geometri ilk kareden sonra hesaplanıyor: açılışı geciktirmesin.
   setTimeout(() => { buildGeo(); applyGeoLod(); }, 0);
 })();
 </script>
-</body></html>
+<script>
+// Hizmet çalışanı yalnızca http(s) altında anlamlı; dosyadan açılan kopyada
+// kayıt zaten başarısız olur, boş yere denemiyoruz.
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script></body></html>
