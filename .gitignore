@@ -18,7 +18,7 @@ desktop/dist/
 desktop/dmgroot/
 desktop/icon_*.html
 desktop/icon_*.png
-desktop/shoticon.mjs
+desktop/_dmgbg/
 android/build/
 android/gen/
 
