@@ -43,4 +43,5 @@ jobs:
             --notes-file "$NOTES" \
             "dist/Dunya-Dilleri-Atlasi.apk" \
             "dist/Dunya-Dilleri-Atlasi.dmg" \
+            "dist/Dunya-Dilleri-Atlasi-mac.zip" \
             "dist/Dunya Dilleri Atlasi.exe"

@@ -10,6 +10,35 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.5.2 — 15 Ağustos 2026
+
+**Arka plan resmi gerçek Mac'te gelmemişti.** 0.5.1'i denediğimizde pencere
+ölçüsü ve ikon yerleri tuttu — yani `.DS_Store` okunuyordu — ama arka plan
+siyah kaldı. Sorun, Finder'ın resmi bulmak için kullandığı alias kaydındaydı.
+`mac_alias`'ın gerçek bir Mac'te ne yazdığına satır satır bakıp aynısını
+kurdum: posix yolu birimin köküne göre ve **başında bölü işaretiyle**
+(`/.background/bg.png` — önceki denemede bölü yoktu), carbon yolu kütüphanenin
+kendi birleştirme biçiminde. Yanına bir de `pBBk` yer imi yazılıyor: modern
+Finder arka planı oradan da okuyabiliyor, hangisi tutarsa.
+
+İkinci şüpheliyi de ortadan kaldırdım: arka plan artık çok temsilli, JPEG
+sıkıştırmalı TIFF değil, **düz PNG**. Retina'da bir tık yumuşak duruyor ama
+çözülemeyecek bir yanı kalmadı. Netliği, resmin geldiği doğrulandıktan sonra
+geri getirmek kolay.
+
+**OKU-BENI.txt DMG'den çıktı.** Pencerede üçüncü bir simge olarak sırıtıyordu
+(ve "3 items" diye sayılıyordu). Metin uygulamanın içine taşındı:
+`Dunya Dilleri Atlasi.app/Contents/Resources/OKU-BENI.txt`. Kurulum ve ilk
+açılış notları ayrıca Releases sayfasında ve README'de duruyor.
+
+**Disk imajı istemeyenler için .zip.** Uygulama zaten `.zip` olarak da
+paketleniyordu ama yayımlanmıyordu; artık Releases'te. Açıp uygulamayı
+Applications'a sürüklemek yeterli — hiç bağlama adımı yok. İmaj takılınca
+penceresinin kendiliğinden açılmasını sağlayamıyorum (o bayrak HFS+ birim
+başlığında, bizim imaj ISO9660 ve Linux'ta HFS+ üretecek araç yok; tek aday
+olan `machfs` yalnızca Catalina'nın artık bağlamadığı eski HFS'i yazıyor),
+bu yüzden bağlama adımından rahatsız olana verilecek gerçek cevap bu.
+
 ## v0.5.1 — 15 Ağustos 2026
 
 **DMG artık düzgün bir kurulum penceresi açıyor.** Şimdiye kadar disk imajı

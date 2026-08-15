@@ -29,22 +29,22 @@ ICON_SIZE = 96
 # diye merkez birkaç nokta yukarı alındı.
 APP_XY = (249, 246)
 DEST_XY = (506, 246)
-BG_NAME = "bg.tiff"
+BG_NAME = "bg.png"
 
 
 def render_background(dest_dir):
-    """Kaynak resmi 1x + 2x olarak tek TIFF'e koy."""
+    """Kaynak resmi pencere ölçüsünde düz PNG olarak yaz.
+
+    Önce 1x+2x çok temsilli, JPEG sıkıştırmalı TIFF denendi — Retina'da net
+    olsun diye. Gerçek Mac'te arka plan hiç görünmedi ve iki şüpheli vardı:
+    elle kurulan alias kaydı ve TIFF'in kendisi. İkinci şüpheliyi tamamen
+    ortadan kaldırmak için en sade biçim seçildi: tek çözünürlük, düz PNG.
+    Retina'da bir tık yumuşak duruyor; önce çalışması önemli."""
     from PIL import Image
-    two = Image.open(SOURCE).convert("RGB")
-    if two.size != (W * 2, H * 2):
-        two = two.resize((W * 2, H * 2), Image.LANCZOS)
-    one = two.resize((W, H), Image.LANCZOS)
+    im = Image.open(SOURCE).convert("RGB").resize((W, H), Image.LANCZOS)
     dest_dir.mkdir(parents=True, exist_ok=True)
     out = dest_dir / BG_NAME
-    # JPEG sıkıştırma: sıkıştırmasız TIFF 6,3 MB, q95 3,2 MB, q82 1,7 MB.
-    # Parşömen dokusunda q82 ile q95 arasındaki farkı görmek mümkün değil.
-    one.save(out, format="TIFF", save_all=True, append_images=[two],
-             compression="jpeg", quality=82, resolution_unit=2, dpi=(72, 72))
+    im.save(out, format="PNG", optimize=True)
     return out
 
 
@@ -66,8 +66,14 @@ def write_ds_store(root, volume_name, app_name):
     target = TargetInfo(ALIAS_KIND_FILE, BG_NAME, 0, 0, epoch,
                         b"\0\0\0\0", b"\0\0\0\0")
     target.folder_name = ".background"
-    target.carbon_path = f"{volume_name}:.background:{BG_NAME}"
-    target.posix_path = f".background/{BG_NAME}"
+    # Alanların biçimi mac_alias'ın Mac'te ürettiğiyle birebir aynı olmalı:
+    # posix yolu birimin köküne göre ve başında bölü işaretiyle, carbon yolu
+    # ise ":\0" ile birleştirilmiş (kütüphanenin kendi tuhaflığı, ama gerçek
+    # kayıtlarda böyle). Önceki denemede baştaki bölü yoktu ve arka plan
+    # gelmedi.
+    target.posix_path = f"/.background/{BG_NAME}"
+    target.carbon_path = volume_name + ":" + ":\0".join([".background", BG_NAME])
+    target.cnid_path = [16, 17]
     alias = Alias(volume=vol, target=target)
 
     x0, y0 = 180, 110                      # pencerenin ekrandaki sol üst köşesi
@@ -87,6 +93,9 @@ def write_ds_store(root, volume_name, app_name):
     }
 
     with DSStore.open(str(root / ".DS_Store"), "w+") as d:
+        # Modern Finder arka planı "pBBk" (yer imi) alanından da okuyabiliyor.
+        # Alias ile ikisi birden yazılıyor: hangisi tutarsa.
+        d["."]["pBBk"] = _bookmark(volume_name)
         # ds_store bu kodlar için codec'i kendi seçiyor: bwsp/icvp bplist,
         # Iloc ise (x, y) noktası olarak veriliyor.
         d["."]["bwsp"] = bwsp
@@ -95,10 +104,47 @@ def write_ds_store(root, volume_name, app_name):
         d["."]["ICVO"] = ("bool", True)
         d[app_name]["Iloc"] = APP_XY
         d["Applications"]["Iloc"] = DEST_XY
-        # Salt okunur bir birimde Finder'a "bunu gizle" diyemiyoruz, ama
-        # yerini söyleyebiliyoruz: OKU-BENI.txt pencerenin altına, görünür
-        # alanın dışına konuyor. Aşağı kaydıran bulur, kimseye çarpmaz.
-        d["OKU-BENI.txt"]["Iloc"] = (W // 2, H + 260)
+
+
+def _bookmark(volume_name):
+    """Arka plan resmi için CFURL yer imi (kBookmark* alanları elle kuruluyor)."""
+    import datetime
+    from mac_alias import Bookmark, Data, URL
+    from mac_alias.bookmark import (
+        kBookmarkPath, kBookmarkCNIDPath, kBookmarkFileCreationDate,
+        kBookmarkFileProperties, kBookmarkContainingFolder, kBookmarkVolumePath,
+        kBookmarkVolumeIsRoot, kBookmarkVolumeURL, kBookmarkVolumeName,
+        kBookmarkVolumeSize, kBookmarkVolumeCreationDate, kBookmarkVolumeUUID,
+        kBookmarkVolumeProperties, kBookmarkCreationOptions,
+        kBookmarkWasFileReference, kBookmarkUserName, kBookmarkUID,
+        kCFURLResourceIsRegularFile, kCFURLVolumeSupportsPersistentIDs)
+    import struct
+    import uuid
+
+    vol_path = f"/Volumes/{volume_name}"
+    epoch = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+    toc = {
+        kBookmarkPath: [".background", BG_NAME],
+        kBookmarkCNIDPath: [16, 17],
+        kBookmarkFileCreationDate: epoch,
+        kBookmarkFileProperties: Data(struct.pack(b"<QQQ", kCFURLResourceIsRegularFile, 0x0F, 0)),
+        kBookmarkContainingFolder: 0,
+        kBookmarkVolumePath: vol_path,
+        kBookmarkVolumeIsRoot: False,
+        kBookmarkVolumeURL: URL("file://" + vol_path),
+        kBookmarkVolumeName: volume_name,
+        kBookmarkVolumeSize: 0,
+        kBookmarkVolumeCreationDate: epoch,
+        kBookmarkVolumeUUID: str(uuid.uuid5(uuid.NAMESPACE_DNS, volume_name)).upper(),
+        kBookmarkVolumeProperties: Data(struct.pack(
+            b"<QQQ", 0x81 | kCFURLVolumeSupportsPersistentIDs,
+            0x13EF | kCFURLVolumeSupportsPersistentIDs, 0)),
+        kBookmarkCreationOptions: 512,
+        kBookmarkWasFileReference: True,
+        kBookmarkUserName: "unknown",
+        kBookmarkUID: 99,
+    }
+    return Bookmark([(1, toc)])
 
 
 def build(root, volume_name, app_name):

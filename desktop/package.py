@@ -119,6 +119,9 @@ def build_mac():
     (app / "Contents" / "Info.plist").write_text(PLIST)
     (app / "Contents" / "PkgInfo").write_text("APPL????")
     shutil.copy(HERE / "AppIcon.icns", res / "AppIcon.icns")
+    # Kurulum ve ilk açılış notları uygulamanın içinde duruyor. Eskiden DMG
+    # kökündeydi ve o güzel pencerede üçüncü bir simge olarak sırıtıyordu.
+    (res / "OKU-BENI.txt").write_text(README)
     # Finder ASCII dosya adı yerine bu adı gösterir
     strings = f'CFBundleDisplayName = "{APP_NAME}";\nCFBundleName = "Dünya Dilleri";\n'
     for loc in ("tr", "en", "Base"):
@@ -138,7 +141,6 @@ def build_dmg(app):
     root.mkdir()
     shutil.copytree(app, root / app.name, symlinks=True)
     os.symlink("/Applications", root / "Applications")
-    (root / "OKU-BENI.txt").write_text(README)
     # Bağlanan birimin simgesi: Finder kenar çubuğunda ve masaüstünde
     # uygulamanın ikonu görünsün, kullanıcı "hangisiydi bu" diye aramasın.
     shutil.copy(HERE / "AppIcon.icns", root / ".VolumeIcon.icns")

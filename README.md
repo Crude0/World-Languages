@@ -96,14 +96,15 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.5.1** — get it from the
+Latest release **v0.5.2** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Platform | File | Size | Note |
 |---|---|---|---|
 | Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 513 KB | No internet permission |
-| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 9.5 MB | Universal (Intel + Apple Silicon) |
+| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 8.6 MB | Universal (Intel + Apple Silicon) |
+| macOS, no disk image | [`Dunya-Dilleri-Atlasi-mac.zip`](dist/Dunya-Dilleri-Atlasi-mac.zip) | 3.2 MB | Unzip and drag the app across |
 | Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4.4 MB | Single file, no installer |
 | Browser | [`docs/index.html`](docs/index.html) | 1.4 MB | One file, just open it |
 
