@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Ülke -> çoğunluk dili veri seti; map_paths.json ile birleştirip data.json üretir."""
-import json, sys
+import json, sys, unicodedata
+from collections import Counter
 from lang_mix import MIX, L2
 from population import POP
 from diaspora import DIASPORA
+from layers import (SCRIPTS, SCRIPT_GROUPS, SCRIPT_FIX, SCRIPT2,
+                    OFFICIAL_ONLY, OFFICIAL, DE_FACTO, OFF_NOTE)
 import i18n
 
 # ---------------------------------------------------------------- diller
@@ -184,6 +187,10 @@ L = {
     "pap":   ("Papiamentu", "Papiamentu", "Kreol · İber temelli", R),
 }
 L.update(REGIONAL)
+# Yalnız resmî dil olarak geçenler de tabloya girer. Çoğu zaten MIX'te bir
+# satırdı ama L'de karşılığı olmadığı için sessizce düşüyordu; şimdi konuşan
+# sayıları da hesaba katılıyor (Peştuca, Afrikaanca, Fiji Hintçesi…).
+L.update(OFFICIAL_ONLY)
 
 GROUPS = {
     R: ("Roman dilleri", "İspanyolca, Portekizce, Fransızca, İtalyanca, Romence"),
@@ -498,6 +505,21 @@ for cid, (tr, lang, pct, maj, note, region, terr) in C.items():
         countries[cid]["mix"] = [[n, p] for n, p in MIX[cid]]
     if cid in L2:
         countries[cid]["l2"] = [[n, p] for n, p in L2[cid]]
+    # --- resmî dil katmanı
+    # "o" hukuken resmî diller, yasal öncelik sırasıyla; yoksa fiilî dil
+    # gelir ve "oj" düşer. "om" evin dilinin resmî listede hiç olmadığını
+    # işaretler — haritanın asıl gösterdiği şey bu 23 ülke.
+    off = OFFICIAL[cid] or DE_FACTO.get(cid, ())
+    countries[cid]["o"] = list(off)
+    countries[cid]["oj"] = 1 if OFFICIAL[cid] else 0
+    if OFFICIAL[cid] and cid in DE_FACTO:      # resmî dilin yanında fiilî dil
+        countries[cid]["od"] = list(DE_FACTO[cid])
+    if off and lang not in off:
+        countries[cid]["om"] = 1
+    if cid in OFF_NOTE:
+        countries[cid]["on"] = OFF_NOTE[cid]
+        if cid in i18n.OFF_NOTE_EN:
+            countries[cid]["on_en"] = i18n.OFF_NOTE_EN[cid]
 
 # --- konuşan sayıları: ülke nüfusu × dil payı (bin kişi)
 #     MIX ana dil paylarını, L2 ikinci dil paylarını verir. Diller MIX içinde
@@ -532,15 +554,55 @@ for cid, c in C.items():
         where[slug].append((cid, c[2]))
         speakers[slug] += POP[cid] * c[2] / 100.0
 
+# --- yazı sistemi: dilin kendi adındaki harflerden çıkarılıyor
+# Elle 142 satır yazmak yerine endonimin Unicode blokları sayılıyor: veri
+# zaten depoda duruyordu. Aşağıdaki eşleme Unicode blok adını yazı
+# anahtarına çeviriyor; tutmayan birkaç durum SCRIPT_FIX'ten geliyor.
+BLOCK = {"LATIN": "latn", "CYRILLIC": "cyrl", "ARABIC": "arab",
+         "DEVANAGARI": "deva", "BENGALI": "beng", "GUJARATI": "gujr",
+         "GURMUKHI": "guru", "ORIYA": "orya", "TAMIL": "taml",
+         "TELUGU": "telu", "KANNADA": "knda", "MALAYALAM": "mlym",
+         "SINHALA": "sinh", "MEETEI": "mtei", "THAI": "thai", "LAO": "laoo",
+         "KHMER": "khmr", "MYANMAR": "mymr", "TIBETAN": "tibt",
+         "CJK": "hani", "HIRAGANA": "jpan", "KATAKANA": "jpan",
+         "HANGUL": "hang", "GREEK": "grek", "ARMENIAN": "armn",
+         "GEORGIAN": "geor", "HEBREW": "hebr", "ETHIOPIC": "ethi",
+         "THAANA": "thaa", "CANADIAN": "cans", "TIFINAGH": "tfng"}
+
+
+def script_of(slug, endonym):
+    if slug in SCRIPT_FIX:
+        return SCRIPT_FIX[slug]
+    seen = Counter()
+    for ch in endonym:
+        if not ch.isalpha():
+            continue
+        try:
+            first = unicodedata.name(ch).split()[0]
+        except ValueError:
+            continue
+        if first in BLOCK:
+            seen[BLOCK[first]] += 1
+    if not seen:
+        sys.exit(f"{slug} ({endonym}): yazı sistemi çıkarılamadı")
+    return seen.most_common(1)[0][0]
+
+
 langs = {}
 for slug, (tr, endo, fam, grp) in L.items():
     ids = [cid for cid, c in C.items() if c[1] == slug]
-    if not ids and slug not in REGIONAL:
+    if not ids and slug not in REGIONAL and slug not in OFFICIAL_ONLY:
         print("KULLANILMAYAN DİL:", slug, tr)
         continue
     rows = sorted(where[slug], key=lambda r: -POP[r[0]] * r[1])
+    sc = script_of(slug, endo)
     langs[slug] = {"n": tr, "e": endo, "f": fam, "g": grp,
                    **({"x": 1} if fam in LEXIFIER else {}),
+                   **({"oo": 1} if slug in OFFICIAL_ONLY else {}),
+                   "sc": sc, "sg": SCRIPTS[sc][1],
+                   **({"sc2": SCRIPT2[slug][0], "s2n": SCRIPT2[slug][1],
+                       "s2e": i18n.SCRIPT2_EN.get(slug, SCRIPT2[slug][1])}
+                      if slug in SCRIPT2 else {}),
                    "ne": i18n.LANG_EN.get(slug, tr),
                    "fe": i18n.FAM_EN.get(fam, fam),
                    "c": sum(1 for i in ids if not C[i][6]),
@@ -597,12 +659,16 @@ out = {"w": mp["w"], "h": mp["h"], "grat": mp["grat"], "eq": mp["eq"], "frame": 
        "groups": {k: {"n": v[0], "d": v[1],
                       "ne": i18n.GROUP_EN[k][0], "de": i18n.GROUP_EN[k][1]}
                   for k, v in GROUPS.items()},
+       "scripts": {k: {"n": v[0], "g": v[1], "ne": i18n.SCRIPT_EN.get(k, v[0])}
+                   for k, v in SCRIPTS.items()},
+       "sgroups": {k: {"n": v[0], "d": v[1],
+                       "ne": i18n.SGROUP_EN[k][0], "de": i18n.SGROUP_EN[k][1]}
+                   for k, v in SCRIPT_GROUPS.items()},
        "tx": i18n.name_map({v[0]: i18n.LANG_EN.get(k, v[0]) for k, v in L.items()})}
 json.dump(out, open("data.json", "w"), separators=(",", ":"), ensure_ascii=False)
 
 print(f"ülke/bölge: {len(countries)}  dil: {len(langs)}  "
       f"boyut: {len(json.dumps(out, ensure_ascii=False))/1024:.0f} KB")
-from collections import Counter
 cnt = Counter(L[c[1]][3] for c in C.values())
 for g, (name, _) in GROUPS.items():
     print(f"  {g} {name}: {cnt[g]}")
@@ -621,3 +687,15 @@ print("  Türkçe:", ", ".join(f"{countries[i]['n']} %{p}" for i, p in tr_in))
 eksik = sorted(set(C) - set(MIX))
 if eksik:
     print("  dağılımı olmayan:", ", ".join(C[i][0] for i in eksik))
+
+# --- yeni katmanlar
+sc_cnt = Counter(SCRIPTS[langs[c[1]]["sc"]][1] for c in C.values())
+print("  yazı sistemi:", ", ".join(
+    f"{SCRIPT_GROUPS[g][0]} {sc_cnt[g]}" for g, _ in
+    sorted(SCRIPT_GROUPS.items(), key=lambda kv: -sc_cnt[kv[0]])))
+print(f"  iki yazılı dil: {len(SCRIPT2)}  ·  ayrı yazı: {len(set(langs[s]['sc'] for s in langs))}")
+off_cnt = Counter(countries[i]["o"][0] for i in countries if countries[i]["o"])
+print(f"  hukuken resmî dili olmayan: {sum(1 for i in countries if not countries[i]['oj'])}"
+      f"  ·  evin dili resmî olmayan: {sum(1 for i in countries if countries[i].get('om'))}")
+print("  en çok resmî olan:", ", ".join(
+    f"{langs[s]['n']} {n}" for s, n in off_cnt.most_common(8)))

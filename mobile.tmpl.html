@@ -131,6 +131,12 @@ body.zoomed .orn { opacity: 0; }
 .crl.g-ine { fill: url(#hx-ine); } .crl.g-afa { fill: url(#hx-afa); }
 .crl.g-nkg { fill: url(#hx-nkg); } .crl.g-aus { fill: url(#hx-aus); }
 .crl.g-trk { fill: url(#hx-trk); } .crl.g-asi { fill: url(#hx-asi); }
+/* resmî dil katmanı: evin dili resmî listede hiç yoksa çapraz tarama */
+.mism.g-rom { fill: url(#mx-rom); } .mism.g-ger { fill: url(#mx-ger); }
+.mism.g-ine { fill: url(#mx-ine); } .mism.g-afa { fill: url(#mx-afa); }
+.mism.g-nkg { fill: url(#mx-nkg); } .mism.g-aus { fill: url(#mx-aus); }
+.mism.g-trk { fill: url(#mx-trk); } .mism.g-asi { fill: url(#mx-asi); }
+.mism.g-oth { fill: url(#mx-oth); }
 .subs, .sub-base { display: none; }
 .subs.on, .sub-base.on { display: inline; }
 /* Sınır hiyerarşisi
@@ -216,6 +222,13 @@ body.zoomed .orn { opacity: 0; }
 .pop-t { margin: 0; font-size: .75rem; font-weight: 600; letter-spacing: .03em;
   text-transform: uppercase; color: var(--ink-3); }
 .pop-n { margin: 2px 0 0; font-size: .75rem; color: var(--ink-3); line-height: 1.35; }
+/* Yeni katmanların renk anahtarı: masaüstündeki yan panelin karşılığı */
+.popkey { display: grid; gap: 3px; margin-top: 2px; }
+.popkey-row { display: flex; align-items: center; gap: 7px; font-size: .75rem; }
+.popkey-row i { width: 10px; height: 10px; border-radius: 2px; background: var(--c); flex: none; }
+.popkey-row i.oth { background-image: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 3px); }
+.popkey-row b { margin-left: auto; color: var(--ink-3); font-weight: 500; }
+.seg button:disabled { opacity: .38; }
 
 /* ============================================================ sayfa ===== */
 /* Panel haritanın üstünde yüzerken cam, yukarı çekilince opak.
@@ -329,6 +342,8 @@ body.zoomed .orn { opacity: 0; }
   border-radius: 11px; background: var(--rule); font-size: .8125rem;
 }
 .chip b { font-weight: 550; color: var(--ink-3); }
+/* resmî dil rozetleri: aile rengini taşıyan bir çubukla */
+.chip[data-offl] { box-shadow: inset 3px 0 0 var(--c); padding-left: 13px; }
 .acts { display: grid; gap: 8px; margin-top: 16px; }
 .acts button {
   padding: 12px; border-radius: 13px; background: var(--tint); color: #fff;
@@ -405,6 +420,13 @@ body.zoomed .orn { opacity: 0; }
 </div>
 
 <div class="pop" id="pop" hidden>
+  <p class="pop-t">Katman</p>
+  <div class="seg" role="group" aria-label="Katman">
+    <button data-lay="home" aria-pressed="true">Ana dil</button>
+    <button data-lay="scr" aria-pressed="false">Yazı</button>
+    <button data-lay="off" aria-pressed="false">Resmî dil</button>
+  </div>
+  <div id="popKey"></div>
   <p class="pop-t">Renk ölçütü</p>
   <div class="seg" role="group" aria-label="Renk ölçütü">
     <button data-paint="fam" aria-pressed="true">Aile</button>
@@ -455,8 +477,34 @@ body.zoomed .orn { opacity: 0; }
   const D = JSON.parse(document.getElementById("data").textContent);
   const C = D.countries, LG = D.langs, GR = D.groups, SB = D.subs || {};
   const GORDER = ["rom", "ger", "ine", "trk", "afa", "nkg", "asi", "aus", "oth"];
-  // sınıf listesi: kreoller kaynak dilin rengi + tarama
-  const gcls = (l) => l ? `g-${l.g}${l.x ? " crl" : ""}` : "g-oth";
+  // Katmanlar: aynı ülkelere üç ayrı soru — evde konuşulan dil, o dilin
+  // yazısı, devletin resmî dili. Renkler ortak, gösterge katmanla değişiyor.
+  const SCR = D.scripts || {}, SGR = D.sgroups || {};
+  const SGORDER = ["lat", "cyr", "ara", "brh", "sea", "cjk", "alp", "gez", "oth"];
+  const SGCOL = { lat: "ger", cyr: "rom", ara: "afa", brh: "ine", sea: "asi",
+                  cjk: "aus", alp: "trk", gez: "nkg", oth: "oth" };
+  const offOf = (cid) => C[cid] && C[cid].o && C[cid].o.length ? C[cid].o[0] : null;
+  function keyOf(o, cid) {
+    if (state.layer === "scr") {
+      const l = LG[o.l];
+      return l && SCR[l.sc] ? SCR[l.sc].g : "oth";
+    }
+    if (state.layer === "off") {
+      const s = offOf(cid);
+      return s && LG[s] ? LG[s].g : "oth";
+    }
+    return LG[o.l] ? LG[o.l].g : "oth";
+  }
+  const colOf = (o, cid) => state.layer === "scr" ? SGCOL[keyOf(o, cid)] : keyOf(o, cid);
+  // sınıf listesi: kreoller kaynak dilin rengi + tarama; evin dili resmî
+  // listede hiç yoksa çapraz tarama
+  function gcls(o, cid) {
+    let s = "g-" + colOf(o, cid);
+    const lex = state.layer === "off" ? offOf(cid) : (state.layer === "scr" ? null : o.l);
+    if (LG[lex] && LG[lex].x) s += " crl";
+    if (state.layer === "off" && C[cid] && C[cid].om) s += " mism";
+    return s;
+  }
   const ids = Object.keys(C), langIds = Object.keys(LG), subIds = Object.keys(SB);
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -486,6 +534,8 @@ body.zoomed .orn { opacity: 0; }
   const T = {
     tr: {
       title: "Dünya dilleri", sub: (n) => `${n} ülke · çoğunluğun konuştuğu dil`,
+      subScr: (n) => `${n} ülke · çoğunluğun dilinin yazısı`,
+      subOff: (n) => `${n} ülke · devletin resmî dili`,
       search: "Dil veya ülke ara", countries: "Ülkeler", languages: "Diller",
       nLangs: (n) => `${n} dil`, bySpk: "Konuşan sayısı", byCnt: "Ülke sayısı",
       noHit: (q) => `“${q}” için sonuç yok`, cnt: (n) => `${n} ülke`,
@@ -503,6 +553,13 @@ body.zoomed .orn { opacity: 0; }
       majIn: (n) => `${n} ülkede çoğunluk`, majNone: "hiçbir ülkede çoğunluk değil",
       native: (v) => `ana dili ${v} kişi`,
       paint: "Renk ölçütü", pFam: "Aile", pPct: "Yoğunluk", pPpl: "Kişi",
+      layerT: "Katman", lHome: "Ana dil", lScr: "Yazı", lOff: "Resmî dil",
+      noteScr: "Yazı dilin değil devletin ve tarihin seçimi: Türkçe, Vietnamca ve Endonezce akraba değil ama üçü de Latin yazıyor.",
+      noteOff: "Renk devletin resmî dilinin ailesini gösteriyor. Çapraz taranan ülkelerde evin dili resmî listede hiç yok.",
+      script: "Yazı sistemi",
+      official: "Resmî dil", officialDe: "Fiilî devlet dili",
+      offNoneChip: "Hukuken resmî dil ilan edilmemiş.",
+      offMismatch: "Evde konuşulan dil resmî dil değil.",
       detail: "Ayrıntı düzeyi", dAuto: "Oto", dOff: "Ülke", dOn: "Bölge",
       lodNote: "Oto: uzakta ülke, yaklaşınca eyalet/il. Bölge verisi 12 ülkede var.",
       theme: "Tema", tAuto: "Oto", tLight: "Açık", tDark: "Koyu",
@@ -512,6 +569,8 @@ body.zoomed .orn { opacity: 0; }
     },
     en: {
       title: "World languages", sub: (n) => `${n} countries · majority language`,
+      subScr: (n) => `${n} countries · the script of the majority language`,
+      subOff: (n) => `${n} countries · the state's official language`,
       search: "Search a language or country", countries: "Countries", languages: "Languages",
       nLangs: (n) => `${n} languages`, bySpk: "Speakers", byCnt: "Countries",
       noHit: (q) => `No results for “${q}”`, cnt: (n) => `${n} countries`,
@@ -529,6 +588,13 @@ body.zoomed .orn { opacity: 0; }
       majIn: (n) => `majority in ${n} countries`, majNone: "not a majority anywhere",
       native: (v) => `${v} native speakers`,
       paint: "Colour by", pFam: "Family", pPct: "Density", pPpl: "People",
+      layerT: "Layer", lHome: "Home", lScr: "Script", lOff: "Official",
+      noteScr: "A script is chosen by states and by history, not by the language: Turkish, Vietnamese and Indonesian are unrelated yet all write in Latin.",
+      noteOff: "Colour shows the family of the state's official language. In the cross-hatched countries the home language is not official at all.",
+      script: "Writing system",
+      official: "Official language", officialDe: "De facto state language",
+      offNoneChip: "No official language declared in law.",
+      offMismatch: "The language spoken at home is not an official language.",
       detail: "Detail level", dAuto: "Auto", dOff: "Country", dOn: "Region",
       lodNote: "Auto: countries when zoomed out, states or provinces when zoomed in. Region data covers 12 countries.",
       theme: "Theme", tAuto: "Auto", tLight: "Light", tDark: "Dark",
@@ -550,8 +616,13 @@ body.zoomed .orn { opacity: 0; }
   const lf = (l) => ui === "en" ? (l.fe || l.f) : l.f;        // aile
   const tx = (n) => ui === "en" ? (TX[n] || n) : n;           // dağılımdaki dil adı
   const noteOf = (c) => ui === "en" ? (c.note_en || "") : (c.note || "");
+  const offNote = (c) => ui === "en" ? (c.on_en || "") : (c.on || "");
+  const capSub = () => (state.layer === "scr" ? t().subScr
+    : state.layer === "off" ? t().subOff : t().sub)(ids.length);
+  const scName = (k) => SCR[k] ? (ui === "en" ? SCR[k].ne : SCR[k].n) : k;
+  const sc2Note = (l) => ui === "en" ? (l.s2e || l.s2n || "") : (l.s2n || "");
 
-  const state = { filter: null, sel: null, selSub: null, q: "", sort: "spk", paint: "fam", lod: "auto" };
+  const state = { filter: null, sel: null, selSub: null, q: "", sort: "spk", paint: "fam", lod: "auto", layer: "home" };
 
   /* --------------------------------------------------------- URL'de durum
      Masaüstü sayfasıyla aynı biçim: bir link iki arayüzde de aynı görünümü
@@ -562,6 +633,7 @@ body.zoomed .orn { opacity: 0; }
   function hashOf() {
     const p = [];
     if (ui !== "tr") p.push("l=" + ui);
+    if (state.layer !== "home") p.push("k=" + state.layer);
     if (state.paint !== "fam") p.push("p=" + state.paint);
     if (state.lod !== "auto") p.push("d=" + state.lod);
     if (state.filter) p.push("f=" + state.filter.t + "." + state.filter.k);
@@ -655,23 +727,29 @@ body.zoomed .orn { opacity: 0; }
        `<pattern id="hx-${g}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <rect width="6" height="6" fill="var(--g-${g})"></rect>
           <line x1="0" y1="0" x2="0" y2="6" stroke="var(--hatch)" stroke-width="1.5"></line>
+        </pattern>`).join("") +
+     GORDER.map((g) =>
+       `<pattern id="mx-${g}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="6" height="6" fill="var(--g-${g})"></rect>
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--hatch)" stroke-width="1.3"></line>
+          <line x1="0" y1="0" x2="6" y2="0" stroke="var(--hatch)" stroke-width="1.3"></line>
         </pattern>`).join("") + `</defs>` +
     ornaments() +
     `<path class="sphere" d="${D.frame}"></path>` +
     `<g class="graticule"><path d="${D.grat}"></path></g>` +
     `<g class="lands">` + order.map((id) =>
-      `<path class="cty ${gcls(LG[C[id].l])}${subsOf[id] ? " hassub" : ""}" data-id="${id}" d="${C[id].d}"></path>`).join("") + `</g>` +
+      `<path class="cty ${gcls(C[id], id)}${subsOf[id] ? " hassub" : ""}" data-id="${id}" d="${C[id].d}"></path>`).join("") + `</g>` +
     `<g class="sub-base">` + Object.keys(subsOf).map((cid) =>
-      `<path class="sbase ${gcls(LG[C[cid].l])}" data-id="${cid}" d="${
+      `<path class="sbase ${gcls(C[cid], cid)}" data-id="${cid}" d="${
         subsOf[cid].map((s) => SB[s].d).join("")}"></path>`).join("") + `</g>` +
     `<g class="subs">` + subIds.map((sid) =>
-      `<path class="sub ${gcls(LG[SB[sid].l])}" data-sid="${sid}" d="${SB[sid].d}"></path>`).join("") + `</g>` +
+      `<path class="sub ${gcls(SB[sid], SB[sid].p)}" data-sid="${sid}" d="${SB[sid].d}"></path>`).join("") + `</g>` +
     // Ülkenin dış çeperi; bölge dolgularının üstünde (masaüstü şablonundaki
     // açıklamaya bak).
     `<g class="outer-g">` + Object.keys(D.outer || {}).map((cid) =>
       `<path class="outer" d="${D.outer[cid]}"></path>`).join("") + `</g>` +
     `<g class="dots">` + order.filter((id) => C[id].a < DOT_AT).map((id) =>
-      `<circle class="dot ${gcls(LG[C[id].l])}" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="3"></circle>`).join("") + `</g>` +
+      `<circle class="dot ${gcls(C[id], id)}" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="3"></circle>`).join("") + `</g>` +
     `<g class="inner-g">` + Object.keys(D.inner || {}).map((cid) =>
       `<path class="inner" d="${D.inner[cid]}"></path>`).join("") + `</g>` +
     `<g class="hits">` + order.filter((id) => C[id].a < HIT_AT).map((id) =>
@@ -1092,16 +1170,21 @@ body.zoomed .orn { opacity: 0; }
     svg.classList.toggle("is-filtering", !!f);
     lastMinor = [];
     if (!f) return [];
-    ids.filter((i) => f.t === "l" ? C[i].l === f.k : LG[C[i].l].g === f.k)
+    // Resmî dil katmanında dil süzgeci "nerede resmî" sorusunu soruyor
+    const isMain = (o, cid) => f.t === "l"
+      ? (state.layer === "off" ? (C[cid] && (C[cid].o || []).includes(f.k)) : o.l === f.k)
+      : keyOf(o, cid) === f.k;
+    ids.filter((i) => isMain(C[i], i))
       .forEach((i) => nodesOf(i).forEach((n) => n.classList.add("hit")));
     subIds.forEach((sid) => {
       const s = SB[sid], n = subNode(sid);
       if (!n) return;
-      const main = f.t === "l" ? s.l === f.k : (LG[s.l] && LG[s.l].g === f.k);
-      if (main) n.classList.add("hit");
-      else if (f.t === "l" && (s.mix || []).some(([nm]) => nm === LG[f.k].n)) n.classList.add("hit2");
+      if (isMain(s, s.p)) n.classList.add("hit");
+      else if (f.t === "l" && state.layer !== "off" &&
+               (s.mix || []).some(([nm]) => nm === LG[f.k].n)) n.classList.add("hit2");
     });
-    const minor = f.t === "l" ? (LG[f.k].in || []).filter(([i]) => C[i].l !== f.k) : [];
+    const minor = f.t === "l" && state.layer !== "off"
+      ? (LG[f.k].in || []).filter(([i]) => C[i].l !== f.k) : [];
     const mg = f.t === "l" ? LG[f.k].g : null;
     svg.style.setProperty("--c-min", mg && mg !== "oth" ? `var(--g-${mg})` : "var(--ink-2)");
     minor.forEach(([i]) => nodesOf(i).forEach((n) => n.classList.add("hit2")));
@@ -1273,12 +1356,74 @@ body.zoomed .orn { opacity: 0; }
     html += `</div>`;
     body.innerHTML = html;
   }
+  /* ----------------------------------------------------------- katmanlar */
+  // Masaüstünde gösterge yan panelde duruyor; burada yer yok, o yüzden
+  // renk anahtarı yalnız yeni katmanlarda menünün içinde açılıyor.
+  const keyOrder = () => state.layer === "scr" ? SGORDER : GORDER;
+  const keyName = (g) => state.layer === "scr"
+    ? (ui === "en" ? SGR[g].ne : SGR[g].n) : (ui === "en" ? GR[g].ne : GR[g].n);
+  const keyCol = (g) => col(state.layer === "scr" ? SGCOL[g] : g);
+  const keyIsOth = (g) => (state.layer === "scr" ? SGCOL[g] : g) === "oth";
+  function keyHTML() {
+    if (state.layer === "home") return "";
+    const n = {};
+    ids.forEach((i) => { const k = keyOf(C[i], i); n[k] = (n[k] || 0) + 1; });
+    return `<div class="popkey">` + keyOrder().filter((g) => n[g]).map((g) =>
+      `<span class="popkey-row" style="--c:${keyCol(g)}">
+         <i class="${keyIsOth(g) ? "oth" : ""}"></i>${esc(keyName(g))}
+         <b class="num">${n[g]}</b></span>`).join("") + `</div>` +
+      `<p class="pop-n">${state.layer === "scr" ? t().noteScr : t().noteOff}</p>`;
+  }
+  function reclass(n, o, cid) {
+    n.classList.remove("crl", "mism");
+    GORDER.forEach((g) => n.classList.remove("g-" + g));
+    gcls(o, cid).split(" ").forEach((c) => n.classList.add(c));
+  }
+  function applyLayer() {
+    svg.querySelectorAll(".cty, .dot, .sbase").forEach((n) =>
+      reclass(n, C[n.dataset.id], n.dataset.id));
+    svg.querySelectorAll(".sub").forEach((n) => {
+      const s = SB[n.dataset.sid];
+      if (s) reclass(n, s, s.p);
+    });
+  }
+  function setLayer(v) {
+    if (v === state.layer) return;
+    state.layer = v;
+    // Yoğunluk ve kişi boyaması evdeki dilin payını anlatıyor; öbür
+    // katmanlarda karşılığı yok.
+    if (v !== "home" && state.paint !== "fam") { state.paint = "fam"; rampKey = ""; }
+    applyLayer();
+    // Gösterge anahtarları katmanlar arasında ortak değil.
+    setFilter(state.filter && state.filter.t === "g" ? null : state.filter);
+    render();
+    queueHash();
+  }
+
   function scaleHTML() {
     if (state.paint === "fam") return "";
     const lab = state.paint === "pct" ? [t().scaleLo, t().scaleHi] : [t().scaleLoP, t().scaleHiP];
     return `<div class="scale"><span>${lab[0]}</span>` +
       ramp.map((c) => `<i style="background:${c}"></i>`).join("") + `<span>${lab[1]}</span></div>`;
   }
+
+  // Devletin dili: hukuken resmî diller, yoksa fiilî olan
+  const offSection = (cid) => {
+    const o = C[cid], list = (o && o.o) || [];
+    if (!list.length) return "";
+    return `<div class="sec"><div class="sec-h"><h2>${o.oj ? t().official : t().officialDe}</h2></div>` +
+      `<div class="chips">` + list.map((s) => {
+        const g = LG[s] ? LG[s].g : "oth";
+        return `<button class="chip" data-offl="${s}" style="--c:${col(g)}">${
+          esc(LG[s] ? ln(LG[s]) : s)}</button>`;
+      }).join("") + `</div>` +
+      (o.od ? `<p class="note">${t().officialDe}: ` +
+        o.od.map((s) => esc(LG[s] ? ln(LG[s]) : s)).join(", ") + `</p>` : "") +
+      (o.oj ? "" : `<p class="note">${t().offNoneChip}</p>`) +
+      (o.om ? `<p class="note">${t().offMismatch}</p>` : "") +
+      (offNote(o) ? `<p class="note">${esc(offNote(o))}</p>` : "") +
+      `</div>`;
+  };
 
   const bars = (list, pop, hue, cap) => {
     const show = cap ? list.slice(0, cap) : list, rest = list.length - show.length;
@@ -1307,6 +1452,9 @@ body.zoomed .orn { opacity: 0; }
          <h2>${esc(c.n)}</h2><p>${esc(c.r)}</p></div></div>` +
       `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
       `<p class="d-fam">${esc(lf(l))}</p>` +
+      `<p class="d-fam">${t().script} · ${esc(scName(l.sc))}${
+        l.sc2 ? " + " + esc(scName(l.sc2)) : ""}</p>` +
+      (l.sc2 ? `<p class="note">${esc(sc2Note(l))}</p>` : "") +
       `<div class="stat">
          <div><b class="num">${pc(c.p)}</b><span>${t().speaks}</span></div>
          <div><b class="num">${c.pop ? fmtK(c.pop * c.p / 100) : "—"}</b><span>${t().people}</span></div>
@@ -1314,6 +1462,7 @@ body.zoomed .orn { opacity: 0; }
        </div>` +
       (c.m === 0 ? `<p class="note">${t().noMajority}</p>` : "") +
       (c.note ? `<p class="note">${esc(c.note)}</p>` : "") +
+      offSection(id) +
       (c.mix ? `<div class="sec"><div class="sec-h"><h2>${t().home}</h2></div>
          ${bars(c.mix, c.pop, col(l.g), 12)}
          <p class="note">${t().homeNote}</p></div>` : "") +
@@ -1351,17 +1500,22 @@ body.zoomed .orn { opacity: 0; }
   function syncPop() {
     const set = (sel, val) => pop.querySelectorAll(sel).forEach((b) =>
       b.setAttribute("aria-pressed", String(b.dataset[Object.keys(b.dataset)[0]] === val)));
+    set("[data-lay]", state.layer);
     set("[data-paint]", state.paint);
     set("[data-lod]", state.lod);
     set("[data-theme]", theme);
     set("[data-ui]", ui);
+    $("#popKey").innerHTML = keyHTML();
     $("#popScale").innerHTML = scaleHTML();
+    pop.querySelectorAll("[data-paint]").forEach((b) => (b.disabled = state.layer !== "home"));
     // menü etiketleri de seçili dile göre
     const P = pop.querySelectorAll(".pop-t");
-    P[0].textContent = t().paint; P[1].textContent = t().detail;
-    P[2].textContent = t().theme;
+    P[0].textContent = t().layerT; P[1].textContent = t().paint;
+    P[2].textContent = t().detail; P[3].textContent = t().theme;
     $("#popNote").textContent = t().lodNote;
-    const lbl = [["[data-paint='fam']", t().pFam], ["[data-paint='pct']", t().pPct],
+    const lbl = [["[data-lay='home']", t().lHome], ["[data-lay='scr']", t().lScr],
+                 ["[data-lay='off']", t().lOff],
+                 ["[data-paint='fam']", t().pFam], ["[data-paint='pct']", t().pPct],
                  ["[data-paint='ppl']", t().pPpl], ["[data-lod='auto']", t().dAuto],
                  ["[data-lod='off']", t().dOff], ["[data-lod='on']", t().dOn],
                  ["[data-theme='auto']", t().tAuto], ["[data-theme='light']", t().tLight],
@@ -1370,10 +1524,11 @@ body.zoomed .orn { opacity: 0; }
   }
   $("#btnLayers").onclick = () => setPop(pop.hidden);
   pop.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-paint],[data-lod],[data-theme],[data-ui]");
+    const b = e.target.closest("[data-lay],[data-paint],[data-lod],[data-theme],[data-ui]");
     if (!b) return;
     const d = b.dataset;
-    if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); queueHash(); }
+    if (d.lay) { setLayer(d.lay); }
+    else if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); queueHash(); }
     else if (d.lod) { state.lod = d.lod; applyLod(); queueHash(); }
     else if (d.theme) { setTheme(d.theme); }
     else if (d.ui) { setUi(d.ui); }
@@ -1402,10 +1557,12 @@ body.zoomed .orn { opacity: 0; }
 
   /* ---------------------------------------------------------- eylemler */
   body.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-go],[data-l],[data-sort],[data-up],[data-sub],[data-close]");
+    const t = e.target.closest("[data-go],[data-l],[data-offl],[data-sort],[data-up],[data-sub],[data-close]");
     if (!t) return;
     const d = t.dataset;
     if (d.go) { setDetent("half", 1); select(d.go); focusCountry(d.go); return; }
+    // resmî dil rozeti: o dilin resmî olduğu ülkeleri süz
+    if (d.offl) { setLayer("off"); setFilter({ t: "l", k: d.offl }); setDetent("peek"); return; }
     if (d.sort) { state.sort = d.sort; render(); return; }
     if (d.up) { setDetent("half", 1); select(d.up); focusCountry(d.up); return; }
     if (d.sub) { state.lod = "on"; applyLod(); focusCountry(d.sub); syncPop(); return; }
@@ -1426,7 +1583,7 @@ body.zoomed .orn { opacity: 0; }
     $("#btnClear").hidden = !f;
     if (!f) {
       $("#capT").textContent = t().title;
-      $("#capS").textContent = t().sub(ids.length);
+      $("#capS").textContent = capSub();
     } else if (f.t === "l") {
       const l = LG[f.k];
       $("#capT").textContent = ln(l);
@@ -1488,7 +1645,7 @@ body.zoomed .orn { opacity: 0; }
   document.documentElement.lang = ui;
   $("#q").placeholder = t().search;
   $("#capT").textContent = t().title;
-  $("#capS").textContent = t().sub(ids.length);
+  $("#capS").textContent = capSub();
   buildRamp("--g-ger");
   render();
   setDetent("peek", true);
@@ -1500,6 +1657,7 @@ body.zoomed .orn { opacity: 0; }
     hashLock = true;
     try {
       if (T[h.l] && h.l !== ui) setUi(h.l);
+      if (["home", "scr", "off"].includes(h.k)) setLayer(h.k);
       if (["fam", "pct", "ppl"].includes(h.p)) { state.paint = h.p; rampKey = ""; repaint(); }
       if (["auto", "off", "on"].includes(h.d)) { state.lod = h.d; applyLod(); }
       if (h.f) {

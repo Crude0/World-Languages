@@ -16,6 +16,8 @@ of magnitude, not to the decimal.
 | Second language | `lang_mix.py` (`L2`) | 189/234 | Languages spoken well enough to hold a conversation without being native |
 | Population | `population.py` | 234/234 | UN 2024 estimate, thousands |
 | State / province | `subdiv.py` | 313 regions, 12 countries | Language distribution and population per region |
+| Writing system | `layers.py` (`SCRIPT_FIX`, `SCRIPT2`) | 155/155 languages | Which alphabet the language is written in; the second one where two are in use |
+| Official language | `layers.py` (`OFFICIAL`, `DE_FACTO`) | 234/234 | The state's official languages in law; the de facto one where none is declared |
 
 ## Sources
 
@@ -34,6 +36,30 @@ official language policy.
 
 **Second language** — Eurobarometer 386 (2012) in Europe, on the "able to hold a
 conversation" criterion. National censuses and estimates elsewhere.
+
+**The writing system is not typed in by hand**: the letters of each language's
+own name for itself (its endonym) are counted by Unicode block, and the most
+frequent block is taken as the script. That covers all 155 languages on its own
+and leaves no table to maintain. Only six exceptions are written out
+(`SCRIPT_FIX`): the Japanese endonym looks like pure kanji but the script is
+kanji + hiragana + katakana; Konkani's official script in Goa is Devanagari;
+Chinese and Cantonese arrive from the "CJK" block; and the Unicode block names
+for Meetei and Inuktitut do not translate directly into script names.
+
+**Languages written in two scripts** (`SCRIPT2`) are a separate table of 13.
+Serbian's official script is Cyrillic but Latin is used everywhere too; Punjabi
+is written in Gurmukhi in India and Shahmukhi in Pakistan; Kazakh is moving to
+Latin between 2023 and 2031. The map colours by the primary script, and the
+second one appears on the country card.
+
+**Official languages** are compiled from constitutions and language acts, and
+ordered by **legal precedence**, not by everyday use. Ireland's constitution
+names Irish the first official language while daily life runs in English — both
+are listed, in the constitution's order. The 16 countries that have declared no
+official language in law are held in the `DE_FACTO` table with the language the
+state actually uses, and are marked "no official language in law" on the card.
+(The United States is not among them: an executive order made English official
+in 2025.)
 
 ## Calculations
 

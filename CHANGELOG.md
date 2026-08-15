@@ -10,6 +10,60 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.6.0 — 15 Ağustos 2026
+
+**İki yeni harita katmanı.** Harita bugüne kadar tek bir soruyu yanıtlıyordu:
+burada evde hangi dil konuşuluyor? Artık üst çubuktaki **Katman** düğmesiyle
+aynı ülkelere iki soru daha sorulabiliyor.
+
+**Yazı** — o dil hangi alfabeyle yazılıyor? Aile haritasının söylemediği bir
+şey söylüyor: Türkçe, Vietnamca ve Endonezce akraba değil ama üçü de Latin
+yazıyor; Sırpça ile Hırvatça karşılıklı anlaşılacak kadar yakın ama biri Kiril
+biri Latin. Dokuz gösterge girdisi: Latin (175 ülke), Arap (25), Kiril (10),
+Doğu Asya (7), Güneydoğu Asya Brahmi'si (5), diğer alfabeler (5), Güney Asya
+Brahmi'si (4), Ge'ez (2), diğer (1).
+
+Yazı verisi elle yazılmadı: dilin kendi dilindeki adının harfleri Unicode
+bloklarına göre sayılıyor. 155 dilin hepsi kendiliğinden kapsanıyor, elde
+bakım gerektiren bir tablo kalmıyor; yalnız altı istisna elle duruyor.
+**İki yazılı 13 dil** ayrıca işaretli — Sırpça, Pencapça, Kazakça, Kürtçe,
+Özbekçe, Moğolca… Ülke kartında ikinci yazı ve nedeni yazıyor.
+
+**Resmî dil** — devletin dili ile evin dili aynı mı? Afrika'nın yarısında
+değil. Katman açılınca kıta değişiyor: batı ve orta Afrika Fransızcanın
+kırmızısına, güney ve doğu İngilizcenin mavisine dönüyor. İngilizce **51**
+ülkede resmî ama yalnız 36'sında evin dili; Fransızca 18'de resmî, 13'ünde
+evin dili.
+
+**Evin dili resmî dil listesinde hiç olmayan 23 ülke** haritada çapraz
+taramayla işaretli: Nijerya (evde Pidgin, resmî İngilizce), Senegal (Volofça /
+Fransızca), Sierra Leone (Krio / İngilizce), Güney Sudan (Cuba Arapçası /
+İngilizce), Mauritius, Jamaika, Solomon Adaları ve diğerleri. Yeni Zelanda
+ters yönde: İngilizce hiç resmî ilan edilmedi, hukuken resmî diller Maorice
+(1987) ve Yeni Zelanda İşaret Dili (2006).
+
+Resmî dil tablosu 234 ülkenin tamamını kapsıyor ve **yasal önceliğe** göre
+sıralı — günlük kullanıma göre değil. İrlanda'da Anayasa İrlandacayı birinci
+resmî dil sayar, günlük dil İngilizcedir; ikisi de listede, sıra anayasanınki.
+Hukuken resmî dil ilan etmemiş 16 ülke ayrıca işaretli. 38 ülkede katmanın
+anlattığı ayrıntı bir notla açıklanıyor.
+
+**Dil sayısı 142'den 155'e çıktı.** Yalnız resmî dil olarak geçen 13 dil
+tabloya eklendi: Peştuca, Afrikaanca, Belarusça, İrlandaca, Maorice,
+Tamazight, Fiji Hintçesi, Çamorroca, Xhosa, Ndebele, Romanşça, Hiri Motu,
+Latince. Bunların çoğu zaten `lang_mix.py` içinde bir satırdı ama dil
+tablosunda karşılığı olmadığı için sessizce düşüyordu — artık konuşan
+sayıları da hesaplanıyor. Peştuca tek başına ~90 milyon kişi.
+
+**Görünüm ve bağlantı.** Katman seçimi bağlantıya giriyor (`#k=scr`,
+`#k=off`), yani paylaşılan görünüm hangi katmandaysa öyle açılıyor. Ülke
+kartında yazı sistemi ve resmî dil satırları her katmanda görünüyor; resmî
+dil rozetine basınca o dilin resmî olduğu ülkeler süzülüyor. Telefonda
+katman menüsü renk anahtarını da gösteriyor.
+
+Ana dil katmanı **piksel piksel** 0.5.3 ile aynı; yeni katmanlar mevcut
+renklerin üstüne biniyor, ikinci bir palet aramasına gerek kalmadı.
+
 ## v0.5.3 — 15 Ağustos 2026
 
 **DMG artık gerçek bir Mac'te üretiliyor.** Arka plan resmini iki sürüm

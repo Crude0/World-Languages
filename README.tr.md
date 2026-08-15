@@ -22,9 +22,10 @@ Arayüz **Türkçe ve İngilizce**; tema **otomatik, açık veya koyu** seçileb
 | | |
 |---|---|
 | **234** | ülke ve bağımlı bölge |
-| **142** | dil (121'i bir ülkede çoğunluk, 21'i yalnızca bölge düzeyinde) |
+| **155** | dil (121'i bir ülkede çoğunluk, 21'i yalnızca bölge düzeyinde, 13'ü yalnız resmî) |
 | **1.100+** | ülke × dil satırı — her ülkede evde konuşulan dillerin dağılımı |
 | **313** | eyalet / il / kanton (12 ülkede) |
+| **30** | yazı sistemi, dillerin kendi adlarından çıkarıldı |
 | **8,09 milyar** | kapsanan nüfus |
 
 Harita dört soruya cevap verir:
@@ -49,6 +50,44 @@ tonda (>%85), ABD ve Avustralya bir kademe açık, Almanya ve İsveç en açık
 kademede görünür.
 
 ![Yoğunluk haritası](docs/img/desktop-density.png)
+
+### İki katman daha
+
+Üst çubuktaki **Katman** düğmesi aynı ülkelere iki soru daha soruyor.
+
+**Yazı** — o dil hangi alfabeyle yazılıyor? Aile haritasının söylemediği bir şey
+söylüyor: Türkçe, Vietnamca ve Endonezce akraba değil ama üçü de Latin yazıyor;
+Sırpça ile Hırvatça karşılıklı anlaşılacak kadar yakın ama biri Kiril biri
+Latin. Latin 175 ülkeyi, Arap yazısı 25'ini, Kiril 10'unu kapsıyor.
+
+Yazı verisi elle yazılmadı: dilin kendi dilindeki adının harfleri Unicode
+bloklarına göre sayılıyor. 155 dilin hepsi kendiliğinden kapsanıyor ve elde
+bakım gerektiren bir tablo kalmıyor — yalnız altı istisna elle duruyor. **İki**
+yazıyla yazılan 13 dil ayrıca işaretli: Pencapça Hindistan'da Gurmukhi,
+Pakistan'da Şahmukhi; Kazakça 2023–2031 arasında Latin'e geçiyor; Kürtçe
+Türkiye'de Latin, Irak'ta Arap yazısı.
+
+![Yazı sistemleri](docs/img/desktop-scripts.png)
+
+**Resmî dil** — devletin dili ile evin dili aynı mı? Afrika'nın yarısında değil.
+Katman açılınca kıta değişiyor: batı ve orta Afrika Fransızcanın kırmızısına,
+güney ve doğu İngilizcenin mavisine dönüyor. İngilizce **51** ülkede resmî ama
+yalnız 36'sında evin dili; Fransızca 18'de resmî, 13'ünde evin dili.
+
+**Evin dili resmî dil listesinde hiç olmayan 23 ülke** çapraz taramayla
+işaretli: Nijerya (evde Pidgin, resmî İngilizce), Senegal (Volofça / Fransızca),
+Sierra Leone (Krio / İngilizce), Güney Sudan (Cuba Arapçası / İngilizce),
+Mauritius, Jamaika, Solomon Adaları ve diğerleri. Yeni Zelanda ters yönde:
+İngilizce hiç resmî ilan edilmedi, hukuken resmî diller Maorice (1987) ve Yeni
+Zelanda İşaret Dili (2006).
+
+Tablo 234 ülkenin tamamını kapsıyor ve **yasal önceliğe** göre sıralı, günlük
+kullanıma göre değil — İrlanda'da Anayasa İrlandacayı birinci resmî dil sayar,
+günlük dil İngilizcedir; ikisi de bu sırayla listede. Hukuken resmî dil ilan
+etmemiş 16 ülke ayrıca işaretli, 48 ülkede katmanın anlattığı ayrıntı bir notla
+açıklanıyor.
+
+![Resmî diller](docs/img/desktop-official.png)
 
 ### Eyalet / il düzeyi
 
@@ -80,7 +119,7 @@ bir ton olmak yerine fazladan bir bilgi taşıyor.
 ### İki dil, üç tema
 
 Arayüz dili Türkçe ve İngilizce arasında geçiş yapar — yalnızca menüler değil,
-142 dilin adı, 44 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
+155 dilin adı, 44 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
 notu, kıtalar ve sayı biçimi de çevrilir (1,2 milyar ↔ 1.2 billion). Tema
 sistemi izler ama elle açık/koyu da seçilebilir; seçim tarayıcıda saklanır.
 Bu depo da iki dilde: bu sayfanın İngilizcesi [README.md](README.md).
@@ -103,7 +142,7 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.5.3** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.6.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
@@ -193,6 +232,7 @@ anchor.py           etiket çapaları (erişilmezlik kutbu)
 VERSION             paketlerdeki sürüm numarasının tek kaynağı
 page.tmpl.html      masaüstü arayüzü
 mobile.tmpl.html    telefon arayüzü
+layers.py           yazı sistemleri ve resmî diller (iki ek katman)
 lang_mix.py         ülke başına dil dağılımı
 diaspora.py         göçmen ve azınlık toplulukları (%0,05'e kadar)
 population.py       ülke nüfusları

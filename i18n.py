@@ -15,6 +15,7 @@ REGION_EN = {
 
 # ------------------------------------------------------------ dil aileleri
 FAM_EN = {
+    "Afro-Asyatik · Berberi": "Afro-Asiatic · Berber",
     "Afro-Asyatik · Kuşi": "Afro-Asiatic · Cushitic",
     "Afro-Asyatik · Sami": "Afro-Asiatic · Semitic",
     "Afro-Asyatik · Çad": "Afro-Asiatic · Chadic",
@@ -27,6 +28,8 @@ FAM_EN = {
     "Hint-Aryan temelli kreol": "Indo-Aryan-based creole",
     "Hint-Avrupa · Arnavut": "Indo-European · Albanian",
     "Hint-Avrupa · Balt": "Indo-European · Baltic",
+    "Hint-Avrupa · Kelt": "Indo-European · Celtic",
+    "Hint-Avrupa · İtalik": "Indo-European · Italic",
     "Hint-Avrupa · Cermen": "Indo-European · Germanic",
     "Hint-Avrupa · Dard": "Indo-European · Dardic",
     "Hint-Avrupa · Ermeni": "Indo-European · Armenian",
@@ -60,6 +63,11 @@ FAM_EN = {
 
 # ------------------------------------------------------- 142 dilin adları
 LANG_EN = {
+    # yalnız resmî dil olarak geçenler
+    "ga": "Irish", "ps": "Pashto", "tzm": "Berber (Tamazight)",
+    "af": "Afrikaans", "be": "Belarusian", "nd": "Ndebele", "mi": "Māori",
+    "rm": "Romansh", "la": "Latin", "ho": "Hiri Motu", "hif": "Fiji Hindi",
+    "ch": "Chamorro", "xh": "Xhosa",
     "ak": "Akan", "de": "German", "am": "Amharic", "ar": "Arabic", "sq": "Albanian",
     "as": "Assamese", "ay": "Aymara", "az": "Azerbaijani", "bm": "Bambara",
     "eu": "Basque", "bem": "Bemba", "bn": "Bengali", "my": "Burmese", "bi": "Bislama",
@@ -369,6 +377,102 @@ GROUP_EN = {
     "asi": ("East and South Asian languages", "Chinese, Japanese, Korean, Tamil, Vietnamese, Thai"),
     "aus": ("Austronesian languages", "Indonesian, Malay, Filipino, Malagasy, Oceanic languages"),
     "oth": ("Other families", "Uralic, Mongolic, Kartvelian, Eskimo-Aleut, Andean, isolates"),
+}
+
+
+# ----------------------------------------------------------- yazı sistemleri
+SCRIPT_EN = {
+    "latn": "Latin", "cyrl": "Cyrillic", "arab": "Arabic",
+    "deva": "Devanagari", "beng": "Bengali", "gujr": "Gujarati",
+    "guru": "Gurmukhi", "orya": "Odia", "taml": "Tamil", "telu": "Telugu",
+    "knda": "Kannada", "mlym": "Malayalam", "sinh": "Sinhala",
+    "mtei": "Meetei Mayek", "thai": "Thai", "laoo": "Lao", "khmr": "Khmer",
+    "mymr": "Myanmar", "tibt": "Tibetan", "hani": "Han (Chinese characters)",
+    "jpan": "Kanji + kana", "hang": "Hangul", "grek": "Greek",
+    "armn": "Armenian", "geor": "Georgian", "hebr": "Hebrew",
+    "ethi": "Ge'ez", "thaa": "Thaana", "cans": "Canadian syllabics",
+    "tfng": "Tifinagh",
+}
+
+SGROUP_EN = {
+    "lat": ("Latin", "Western Europe, the Americas, most of Africa, Southeast Asia"),
+    "cyr": ("Cyrillic", "Russia, the eastern Balkans, part of Central Asia"),
+    "ara": ("Arabic", "North Africa, the Middle East, Iran, Pakistan"),
+    "brh": ("Brahmi-derived · South Asia", "Devanagari, Bengali, Tamil, Telugu, Sinhala…"),
+    "sea": ("Brahmi-derived · Southeast Asia", "Thai, Lao, Khmer, Myanmar, Tibetan"),
+    "cjk": ("East Asia", "Han characters, Japanese kana, Korean hangul"),
+    "alp": ("Other alphabets and abjads", "Greek, Armenian, Georgian, Hebrew"),
+    "gez": ("Ge'ez", "Amharic and Tigrinya — Africa's own script"),
+    "oth": ("Other", "Thaana, Canadian syllabics, Tifinagh"),
+}
+
+# iki yazılı diller — SCRIPT2 notlarının İngilizcesi
+SCRIPT2_EN = {
+    "sr":  "Cyrillic is the official script; Latin is used everywhere too",
+    "bs":  "The constitution treats both scripts as equal; everyday use is Latin",
+    "uz":  "Switched to Latin in 1993; Cyrillic is still widespread",
+    "kk":  "A staged move to Latin is running from 2023 to 2031",
+    "ku":  "Latin in Türkiye and Syria, Arabic script in Iraq and Iran",
+    "pa":  "Gurmukhi in India, Shahmukhi (Arabic script) in Pakistan",
+    "ms":  "Latin (Rumi) is primary; Jawi (Arabic script) is also official in Brunei",
+    "mn":  "Cyrillic in Mongolia; the traditional Mongolian script is being reintroduced",
+    "ha":  "Latin (Boko) is primary; Ajami (Arabic script) is used for religious texts",
+    "ko":  "Hangul is primary; Hanja (Chinese characters) survive in limited use",
+    "iu":  "Syllabics in Nunavut, Latin in the west",
+    "az":  "Latin in Azerbaijan, Arabic script in Iran",
+    "tzm": "Tifinagh is official in Morocco; Latin is also used in Algeria",
+}
+
+# --------------------------------------------------------- resmî dil notları
+OFF_NOTE_EN = {
+    "032": "No official language in the constitution; Spanish is the de facto state language.",
+    "036": "No official language in the constitution; English is the de facto state language.",
+    "072": "English is the sole official language; Setswana is the national language and the one people speak.",
+    "090": "English is official; the common language of the street and of parliament is Solomon Pijin.",
+    "112": "Belarusian is constitutionally the first language; Russian dominates everyday life.",
+    "132": "Portuguese is official; the constitution provides for making Kriolu official, but the step has not been taken.",
+    "152": "No official language in the constitution; Spanish is the de facto state language.",
+    "158": "Mandarin has been the de facto state language since 1949; a 2018 act made every indigenous language a \"national language\".",
+    "204": "French is the sole official language; the most widely spoken home languages are Fon and Yoruba.",
+    "208": "No official language in the constitution; Danish is the de facto state language. Neighbouring Sweden made Swedish official by law in 2009.",
+    "232": "No official language has been declared; Tigrinya, Arabic and English are working languages.",
+    "262": "Arabic and French are official; most of the population speaks Somali.",
+    "270": "English is official; most of the population speaks Mandinka at home.",
+    "288": "English is official; the most widely spoken home language is Akan.",
+    "324": "French is the sole official language; the largest mother tongue is Fula.",
+    "344": "The law says only \"Chinese\"; the spoken official variety is Cantonese, written in traditional characters.",
+    "356": "Hindi and English at the Union level; the constitutional schedule lists 22 languages.",
+    "372": "The constitution names Irish the first official language; the everyday language is English.",
+    "388": "No official language has been declared; English is the language of government, Patois the language of the home.",
+    "392": "No official language has been declared; Japanese is the de facto state language.",
+    "446": "The law says only \"Chinese\"; the spoken official variety is Cantonese.",
+    "454": "English is the sole official language; Chichewa is the national language and the one people speak.",
+    "466": "The 2023 constitution removed French's official status; 13 national languages became official.",
+    "480": "No official language in the constitution; parliament works in English, homes in Creole.",
+    "484": "No official language in the constitution; 68 indigenous languages are \"national languages\" on a par with Spanish.",
+    "516": "English is the only official language; the most spoken home languages are Oshiwambo and Afrikaans.",
+    "554": "English was never declared official; the languages official in law are Māori (1987) and New Zealand Sign Language (2006).",
+    "562": "In 2025 Hausa became the national language, with French and English as working languages.",
+    "566": "English is official; the lingua franca of the street is Nigerian Pidgin.",
+    "580": "The official languages are English, Chamorro and Carolinian; the most spoken home language is Filipino, brought by migration.",
+    "583": "English is the federal official language; island languages such as Chuukese are recognised at state level.",
+    "624": "Portuguese is official; the lingua franca of the street is Guinea-Bissau Creole.",
+    "643": "More than 30 languages are official at republic level across the federation.",
+    "674": "No official language in the constitution; Italian is the de facto state language.",
+    "686": "French is official; most of the population speaks Wolof.",
+    "694": "English is official; the common language at home is Krio.",
+    "702": "Four official languages; Malay is the national language, English the language of administration.",
+    "710": "12 official languages (sign language included since 2023).",
+    "716": "16 official languages — the longest list in the world.",
+    "728": "English is the sole official language; the lingua franca of the street is Juba Arabic.",
+    "768": "French is the sole official language; Ewe and Kabiye count as national languages.",
+    "800": "English and Swahili are official; Luganda, the language of the capital and the south, has never been official.",
+    "826": "No official language at constitutional level; Welsh in Wales and Gaelic in Scotland are protected by statute.",
+    "840": "A 2025 executive order declared English the official language; federal law contains no official-language provision.",
+    "854": "The 2024 constitution made Mòoré, Dioula and Fulfulde official; French was demoted to a working language.",
+    "858": "No official language in the constitution; Spanish is the de facto state language.",
+    "894": "English is the sole official language; seven languages are recognised regionally, the largest being Bemba.",
+    "902": "An unrecognised state; Somali and Arabic are official.",
 }
 
 

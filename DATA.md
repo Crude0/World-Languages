@@ -16,6 +16,8 @@ olarak okunmalı, ondalık hassasiyetle değil.
 | İkinci dil | `lang_mix.py` (`L2`) | 189/234 | Ana dili olmadığı hâlde sohbet edecek düzeyde konuşulan diller |
 | Nüfus | `population.py` | 234/234 | BM 2024 tahmini, bin kişi |
 | Eyalet / il | `subdiv.py` | 313 bölge, 12 ülke | Bölge bazında dil dağılımı ve nüfus |
+| Yazı sistemi | `layers.py` (`SCRIPT_FIX`, `SCRIPT2`) | 155/155 dil | Dilin hangi alfabeyle yazıldığı; iki yazılı dillerde ikincisi |
+| Resmî dil | `layers.py` (`OFFICIAL`, `DE_FACTO`) | 234/234 | Devletin hukuken resmî dilleri; ilan edilmemişse fiilî olan |
 
 ## Kaynaklar
 
@@ -34,6 +36,26 @@ yuvarlandı.
 
 **İkinci dil** — Avrupa'da Eurobarometre 386 (2012), "bir sohbeti sürdürecek
 düzeyde" ölçütü. Diğer bölgelerde ulusal sayım ve tahminler.
+
+**Yazı sistemi** elle yazılmadı: dilin kendi dilindeki adının (endonim) harfleri
+Unicode bloklarına göre sayılıyor, en çok geçen blok yazı sistemi kabul ediliyor.
+Böylece 155 dilin hepsi kendiliğinden kapsanıyor ve elde bakım gerektiren bir
+tablo kalmıyor. Yalnız altı istisna elle yazıldı (`SCRIPT_FIX`): Japoncanın
+endonimi salt kanji görünür ama yazı kanji + hiragana + katakana'dır; Konkani'nin
+resmî yazısı Goa'da Devanagari'dir; Çince ve Kantonca "CJK" bloğundan gelir;
+Meitei ve İnuktitut'un Unicode blok adları yazı adına birebir çevrilmez.
+
+**İki yazılı diller** (`SCRIPT2`) ayrı bir tablodur — 13 dil. Sırpçanın resmî
+yazısı Kiril'dir ama Latin de her yerde kullanılır; Pencapça Hindistan'da
+Gurmukhi, Pakistan'da Şahmukhi ile yazılır; Kazakça 2023–2031 arasında Latin'e
+geçmektedir. Harita ana yazıyı boyar, ikincisi ülke kartında yazar.
+
+**Resmî diller** ülkelerin anayasa ve dil yasalarından derlendi; sıralama
+**yasal önceliğe** göredir, günlük kullanıma göre değil. İrlanda'da Anayasa
+İrlandacayı "birinci resmî dil" sayar, günlük hayatın dili İngilizcedir — ikisi
+de listede, sıralama anayasanınki. Hukuken resmî dil ilan etmemiş 16 ülke
+(ABD hariç: 2025 kararnamesi) `DE_FACTO` tablosunda fiilî devlet diliyle durur
+ve kartta "hukuken resmî dil yok" diye işaretlenir.
 
 ## Hesaplamalar
 

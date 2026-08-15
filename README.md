@@ -23,9 +23,10 @@ system or can be set to **light or dark** by hand.
 | | |
 |---|---|
 | **234** | countries and dependent territories |
-| **142** | languages (121 are a majority somewhere, 21 only at region level) |
+| **155** | languages (121 are a majority somewhere, 21 only at region level, 13 official only) |
 | **1,100+** | country × language rows — the home-language breakdown of every country |
 | **313** | states / provinces / cantons (in 12 countries) |
+| **30** | writing systems, derived from the languages' own names for themselves |
 | **8.09 billion** | people covered |
 
 The map answers four questions:
@@ -50,6 +51,46 @@ darkest band (>85%), the US and Australia one step lighter, Germany and Sweden
 lightest of all.
 
 ![Density map](docs/img/desktop-density.png)
+
+### Two more layers
+
+The **Layer** control asks the same countries two further questions.
+
+**Script** — which alphabet is the language written in? It says something the
+family map does not: Turkish, Vietnamese and Indonesian are unrelated yet all
+write in Latin, while Serbian and Croatian are close enough to be mutually
+intelligible and are written in Cyrillic and Latin respectively. Latin covers
+175 countries, Arabic 25, Cyrillic 10.
+
+The script is not typed in by hand. The letters of each language's own name for
+itself are counted by Unicode block, which covers all 155 languages on its own
+and leaves no table to maintain — only six exceptions are written out. The 13
+languages written in **two** scripts are marked separately: Punjabi in Gurmukhi
+in India and Shahmukhi in Pakistan, Kazakh moving to Latin between 2023 and
+2031, Kurdish in Latin in Türkiye and in Arabic script in Iraq.
+
+![Writing systems](docs/img/desktop-scripts.png)
+
+**Official language** — is the language of the state the language of the home?
+Across half of Africa it is not. Switching the layer transforms the continent:
+west and central Africa turn the red of French, the south and east the blue of
+English. English is official in **51** countries but the home language of only
+36; French is official in 18 and spoken at home in 13.
+
+The **23 countries whose home language is not on the official list at all** are
+cross-hatched: Nigeria (Pidgin at home, English in law), Senegal (Wolof /
+French), Sierra Leone (Krio / English), South Sudan (Juba Arabic / English),
+Mauritius, Jamaica, the Solomon Islands and others. New Zealand runs the other
+way: English was never declared official, and the languages official in law are
+Māori (1987) and New Zealand Sign Language (2006).
+
+The table covers all 234 countries and is ordered by **legal precedence**, not
+by everyday use — Ireland's constitution names Irish the first official language
+while daily life runs in English, and both are listed in that order. The 16
+countries that have declared no official language in law are marked as such, and
+48 countries carry a note explaining what the layer is showing.
+
+![Official languages](docs/img/desktop-official.png)
 
 ### State and province level
 
@@ -96,7 +137,7 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.5.3** — get it from the
+Latest release **v0.6.0** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 
@@ -188,6 +229,7 @@ anchor.py           label anchors (pole of inaccessibility)
 VERSION             single source for the version in every package
 page.tmpl.html      desktop interface
 mobile.tmpl.html    phone interface
+layers.py           writing systems and official languages (the two extra layers)
 lang_mix.py         language distribution per country
 diaspora.py         migrant and minority communities (down to 0.05%)
 population.py       country populations
