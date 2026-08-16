@@ -323,7 +323,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    Kart sayfada haritanın altında duruyor; tam ekranda orası görünmediği
    için tıklamak hiçbir şey yapmıyormuş gibi oluyordu. Kip açılırken
    düğüm panel sütununa taşınıyor, kapanırken eski yerine dönüyor. */
-.map-area.fs .hud-panels { width: min(360px, calc(100% - 20px)); }
+.map-area.fs .hud-panels { width: min(360px, calc(100% - 20px)); bottom: 10px; }
+/* Ölçek şeridi de aynı köşede; görünürken sütun onun üstünde bitiyor.
+   :has() yerine sınıf: renderScale zaten görünürlüğü biliyor ve
+   macOS 10.15'teki WebKit :has() bilmiyor. */
+.map-area.fs.has-scale .hud-panels { bottom: 62px; }
+/* Kart kalan boşluğu doldursun — sabit bir kutuda kaydırmak yerine.
+   min-height:0 olmadan flex çocuğu içeriğinden küçülmüyor ve taşıyor. */
+.map-area.fs .hud-panels > .detail.on { flex: 1 1 auto; min-height: 0; max-height: none; }
 .hud-panels > .detail.on,
 .hud-panels > .minor {
   display: block; width: 100%; border: 0; border-radius: 12px;
@@ -1466,6 +1473,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     renderScale();
   }
   function renderScale() {
+    scaleBody();
+    // Panel sütunu ölçek şeridinin üstünde bitsin (bkz. .has-scale).
+    $("#mapArea").classList.toggle("has-scale", !$("#scale").hidden);
+  }
+  function scaleBody() {
     const box = $("#scale");
     if (layer === "know") {
       if (!known.size || knowMode === "home") { box.hidden = true; box.innerHTML = ""; return; }

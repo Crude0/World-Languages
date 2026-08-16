@@ -163,6 +163,10 @@ def bucket(chains):
 def border_network(rings_by_country):
     """Bölgelerin kenarlarını sayıp iki ağa ayır: iç sınır ve dış çeper.
 
+    Kenarın iki yanındaki *veri birimleri* karşılaştırılıyor, kaynak
+    dosyadaki idari birimler değil: ikisi de aynı birime düşüyorsa o kenar
+    hiç çizilmiyor.
+
     İki komşu il ortak sınırı paylaşınca o kenar iki kez sayılır; bir kez geçen
     kenarlar ise ülkenin dış çeperidir (kıyı ya da uluslararası sınır). Noktalar
     ızgaraya oturtulduğu için kenarlar birebir eşleşir.
@@ -178,14 +182,23 @@ def border_network(rings_by_country):
     üretmek aynı görüntüyü, geometrinin yarısıyla veriyor.
     """
     inner, outer = {}, {}
-    for cid, rings in rings_by_country.items():
+    for cid, items in rings_by_country.items():
         count = defaultdict(int)
-        for ring in rings:
+        owners = defaultdict(set)
+        for sid, ring in items:
             n = len(ring)
             for i in range(n):
                 a, b = ring[i], ring[(i + 1) % n]
-                count[(a, b) if a <= b else (b, a)] += 1
-        inner[cid] = bucket(_chain([e for e, c in count.items() if c >= 2]))
+                e = (a, b) if a <= b else (b, a)
+                count[e] += 1
+                owners[e].add(sid)
+        # İki kez geçen ama iki yanı da AYNI veri birimi olan kenar hiç
+        # çizilmiyor: Fransa'da bölge verisi var, département verisi yok;
+        # yine de her département'ın sınırı çiziliyordu ve harita elle
+        # seçilebilecek gibi duruyordu — üstüne gelince "Île-de-France"
+        # yazıyordu. Aynısı Birleşik Krallık'ta ilçe/İngiltere için.
+        inner[cid] = bucket(_chain([e for e, c in count.items()
+                                    if c >= 2 and len(owners[e]) >= 2]))
         outer[cid] = bucket(_chain([e for e, c in count.items() if c == 1]))
     return inner, outer
 
@@ -283,7 +296,7 @@ def main():
         kept = [p for p in parts if p[0] >= MIN_AREA or p[0] == biggest]
         d = "".join("M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in pts) + "Z"
                     for _, pts, _ in kept)
-        by_country[cid].extend(pts for _, pts, _ in kept)
+        by_country[cid].extend((sid, pts) for _, pts, _ in kept)
         cx, cy = label_anchor(kept)
         e = res.setdefault(sid, {"n": name, "p": cid, "d": "", "c": [0, 0], "a": 0.0})
         e["d"] += d
