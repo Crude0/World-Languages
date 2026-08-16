@@ -1,26 +1,15 @@
-<!-- title: The downloads were actually 0.8.0 -->
-**0.9.0, 0.9.1 and 0.9.2 shipped 0.8.0 binaries.** If you downloaded the .dmg,
-its About panel said 0.8.0 and none of the new interface was there. The version
-number, the notes and the tag were all correct — only the files were old.
+<!-- title: The country card in full screen -->
+**Clicking a country in full screen appeared to do nothing.** The country card
+lives below the map on the page, and full screen put it outside the viewport.
+The country really was being selected — its border highlighted — but the card
+was off-screen, so the click looked like it had been swallowed.
 
-The cause: `make desktop` writes the packages into `desktop/dist/`, which is in
-`.gitignore`, while the release workflow uploaded the repository's `dist/`
-folder. Nothing copied between the two, so `dist/` had been frozen since the day
-it was last refreshed by hand — 0.8.0.
+The card now opens beside the map, in the panel column: frosted glass, a single
+column, scrolling inside itself when it is long. The minority-language list
+moves the same way. Leaving full screen puts both back where they were on the
+page, in their original order — three enter/leave cycles leave the DOM
+unchanged.
 
-Both halves are now closed. The build moves the packages into `dist/`
-(`make publish`), and a new check (`tools/check-dist.py`) looks inside them: the
-mac bundle's `Info.plist` version, the version string baked into each binary,
-and whether the page embedded in the APK matches the one in the repository. The
-release workflow runs it before uploading and stops if it fails. Run against the
-stale packages, it caught all four.
-
-**Full screen left empty bars above and below the map.** The map is 2.29:1 and
-screens are usually 16:10, so fitting the map inside the viewport left the rest
-blank. The viewBox now takes its aspect ratio from the screen: the map fills it,
-and zoomed in you see more around the edges instead of bars. At world zoom,
-where the box ends up taller than the map, it is centred and the ocean simply
-continues past the top and bottom, so there is no visible seam.
-
-The Android APK is rebuilt from the current page as well. The phone interface
-itself is still unchanged since 0.8.0 — that work comes next.
+A closed minority list showed up as an empty glass box: a `display` rule was
+overriding the `[hidden]` attribute, the same mistake that had happened with the
+scale strip.

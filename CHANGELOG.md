@@ -10,6 +10,21 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.9.4 — 16 Ağustos 2026
+
+**Tam ekranda bir ülkeye tıklayınca hiçbir şey olmuyordu.** Ülke kartı sayfada
+haritanın altında duruyor; tam ekran onu görünümün dışında bırakıyordu. Ülke
+gerçekten seçiliyordu — sınırı da vurgulanıyordu — ama kart ekranın altında
+kalıyordu, yani tıklamak boşa gidiyormuş gibi görünüyordu.
+
+Kart artık tam ekranda haritanın yanında, panel sütununda açılıyor: buzlu cam,
+tek sütun, uzunsa kendi içinde kayan. Azınlık listesi de aynı şekilde taşınıyor.
+Kip kapanınca ikisi de sayfadaki eski yerlerine, eski sıralarıyla dönüyor
+(girip çıkmayı üç tur denedim, düğümler çoğalmıyor ve sıra bozulmuyor).
+
+Kapalı azınlık listesi cam bir boş kutu olarak görünüyordu: `display` kuralı
+`[hidden]` özniteliğini eziyordu — ölçek şeridinde de aynı hata olmuştu.
+
 ## v0.9.3 — 16 Ağustos 2026
 
 **0.9.0, 0.9.1 ve 0.9.2 sürümleri 0.8.0 ikililerini yayımlamış.** İndirilen

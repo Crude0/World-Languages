@@ -334,6 +334,39 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    çakışmaz ve imleç–harita koordinat çevrimi kayar. */
 .map-area.fs .map-wrap { border: 0; border-radius: 0; }
 .map-area.fs .map-wrap::after { display: none; }
+
+/* Tam ekranda bir ülkeye tıklayınca kart haritanın yanında açılıyor.
+   Kart sayfada haritanın altında duruyor; tam ekranda orası görünmediği
+   için tıklamak hiçbir şey yapmıyormuş gibi oluyordu. Kip açılırken
+   düğüm panel sütununa taşınıyor, kapanırken eski yerine dönüyor. */
+.map-area.fs .hud-panels { width: min(360px, calc(100% - 20px)); }
+.hud-panels > .detail.on,
+.hud-panels > .minor {
+  display: block; width: 100%; border: 0; border-radius: 12px;
+  max-height: min(72vh, 560px); overflow-y: auto; overscroll-behavior: contain;
+  background: var(--glass); box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-line);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hud-panels > .detail.on, .hud-panels > .minor { background: var(--panel); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .hud-panels > .detail.on, .hud-panels > .minor {
+    background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+}
+/* Dar sütunda üç sütunluk ızgara tek sütuna iniyor; bölümler yine
+   çizgiyle ayrılsın diye geniş ekran kuralları geri alınıyor. */
+.hud-panels > .detail.on .d-sec {
+  margin-top: 13px; padding-top: 11px; padding-left: 0;
+  border-top: 1px solid var(--glass-line); border-left: 0;
+}
+.hud-panels > .detail.on .d-act { grid-column: auto; }
+/* display kuralı [hidden]'ı eziyor — ölçek şeridinde de aynısı olmuştu.
+   Azınlık listesi kapalıyken boş bir cam kutu olarak duruyordu. */
+.hud-panels > .minor[hidden] { display: none; }
 /* Sarmalayıcı görünümü kaplıyor ve görüş kutusu onun oranını aldığı için
    SVG'nin letterbox'ı devreye girmiyor; yine de yuvarlamadan kalan bir
    piksellik boşluk olmasın diye yükseklik açıkça veriliyor. */
@@ -1755,12 +1788,34 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     clampVB();
     commitVB();   // etiket puntosu ve budama yeni ölçüye göre
   }
+  // Ülke kartı ve azınlık listesi sayfada haritanın altında duruyor. Tam
+  // ekranda orası görünmüyor, yani tıklamak hiçbir şey yapmamış gibi
+  // oluyordu. Kip değişirken düğümler taşınıyor; nereden geldikleri
+  // saklanıyor ki geri koyarken sıra bozulmasın.
+  const moved = [];
+  function moveCards(toHud) {
+    const panels = document.querySelector(".hud-panels");
+    if (toHud) {
+      ["#minor", "#detail"].forEach((sel) => {
+        const n = $(sel);
+        if (!n) return;
+        moved.push([n, n.parentNode, n.nextSibling]);
+        panels.appendChild(n);
+      });
+    } else {
+      while (moved.length) {
+        const [n, parent, next] = moved.pop();
+        parent.insertBefore(n, next);
+      }
+    }
+  }
   function setFs(on) {
     if (on === fsOn) return;
     // Tablo açıkken harita gizli; tam ekrana o hâlde girilirse boş bir
     // kaplama çıkardı. Tam ekran her zaman haritayı gösterir.
     if (on && state.table) setTable(false);
     fsOn = on;
+    moveCards(on);
     area.classList.toggle("fs", on);
     document.body.classList.toggle("fs-on", on);
     $("#btnFull").setAttribute("aria-pressed", String(on));
