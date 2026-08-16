@@ -10,6 +10,62 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.10.0 — 16 Ağustos 2026
+
+### Kaydırma: 774 ms rasterden 39 ms'ye
+
+Tam ekranda Avrupa'ya yaklaşıp bölge kipinde kaydırmak kasıyordu. Önce yanlış
+ölçtüm: kare sayacı kurdum, her koşulda 60 fps çıktı — o ölçüm geçersiz, çünkü
+`requestAnimationFrame` raster yetişmese de tıkmaya devam ediyor. Tracing ile
+rasterizasyonu ölçünce (1 sn'lik kaydırma):
+
+```
+tam ekran, Avrupa, bölge   raster 774 ms / 1465 iş
+pencere içi                raster 389 ms /  600 iş
+bütün konturlar kapalı     raster 779 ms      ← fark yok
+tarama desenleri düz renk  raster 804 ms      ← fark yok
+piksel yoğunluğu 1x        raster 794 ms      ← fark yok
+```
+
+Kontur değil: 0.4.0'daki kontur işi tuttuğu için maliyet artık karo sayısında.
+`viewBox` her karede değişince katmanın tamamı geçersizleşiyor ve her karo
+yeniden rasterize ediliyor; alan 2× olunca iş de 2×.
+
+Jest boyunca `viewBox` artık donduruluyor, katman CSS dönüşümüyle kaydırılıyor.
+Bu bir kez denenip geri alınmıştı: compositor yalnız çizilmiş pikselleri
+taşıyabildiği için kaydırılan yönde boş alan kalıyordu. Fark şu: artık görünenin
+her kenarından **%28 fazlası** çiziliyor, pay tükenince tampon bir kez yenileniyor.
+
+```
+tam ekran, Avrupa, bölge   774 → 39 ms   (1465 → 56 iş)
+pencere içi                389 → 20 ms
+```
+
+Doğruluk ayrıca sınandı: paydan uzun bir sürüklemeden sonra `viewBox` sapması
+**0,000** harita birimi, gizlenen yol kümesi ve beş noktadaki isabet testi
+tamponsuz yolla birebir aynı, jest bittiğinde bütün satır içi biçimler
+temizleniyor. Jest ortasında kenarda boşluk yok.
+
+### Veri hangi düzeydeyse sınır orada
+
+Fransa'da bölge verisi var, département verisi yok; ama harita her
+département'ın sınırını çiziyordu — elle Manchester seçilebilecekmiş gibi
+duruyor, üstüne gelince "İngiltere" yazıyordu. Aynısı İspanya, İtalya ve
+Birleşik Krallık'ta.
+
+Sınır ağı artık kenarın iki yanındaki *veri birimlerini* karşılaştırıyor,
+kaynak dosyadaki idari birimleri değil: ikisi de aynı birime düşüyorsa o kenar
+hiç çizilmiyor. İç sınır ağı **11 883 noktadan 9445'e**, 126 kovadan 99'a indi.
+
+Birleşik Krallık dört ülkeye, Fransa 18 bölgeye, İspanya 19 özerk topluluğa,
+İtalya 20 bölgeye iniyor. Türkiye'nin 81 ili, Almanya'nın 16 eyaleti, Rusya'nın
+83 öznesi olduğu gibi kalıyor — oralarda veri zaten o düzeyde.
+
+### Tam ekranda ülke kartı
+
+Sabit bir kutuda kaydırmak yerine sütunun dibine kadar uzanıyor; ölçek şeridi
+görünürken onun üstünde bitiyor.
+
 ## v0.9.4 — 16 Ağustos 2026
 
 **Tam ekranda bir ülkeye tıklayınca hiçbir şey olmuyordu.** Ülke kartı sayfada

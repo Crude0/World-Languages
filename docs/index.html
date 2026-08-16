@@ -377,6 +377,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Sarmalayıcı görünümü kaplıyor ve görüş kutusu onun oranını aldığı için
    SVG'nin letterbox'ı devreye girmiyor; yine de yuvarlamadan kalan bir
    piksellik boşluk olmasın diye yükseklik açıkça veriliyor. */
+.map-area.fs .map-clip { height: 100%; }
 .map-area.fs #map { height: 100%; }
 body.fs-on { overflow: hidden; }
 
@@ -404,7 +405,12 @@ body.fs-on { overflow: hidden; }
   content: ""; position: absolute; inset: 4px; border: 1px solid var(--rule);
   pointer-events: none; opacity: .8;
 }
+/* Jest boyunca SVG görünenden büyük çiziliyor ve compositor'la kaydırılıyor;
+   taşan kısmı bu kap kırpıyor. İpucu kabın dışında, yoksa kırpılırdı. */
+.map-clip { position: relative; overflow: hidden; }
 #map { display: block; width: 100%; height: auto; touch-action: none; cursor: grab; }
+/* Kaydırma compositor'da kalsın diye kendi katmanına alınıyor */
+#map.dragging { will-change: transform; }
 #map.dragging { cursor: grabbing; }
 #map:focus { outline: none; }
 #map:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
@@ -749,7 +755,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
            tek bir yerleşim, iki kip. -->
       <div class="map-area" id="mapArea" data-side="left">
         <div class="map-wrap" id="mapWrap">
-          <svg id="map" role="img" tabindex="0" aria-label="Dünya haritası: ülkelerde çoğunluğun konuştuğu dilin ailesi"></svg>
+          <div class="map-clip">
+            <svg id="map" role="img" tabindex="0" aria-label="Dünya haritası: ülkelerde çoğunluğun konuştuğu dilin ailesi"></svg>
+          </div>
           <div class="tip" id="tip" aria-hidden="true"></div>
         </div>
 
@@ -1630,10 +1638,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       } catch (_) { /* çizilmemiş yol */ }
     });
   }
-  function cull() {
+  // win verilirse ona göre budanır: jest tamponu görünenden geniş çiziliyor,
+  // görünür kutuya göre budarsak kaydırınca kenarda delik kalır.
+  function cull(win) {
     if (!cullList) buildCull();
-    const m = vb.w * 0.08;                       // küçük pay: kenarda pop olmasın
-    const x0 = vb.x - m, y0 = vb.y - m, x1 = vb.x + vb.w + m, y1 = vb.y + vb.h + m;
+    const r = win || vb;
+    const m = r.w * 0.08;                        // küçük pay: kenarda pop olmasın
+    const x0 = r.x - m, y0 = r.y - m, x1 = r.x + r.w + m, y1 = r.y + r.h + m;
     for (let i = 0; i < cullList.length; i++) {
       const c = cullList[i];
       const off = c[3] < x0 || c[1] > x1 || c[4] < y0 || c[2] > y1;
@@ -1721,8 +1732,69 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     queueHash();
   }
   function applyVB() {
+    if (buf) endBuffer();
     if (raf) return;
     raf = requestAnimationFrame(() => { raf = 0; commitVB(); });
+  }
+
+  /* ------------------------------------------------- jest tamponu
+     viewBox her karede değişince katmanın tamamı geçersizleşiyor ve her karo
+     yeniden rasterize ediliyor. Ölçüldü (tam ekran, Avrupa, bölge kipi, 1 sn
+     kaydırma): 774 ms raster / 1465 iş; pencere içinde 389 ms / 600 iş, yani
+     maliyet alanla doğru orantılı. Konturları, tarama desenlerini ve piksel
+     yoğunluğunu tek tek kapattım — hiçbiri kımıldatmadı.
+
+     Bu yüzden jest boyunca viewBox donduruluyor ve katman CSS dönüşümüyle
+     kaydırılıyor. Daha önce bu denenip geri alınmıştı: compositor yalnız
+     çizilmiş pikselleri taşıyabildiği için kaydırılan yönde boş alan
+     kalıyordu. Fark şu: artık görünenin her kenarından %28 fazlası çiziliyor.
+     Pay bitince tampon bir kez yeniden çiziliyor. */
+  const PAD = 0.28;
+  let buf = null;
+  function beginBuffer() {
+    if (buf) return;
+    const r = mapRect();
+    if (!r.width || !r.height) return;
+    const mx = Math.round(r.width * PAD), my = Math.round(r.height * PAD);
+    const sc = vb.w / r.width;                   // harita birimi / piksel
+    buf = { x: vb.x - mx * sc, y: vb.y - my * sc,
+            w: vb.w + 2 * mx * sc, h: vb.h + 2 * my * sc,
+            mx, my, sc, ox: vb.x, oy: vb.y };
+    const box = svg.parentElement;               // .map-clip
+    box.style.width = Math.round(r.width) + "px";
+    box.style.height = Math.round(r.height) + "px";
+    svg.style.position = "absolute";
+    svg.style.left = -mx + "px";
+    svg.style.top = -my + "px";
+    svg.style.width = (r.width + 2 * mx) + "px";
+    svg.style.height = (r.height + 2 * my) + "px";
+    svg.setAttribute("viewBox",
+      `${buf.x.toFixed(2)} ${buf.y.toFixed(2)} ${buf.w.toFixed(2)} ${buf.h.toFixed(2)}`);
+    cull(buf);
+  }
+  function panBuffer() {
+    if (!buf) { applyVB(); return; }
+    clampVB();
+    const dx = (buf.ox - vb.x) / buf.sc, dy = (buf.oy - vb.y) / buf.sc;
+    // Pay tükendiyse tamponu yenile: bir kare rasterize edilir, sonra yine bedava
+    if (Math.abs(dx) > buf.mx || Math.abs(dy) > buf.my) {
+      const wasDrag = svg.classList.contains("dragging");
+      endBuffer();
+      if (wasDrag) { beginBuffer(); panBuffer(); }
+      return;
+    }
+    svg.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+  }
+  function endBuffer() {
+    if (!buf) return;
+    buf = null;
+    const box = svg.parentElement;
+    svg.style.transform = "";
+    svg.style.position = ""; svg.style.left = ""; svg.style.top = "";
+    svg.style.width = ""; svg.style.height = "";
+    box.style.width = ""; box.style.height = "";
+    rectCache = null;
+    commitVB();
   }
   function zoomTo(cx, cy, w) {
     vb.w = w; vb.h = vbH(w); vb.x = cx - vb.w / 2; vb.y = cy - vb.h / 2; applyVB();
@@ -1782,7 +1854,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // İki yolda da .fs sınıfı taşındığı için biçimlendirme tek yerde duruyor.
   let fsOn = false;
   function sizeFs() {
-    const box = svg.parentElement;
+    const box = $("#mapWrap");
     if (!fsOn) {
       box.style.width = ""; box.style.height = "";
       vbAR = H / W;
@@ -1991,8 +2063,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (!drag) { hover(e); return; }
     const sc = vb.w / mapRect().width;
     const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-    if (Math.abs(dx) + Math.abs(dy) > 3) { drag.moved = true; svg.classList.add("dragging"); tip.classList.remove("on"); }
-    vb.x = drag.vx - dx * sc; vb.y = drag.vy - dy * sc; applyVB();
+    if (Math.abs(dx) + Math.abs(dy) > 3 && !drag.moved) {
+      drag.moved = true; svg.classList.add("dragging"); tip.classList.remove("on");
+      beginBuffer();
+    }
+    vb.x = drag.vx - dx * sc; vb.y = drag.vy - dy * sc;
+    if (drag.moved) panBuffer(); else applyVB();
   });
   const endDrag = (e) => {
     pointers.delete(e.pointerId);
@@ -2001,6 +2077,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       if (drag.sid) select(SB[drag.sid].p, drag.sid); else select(drag.id);
     }
     drag = null; svg.classList.remove("dragging");
+    endBuffer();
   };
   svg.addEventListener("pointerup", endDrag);
   svg.addEventListener("pointercancel", (e) => { e.__cancel = true; endDrag(e); });
