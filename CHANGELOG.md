@@ -10,6 +10,19 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.9.2 — 16 Ağustos 2026
+
+**Yayımlanan sürüm ikinci yenilemeye kadar görünmüyordu.** Hizmet çalışanı
+sayfayı önce önbellekten veriyor, ağ kopyasını arka planda tazeliyordu; yani
+yeni bir sürüm çıktığında ilk açılışta hâlâ eskisi geliyordu. 0.9.0 çıktıktan
+sonra tam olarak bu oldu.
+
+Ölçüldü: sahte bir sitede eski sayfa önbelleğe alınıp sunucudaki dosya
+değiştirildiğinde yeni sürüm **2. yenilemede** geliyordu. Sayfa istekleri artık
+önce ağdan gidiyor, ağ yoksa önbelleğe düşülüyor — aynı ölçümde **1. yenileme**.
+Sunucu tamamen kapalıyken sayfa yine açılıyor, yani çevrimdışı çalışma duruyor.
+İkon ve manifest gibi sürümle değişmeyen dosyalarda önbellek yine önce.
+
 ## v0.9.1 — 16 Ağustos 2026
 
 Tablo açıkken harita alanı gizleniyor; tam ekran düğmesi de o sırada

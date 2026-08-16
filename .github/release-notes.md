@@ -1,15 +1,16 @@
-A follow-up to 0.9.0, fixing one thing that release introduced.
+**If you opened the web version after 0.9.0 and saw the old interface, this is
+why.** The service worker served the page from its cache first and refreshed the
+network copy in the background, so a newly released version only appeared on the
+*second* reload. Measured on a test site: caching an old page, replacing the file
+on the server, then reloading — the new version arrived on reload **2**.
 
-When the table is open the map area is hidden, and so is the full-screen
-button. But the macOS menu item **Map Only (⇧⌘F)**, added in 0.9.0, presses that
-button directly — so going full screen from the menu while the table was open
-filled the screen with an empty ocean. Full screen now always closes the table
-first.
+Page requests now go to the network first and fall back to the cache when the
+network is unavailable. Same measurement: reload **1**. With the server fully
+down the page still opens, so offline use is unaffected. Icons and the manifest,
+which do not change between versions, are still served from the cache first.
 
-Resizing the window also re-rendered the map and rewrote the address bar for no
-reason. That work is only needed in full screen, where the wrapper's size is set
-from script rather than by layout.
+If you are still seeing the old interface right now, one reload will fix it — or
+one more if the previous worker is still in control.
 
-Everything else is as described in [0.9.0](https://github.com/Crude0/World-Languages/releases/tag/v0.9.0):
-the desktop controls moved onto the map, there is a full-screen mode, and the
-**I speak** layer has a new colour scale and tooltip.
+Everything else is as described in
+[0.9.0](https://github.com/Crude0/World-Languages/releases/tag/v0.9.0).
