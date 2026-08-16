@@ -37,6 +37,16 @@ official language policy.
 **Second language** — Eurobarometer 386 (2012) in Europe, on the "able to hold a
 conversation" criterion. National censuses and estimates elsewhere.
 
+**Unmatched language names.** The distribution tables (`lang_mix.py`,
+`subdiv.py`, `diaspora.py`) carry language names as text; a name that finds no
+entry in the language table in `build_data.py` is dropped along with its row.
+Up to 0.8.0 the dropped rows added up to 0.94 billion people. Every language
+with more than two million speakers — 63 of them — has now been added, and an
+alias table (`ALIAS`) maps the spellings that referred to the same language.
+89 small languages remain unmatched (about 57 million in total); they still show
+in the distribution bars on a country card but not in the language index or on
+the map.
+
 **Regional language data** is compiled from different sources per country: the
 2021 Russian census; the Language Atlas of China (中国语言地图集) together with
 the ethnic breakdown of the 2020 census; South Africa's Census 2022; Germany's

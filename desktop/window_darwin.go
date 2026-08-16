@@ -26,10 +26,9 @@ func showNative(htmlPath string) error {
 		return err
 	}
 
-	args := []string{"-l", "JavaScript", script, htmlPath}
-	if icon := iconPath(); icon != "" {
-		args = append(args, icon)
-	}
+	// Betik argümanları sırayla: html, ikon, sürüm. Sürüm Hakkında
+	// panelinde görünüyor; ikon bulunamazsa yeri boş geçilir.
+	args := []string{"-l", "JavaScript", script, htmlPath, iconPath(), version}
 	cmd := exec.Command("/usr/bin/osascript", args...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

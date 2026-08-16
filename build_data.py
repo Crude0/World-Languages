@@ -122,6 +122,83 @@ REGIONAL = {
     "buc":  ("Kibushi", "Kibushi", "Avustronezya · Malayo-Polinezya", U),
     # --- 0.7.0: Almanya
     "wen":  ("Sorbca", "Serbšćina", "Hint-Avrupa · Slav", I),
+    # --- 0.8.0: dağılım tablolarında satırı olduğu hâlde dil tablosunda
+    # karşılığı olmadığı için sessizce düşen diller. Bunlar 0,88 milyar
+    # kişinin ana diliydi; en büyükleri Cava dili, Bhojpuri ve Lingala.
+    "jv":   ("Cava dili", "Basa Jawa", "Avustronezya · Malayo-Polinezya", U),
+    "su":   ("Sunda dili", "Basa Sunda", "Avustronezya · Malayo-Polinezya", U),
+    "mad":  ("Madura dili", "Basa Madhurâ", "Avustronezya · Malayo-Polinezya", U),
+    "ceb":  ("Cebuano", "Binisaya", "Avustronezya · Malayo-Polinezya", U),
+    "ilo":  ("Ilocano", "Ilokano", "Avustronezya · Malayo-Polinezya", U),
+    "hil":  ("Hiligaynon", "Ilonggo", "Avustronezya · Malayo-Polinezya", U),
+    "bho":  ("Bhojpuri", "भोजपुरी", "Hint-Avrupa · Hint-Aryan", I),
+    "mai":  ("Maithili", "मैथिली", "Hint-Avrupa · Hint-Aryan", I),
+    "doi":  ("Dogri", "डोगरी", "Hint-Avrupa · Hint-Aryan", I),
+    "sd":   ("Sindhi", "سنڌي", "Hint-Avrupa · Hint-Aryan", I),
+    "skr":  ("Saraiki", "سرائیکی", "Hint-Avrupa · Hint-Aryan", I),
+    # slug "rom" renk grubu sabiti olarak kullanılıyor, çakışmasın
+    "rmy":  ("Romanca", "Romani ćhib", "Hint-Avrupa · Hint-Aryan", I),
+    "lrc":  ("Lurca", "لۊری", "Hint-Avrupa · Hint-İran", I),
+    "sat":  ("Santali", "ᱥᱟᱱᱛᱟᱲᱤ", "Avustroasyatik diller", S),
+    "tts":  ("Isan", "ภาษาอีสาน", "Tai-Kadai", S),
+    "shn":  ("Şanca", "လိၵ်ႈတႆး", "Tai-Kadai", S),
+    "kar":  ("Karence", "ကညီကျိာ်", "Çin-Tibet dilleri", S),
+    "rki":  ("Rakhine", "ရခိုင်ဘာသာ", "Çin-Tibet dilleri", S),
+    "ln":   ("Lingala", "Lingála", "Nijer-Kongo · Bantu", N),
+    "kg":   ("Kikongo", "Kikóngo", "Nijer-Kongo · Bantu", N),
+    "lua":  ("Tshiluba", "Tshiluba", "Nijer-Kongo · Bantu", N),
+    "ki":   ("Kikuyu", "Gĩkũyũ", "Nijer-Kongo · Bantu", N),
+    "vmw":  ("Makhuwa", "Emakhuwa", "Nijer-Kongo · Bantu", N),
+    "umb":  ("Umbundu", "Úmbúndú", "Nijer-Kongo · Bantu", N),
+    "kmb":  ("Kimbundu", "Kimbundu", "Nijer-Kongo · Bantu", N),
+    "luy":  ("Luhya", "Luluhya", "Nijer-Kongo · Bantu", N),
+    "suk":  ("Sukuma", "Kisukuma", "Nijer-Kongo · Bantu", N),
+    "nyn":  ("Runyankole", "Runyankole", "Nijer-Kongo · Bantu", N),
+    "seh":  ("Sena", "Cisena", "Nijer-Kongo · Bantu", N),
+    "tso":  ("Changana", "Xichangana", "Nijer-Kongo · Bantu", N),
+    "toi":  ("Tonga", "Chitonga", "Nijer-Kongo · Bantu", N),
+    "yao":  ("Yao", "Chiyao", "Nijer-Kongo · Bantu", N),
+    "chag": ("Chagga", "Kichagga", "Nijer-Kongo · Bantu", N),
+    "dyu":  ("Diyula", "Julakan", "Nijer-Kongo · Mande", N),
+    "emk":  ("Maninka", "Maninkakan", "Nijer-Kongo · Mande", N),
+    "men":  ("Mende", "Mɛnde yia", "Nijer-Kongo · Mande", N),
+    "tem":  ("Temne", "KʌThemnɛ", "Nijer-Kongo · Atlantik", N),
+    "bci":  ("Baule", "Baoulé", "Nijer-Kongo · Kva", N),
+    "gaa":  ("Ga", "Gã", "Nijer-Kongo · Kva", N),
+    "sef":  ("Senufo", "Senufo", "Nijer-Kongo · Gur", N),
+    "kbp":  ("Kabiye", "Kabɩyɛ", "Nijer-Kongo · Gur", N),
+    "om":   ("Oromoca", "Afaan Oromoo", "Afro-Asyatik · Kuşi", A),
+    "bej":  ("Beja", "بداويت", "Afro-Asyatik · Kuşi", A),
+    "luo":  ("Luo", "Dholuo", "Nil-Sahra dilleri", O),
+    "kln":  ("Kalenjin", "Kalenjin", "Nil-Sahra dilleri", O),
+    "teo":  ("Ateso", "Ateso", "Nil-Sahra dilleri", O),
+    "laj":  ("Lango", "Leb Lango", "Nil-Sahra dilleri", O),
+    "din":  ("Dinka", "Thuɔŋjäŋ", "Nil-Sahra dilleri", O),
+    "nub":  ("Nuba dilleri", "Nuba", "Nil-Sahra dilleri", O),
+    "dje":  ("Zarma", "Zarmaciine", "Nil-Sahra dilleri", O),
+    "nah":  ("Nahuatl", "Nāhuatl", "Uto-Aztek dilleri", O),
+}
+
+# Aynı dilin iki yazımı. Dağılım tabloları yıllar içinde farklı adlarla
+# yazılmış; eşleşmeyen satır sessizce düşüyordu. Wu Çincesi 85 milyon,
+# Yorubaca 47 milyon kişiyle bu yüzden görünmüyordu.
+ALIAS = {
+    "Vu Çincesi": "Wu Çincesi",
+    "Yoruba": "Yorubaca",
+    "Filipince (Tagalog)": "Filipince",
+    "Berberice": "Berberi (Tamazight)",
+    "Tayvanca (Hokkien)": "Min Çincesi",
+    "Çince": "Mandarin Çincesi",
+    "Fulfulde": "Fulaca",
+    "Pulaar": "Fulaca",
+    "Nyanja": "Çeva",
+    "Sitsonga": "Tsonga",
+    "Sivenda": "Venda",
+    "Tay dili": "Tayca",
+    "Hintçe-Urduca": "Hintçe",
+    "Yakutça": "Sahaca",
+    "İnuitçe": "İnuktitut",
+    "Hmong": "Miao dilleri",
 }
 
 L = {
@@ -598,6 +675,11 @@ for cid, (tr, lang, pct, maj, note, region, terr) in C.items():
 by_name = {}
 for slug, (tr, *_rest) in L.items():
     by_name.setdefault(tr, slug)
+# Takma adlar da aynı dile bağlansın
+for alt, canon in ALIAS.items():
+    if canon not in by_name:
+        sys.exit(f"ALIAS hedefi tanımsız: {alt} -> {canon}")
+    by_name.setdefault(alt, by_name[canon])
 
 speakers = {s: 0.0 for s in L}        # ana dil olarak
 second = {s: 0.0 for s in L}          # ikinci dil olarak
@@ -639,7 +721,7 @@ BLOCK = {"LATIN": "latn", "CYRILLIC": "cyrl", "ARABIC": "arab",
          "HANGUL": "hang", "GREEK": "grek", "ARMENIAN": "armn",
          "GEORGIAN": "geor", "HEBREW": "hebr", "ETHIOPIC": "ethi",
          "THAANA": "thaa", "CANADIAN": "cans", "TIFINAGH": "tfng",
-         "YI": "yiii"}
+         "YI": "yiii", "OL": "olck"}
 
 
 def script_of(slug, endonym):

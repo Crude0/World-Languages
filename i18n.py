@@ -65,6 +65,7 @@ FAM_EN = {
     "Nijer-Kongo · Ubangi": "Niger-Congo · Ubangian",
     "Tai-Kadai": "Tai-Kadai",
     "Tupi-Guaraní": "Tupi-Guarani",
+    "Uto-Aztek dilleri": "Uto-Aztecan languages",
     "Türk dilleri": "Turkic languages",
     "Ural": "Uralic",
     "Çin-Tibet dilleri": "Sino-Tibetan languages",
@@ -73,6 +74,20 @@ FAM_EN = {
 
 # ------------------------------------------------------- 142 dilin adları
 LANG_EN = {
+    # 0.8.0: dağılım tablolarında satırı olduğu hâlde düşen diller
+    "jv": "Javanese", "su": "Sundanese", "mad": "Madurese", "ceb": "Cebuano",
+    "ilo": "Ilocano", "hil": "Hiligaynon", "bho": "Bhojpuri", "mai": "Maithili",
+    "doi": "Dogri", "sd": "Sindhi", "skr": "Saraiki", "rmy": "Romani",
+    "lrc": "Luri", "sat": "Santali", "tts": "Isan", "shn": "Shan",
+    "kar": "Karen", "rki": "Rakhine", "ln": "Lingala", "kg": "Kikongo",
+    "lua": "Tshiluba", "ki": "Kikuyu", "vmw": "Makhuwa", "umb": "Umbundu",
+    "kmb": "Kimbundu", "luy": "Luhya", "suk": "Sukuma", "nyn": "Runyankole",
+    "seh": "Sena", "tso": "Changana", "toi": "Tonga", "yao": "Yao",
+    "chag": "Chagga", "dyu": "Dyula", "emk": "Maninka", "men": "Mende",
+    "tem": "Temne", "bci": "Baoulé", "gaa": "Ga", "sef": "Senufo",
+    "kbp": "Kabiye", "om": "Oromo", "bej": "Beja", "luo": "Luo",
+    "kln": "Kalenjin", "teo": "Ateso", "laj": "Lango", "din": "Dinka",
+    "nub": "Nubian languages", "dje": "Zarma", "nah": "Nahuatl",
     # 0.7.0: Rusya'nın cumhuriyet dilleri
     "tt": "Tatar", "ba": "Bashkir", "cv": "Chuvash", "sah": "Yakut",
     "tyv": "Tuvan", "alt": "Altai", "kjh": "Khakas", "kum": "Kumyk",
@@ -469,7 +484,7 @@ SCRIPT_EN = {
     "jpan": "Kanji + kana", "hang": "Hangul", "grek": "Greek",
     "armn": "Armenian", "geor": "Georgian", "hebr": "Hebrew",
     "ethi": "Ge'ez", "thaa": "Thaana", "cans": "Canadian syllabics",
-    "tfng": "Tifinagh", "yiii": "Yi syllabary",
+    "tfng": "Tifinagh", "yiii": "Yi syllabary", "olck": "Ol Chiki",
 }
 
 SGROUP_EN = {
@@ -481,7 +496,7 @@ SGROUP_EN = {
     "cjk": ("East Asia", "Han characters, Japanese kana, Korean hangul"),
     "alp": ("Other alphabets and abjads", "Greek, Armenian, Georgian, Hebrew"),
     "gez": ("Ge'ez", "Amharic and Tigrinya — Africa's own script"),
-    "oth": ("Other", "Thaana, Canadian syllabics, Tifinagh, Yi"),
+    "oth": ("Other", "Thaana, Canadian syllabics, Tifinagh, Yi, Ol Chiki"),
 }
 
 # iki yazılı diller — SCRIPT2 notlarının İngilizcesi

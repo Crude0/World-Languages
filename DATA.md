@@ -37,6 +37,15 @@ yuvarlandı.
 **İkinci dil** — Avrupa'da Eurobarometre 386 (2012), "bir sohbeti sürdürecek
 düzeyde" ölçütü. Diğer bölgelerde ulusal sayım ve tahminler.
 
+**Eşleşmeyen dil adları.** Dağılım tabloları (`lang_mix.py`, `subdiv.py`,
+`diaspora.py`) dil adlarını metin olarak taşıyor; bir ad `build_data.py`
+içindeki dil tablosunda karşılık bulamazsa o satır düşer. 0.8.0'a kadar
+düşen satırların toplamı 0,94 milyar kişiydi. İki milyondan çok konuşanı
+olan 63 dilin hepsi eklendi ve aynı dilin farklı yazımları için bir takma
+ad tablosu (`ALIAS`) kuruldu. Geriye 89 küçük dil kaldı (toplam ~57
+milyon); bunlar ülke kartındaki dağılım çubuklarında görünüyor ama dil
+dizininde ve haritada yer almıyor.
+
 **Bölge dil verisi** ülkeye göre değişen kaynaklardan derlendi: Rusya 2021
 sayımı, Çin dil atlası (中国语言地图集) ve 2020 sayımının etnik dağılımı, Güney
 Afrika Census 2022, Almanya Zensus 2022 (hanede ağırlıklı konuşulan dil — bu

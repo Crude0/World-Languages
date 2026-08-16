@@ -1,83 +1,77 @@
-**Regional data goes from 12 countries to 18, and from 313 regions to 507.** The
-largest blank patches on the map are filled in.
+### 0.94 billion people's languages were invisible
 
-### Russia · 83 federal subjects
+A gap noted at the end of 0.7.0 turned out to be far larger than expected. The
+distribution tables carry language names as text, and a name with no entry in the
+language table is dropped along with its row: **186 languages** were being
+discarded that way, and the rows added up to **0.94 billion people**. The largest
+were Javanese (90 million), Wu Chinese (85), Bhojpuri (74), Yoruba (48), Lingala
+(44), Oromo (44), Sundanese (42) and Sindhi (40).
 
-More than 30 languages are official at republic level across the federation, and
-until now the map drew the whole country in a single colour. Tatarstan now reads
-Tatar, Chuvashia Chuvash, Sakha Yakut and Tuva Tuvan in the Turkic colour, while
-Chechnya, Ingushetia, Dagestan and Kabardino-Balkaria stand apart in their own
-Caucasian languages. The source is the 2021 census. Thirty-two languages arrive
-with it: Tatar, Bashkir, Chuvash, Yakut, Tuvan, Chechen, Avar, Lezgian, Ossetian,
-Mari, Udmurt, Buryat, Kalmyk, Chukchi and the rest.
+There were two separate problems. Some languages had never been registered; others
+were **the same language under two spellings**, written differently as the tables
+grew over the years — "Vu Çincesi" beside "Wu Çincesi", "Yoruba" beside
+"Yorubaca", Taiwanese Hokkien beside Min Chinese, Fulfulde and Pulaar beside Fula.
+An alias table now maps those together.
 
-### China · 31 provinces
+Every language with more than two million speakers — 63 of them — has been
+registered. Of the 0.94 billion, **0.057 billion** remains unmatched (89 small
+languages, the largest at 2 million). The language count goes from **219 to 270**,
+and the population counted under a named first language from 7.19 to **7.98
+billion**.
 
-"Chinese" is not one language: Mandarin, Cantonese, Wu, Min, Hakka, Xiang and Gan
-are not mutually intelligible, and the map separates them for the first time.
-Shanghai and Zhejiang read Wu, Fujian and Hainan Min, Jiangxi Gan, Hunan Xiang,
-Guangdong Cantonese — alongside Uyghur in Xinjiang, Tibetan in Tibet, Mongolian
-in Inner Mongolia and Zhuang in Guangxi.
+### Compare two places
 
-### Nigeria, South Africa, France, Germany
+**Compare with …** on a country card pins a place; pick a second and the card
+splits into two columns with both distributions side by side. Underneath,
+**spoken in both** lists the languages they share, each at the smaller of the two
+shares — a floor on how many people that language reaches in both places. Turkey
+against Germany comes out as Turkish 2%, Kurdish 1.2%, Arabic 1.2%. Regions work
+as well as countries: Tatarstan against Chuvashia, Québec against Ontario.
 
-**Nigeria's 37 states** show what a national average cannot: the country has no
-majority language, and the real pattern is Hausa in the north, Yoruba in the
-south-west, Igbo in the south-east and a Nigerian Pidgin belt across the Niger
-Delta. **South Africa's 9 provinces** come from Census 2022, where none of the 12
-official languages is a national majority. **France** adds Corsican, Breton and
-Occitan plus the overseas creoles, and **Germany's 16 Länder** come from the 2022
-census — the first to ask which language a household actually speaks.
+### The world in the languages you speak
 
-Brazil is deliberately left out: Portuguese is around 98% in all 27 states, so
-its geometry would buy a single flat colour. Crimea, Sevastopol and the Paracel
-Islands are left out too — Natural Earth attaches them to Russia and China, and
-this repository takes no position on borders, so switching to region level never
-changes which country a place is counted as part of.
+A fourth layer, **I speak**. Tick the languages you know and the map colours every
+country by the share of its population that speaks at least one of them, as a
+first or second language. Turkish plus English reaches roughly 1.81 billion
+people. The choice is stored in the browser and travels in the link
+(`#k=know&kn=tr.en`), so a view can be shared.
 
-**The language count goes from 155 to 219**, 64 of them new, and family labels
-from 44 to 54: Northeast Caucasian, Northwest Caucasian, Tungusic,
-Chukotko-Kamchatkan, Hmong-Mien, Nilo-Saharan and four new branches of
-Niger-Congo.
+Shares are added and capped at 100%: someone who speaks two of your languages is
+counted twice, so the figure is an upper bound — and the panel says so.
 
-### The stutter did not come back — the map got faster
+### Download the view as PNG or SVG
 
-The geometry grew by 83% (21,628 → 39,683 points). Added without measuring, that
-would have doubled the cost of region mode; the first measurement showed 1956 →
-3772 ms when zoomed into Russia. Measuring layer by layer turned up two causes.
+Two new buttons put the current view — zoom, layer, filter, selection — into a
+single file. The SVG stands on its own: only the rules that concern the map are
+copied out of the page's stylesheet, the colours in use are resolved into it, and
+culled paths are never written. The filename is derived from what is on screen
+(`dunya-dilleri-off-french.svg`). Both are in the layer menu on the phone.
 
-**`stroke-linejoin: round`** on the border networks accounted for **29%** of the
-cost on its own — round join geometry generated at each of fifteen thousand
-vertices, for a difference invisible on a 1.2-pixel line. Removed. (The same run
-also tested dropping `vector-effect: non-scaling-stroke`, flagged as a suspect
-back in 0.4.0: it made a 6 ms difference, so that lead is closed.)
+### The macOS menu bar
 
-**Culling was not working on the border networks.** Each country's network was a
-single path, so Russia's 153-chain outer perimeter was stroked in full even when
-a tenth of it was on screen. The chains are now spread across a coarse grid (40
-SVG units per cell, 260 buckets in total) and off-screen buckets are dropped —
-which helps Canada's 5957-point perimeter as much as the new countries.
+The app's menu bar showed **"osascript"** as the application name, and there was
+no About, no File and no View menu. The reason: the title of the application menu
+comes from the running process's bundle name rather than from the menu item, and
+the window is opened inside osascript. The bundle name is now rewritten at startup.
 
-Together, despite 83% more geometry:
+The menu is also complete: **About** with the version number, Hide / Hide Others /
+Show All, **File** (copy link, close window), **Edit** (undo, cut, copy, paste,
+select all), **View** (zoom in, zoom out, fit, toggle table, full screen) and
+**Window**. The View items drive the page's own controls, so the menu and the
+toolbar do the same thing. Quit uses its own selector now: with `terminate:` macOS
+rewrote the title to "Quit and Keep Windows", in English, because the running
+bundle carries osascript's localisations.
 
-| case | 0.6.1 | 0.7.0 |
-|---|---|---|
-| world · country mode | 878 ms | 647 ms |
-| world · region mode forced | 1951 ms | **1506 ms** |
-| zoomed into Russia · region forced | 1845 ms | **1503 ms** |
-| zoomed into Russia · default mode | 1608 ms | **1241 ms** |
-| around Moscow · default mode | 1455 ms | **967 ms** |
-| China · default mode | 1153 ms | 1082 ms |
-
-So the map draws Russia's 83 subjects and China's 31 provinces and is still
-faster than 0.6.1, which drew neither. The page grew from 1442 KB to 1931 KB
-(585 → 735 KB compressed).
+Since this could not be tried on a Mac while it was written, the script gained an
+audit mode that builds the menu and prints it, and the release workflow **runs
+that on the macOS runner** and checks that the bundle name and all five menus are
+in place. If the check fails, the release does not go out.
 
 ### Downloads
 
 | Platform | File | Size |
 |---|---|---|
-| Android 7+ | `Dunya-Dilleri-Atlasi.apk` | 665 KB |
+| Android 7+ | `Dunya-Dilleri-Atlasi.apk` | 669 KB |
 | macOS 10.15+ | `Dunya-Dilleri-Atlasi.dmg` | ~9 MB |
 | macOS, no disk image | `Dunya-Dilleri-Atlasi-mac.zip` | 3.5 MB |
 | Windows 10+ | `Dunya Dilleri Atlasi.exe` | 4.9 MB |

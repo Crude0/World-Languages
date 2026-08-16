@@ -1,5 +1,5 @@
 // macOS'ta gerçek bir uygulama penceresi: NSWindow + WKWebView.
-// osascript -l JavaScript atlas.jxa <html-yolu> [icns-yolu]
+// osascript -l JavaScript atlas.jxa <html-yolu> [icns-yolu] [sürüm]
 // Herhangi bir hata olursa betik çıkış kodu 1 ile biter; başlatıcı o zaman
 // tarayıcı kipine düşer.
 ObjC.import('Cocoa');
@@ -7,10 +7,23 @@ ObjC.import('WebKit');
 
 var TITLE = 'Dünya Dilleri Atlası';
 var keep = [];   // çöp toplayıcıdan korunacak nesneler
+var web = null;  // menüden sayfaya komut göndermek için
 
 function run(argv) {
   var htmlPath = argv[0];
   var iconPath = argv.length > 1 ? argv[1] : '';
+  var version = argv.length > 2 ? argv[2] : '';
+
+  // Uygulama menüsünün başlığı NSMenuItem'dan değil, çalışan sürecin paket
+  // adından gelir. Betik osascript'in içinde koştuğu için macOS menüye
+  // "osascript" yazıyordu. Paket sözlüğündeki adı değiştirmek bunu düzeltir;
+  // sözlük değiştirilemezse menü eski adıyla açılır, uygulama yine çalışır.
+  try {
+    var info = $.NSBundle.mainBundle.infoDictionary;
+    info.setValueForKey($(TITLE), $('CFBundleName'));
+    info.setValueForKey($(TITLE), $('CFBundleDisplayName'));
+  } catch (e) {}
+  try { $.NSProcessInfo.processInfo.setProcessName(TITLE); } catch (e) {}
 
   var app = $.NSApplication.sharedApplication;
   app.setActivationPolicy(0);              // NSApplicationActivationPolicyRegular
@@ -19,9 +32,6 @@ function run(argv) {
     var img = $.NSImage.alloc.initWithContentsOfFile(iconPath);
     if (!img.isNil()) app.applicationIconImage = img;
   }
-  try { $.NSProcessInfo.processInfo.setProcessName(TITLE); } catch (e) {}
-
-  buildMenu(app);
 
   var rect = $.NSMakeRect(0, 0, 1440, 940);
   var win = $.NSWindow.alloc.initWithContentRectStyleMaskBackingDefer(
@@ -32,11 +42,41 @@ function run(argv) {
   keep.push(win);
 
   var cfg = $.WKWebViewConfiguration.alloc.init;
-  var web = $.WKWebView.alloc.initWithFrameConfiguration(rect, cfg);
+  web = $.WKWebView.alloc.initWithFrameConfiguration(rect, cfg);
   var url = $.NSURL.fileURLWithPath(htmlPath);
   web.loadFileURLAllowingReadAccessToURL(url, url.URLByDeletingLastPathComponent);
   win.contentView = web;
   keep.push(web);
+
+  var actions = makeActions(version);
+  buildMenu(app, actions);
+
+  // Denetim kipi: menüyü kurup yazdır ve çık. Mac olmadan geliştirildiği
+  // için yayım iş akışı bunu macOS koşucusunda çalıştırıp menü adlarının
+  // doğru çıktığını doğruluyor (bkz. .github/workflows/release.yml).
+  if (argv.length > 3 && argv[3] === 'dump') {
+    var out = [];
+    var bar = app.mainMenu;
+    for (var i = 0; i < bar.numberOfItems; i++) {
+      var top = bar.itemAtIndex(i);
+      var sub = top.submenu;
+      var kids = [];
+      for (var j = 0; j < sub.numberOfItems; j++) {
+        var t = ObjC.unwrap(sub.itemAtIndex(j).title);
+        kids.push(sub.itemAtIndex(j).isSeparatorItem ? '---' : t);
+      }
+      // İlk menünün başlığını macOS paket adından yazar; gerçekte
+      // görünen ad bu, NSMenu'nunki değil.
+      out.push((i === 0 ? '[uygulama menüsü] ' : '') +
+               ObjC.unwrap(sub.title) + ': ' + kids.join(' | '));
+    }
+    out.push('paket adı: ' + ObjC.unwrap(
+      $.NSBundle.mainBundle.objectForInfoDictionaryKey('CFBundleName')));
+    out.push('süreç adı: ' + ObjC.unwrap($.NSProcessInfo.processInfo.processName));
+    $.NSFileHandle.fileHandleWithStandardOutput.writeData(
+      $(out.join('\n') + '\n').dataUsingEncoding($.NSUTF8StringEncoding));
+    return;
+  }
 
   // pencere kapatılınca uygulamadan da çık
   try {
@@ -60,19 +100,107 @@ function run(argv) {
   app.run;
 }
 
-function buildMenu(app) {
+// Menüden sayfaya köprü. Yakınlaştırma ve sığdırma sayfanın kendi
+// düğmelerini tetikler, böylece menü ile araç çubuğu aynı işi yapar.
+function makeActions(version) {
+  function js(code) {
+    if (web) { try { web.evaluateJavaScriptCompletionHandler(code, $()); } catch (e) {} }
+  }
+  try {
+    ObjC.registerSubclass({
+      name: 'AtlasActions',
+      superclass: 'NSObject',
+      methods: {
+        'about:': {
+          types: ['void', ['id']],
+          implementation: function () {
+            var d = $.NSMutableDictionary.alloc.init;
+            d.setObjectForKey($(version || ''), $('ApplicationVersion'));
+            d.setObjectForKey($('Açık veri · Natural Earth sınırları'),
+                              $('Copyright'));
+            $.NSApp.orderFrontStandardAboutPanelWithOptions(d);
+          }
+        },
+        'quitApp:': {
+          types: ['void', ['id']],
+          implementation: function () { $.NSApp.terminate(null); }
+        },
+        'zoomIn:': {
+          types: ['void', ['id']],
+          implementation: function () { js('document.getElementById("btnIn").click()'); }
+        },
+        'zoomOut:': {
+          types: ['void', ['id']],
+          implementation: function () { js('document.getElementById("btnOut").click()'); }
+        },
+        'zoomFit:': {
+          types: ['void', ['id']],
+          implementation: function () { js('document.getElementById("btnFit").click()'); }
+        },
+        'toggleTable:': {
+          types: ['void', ['id']],
+          implementation: function () { js('document.getElementById("btnTable").click()'); }
+        },
+        'copyLink:': {
+          types: ['void', ['id']],
+          implementation: function () { js('document.getElementById("btnLink").click()'); }
+        }
+      }
+    });
+  } catch (e) { return null; }
+  var a = $.AtlasActions.alloc.init;
+  keep.push(a);
+  return a;
+}
+
+function buildMenu(app, actions) {
   var bar = $.NSMenu.alloc.init;
   keep.push(bar);
 
-  // [başlık, seçici, kısayol, hedef uygulama mı]
-  add(TITLE, [['Gizle', 'hide:', 'h', true],
-              ['Diğerlerini Gizle', 'hideOtherApplications:', '', true],
-              ['Çık', 'terminate:', 'q', true]]);
-  add('Düzen', [['Kopyala', 'copy:', 'c', false],
-                ['Tümünü Seç', 'selectAll:', 'a', false]]);
-  add('Pencere', [['Küçült', 'miniaturize:', 'm', false],
-                  ['Tam Ekran', 'toggleFullScreen:', 'f', false],
-                  ['Kapat', 'performClose:', 'w', false]]);
+  // [başlık, seçici, kısayol, hedef]  ·  null satır = ayırıcı,
+  // hedef 'fr' = ilk yanıtlayıcı (metin alanı, pencere).
+  // Sistemin kendi yazdığı başlıklardan kaçınmak için Çık kendi
+  // seçicimizi kullanıyor: `terminate:` olsaydı macOS başlığı
+  // "Quit and Keep Windows" diye değiştiriyordu (üstelik İngilizce,
+  // çünkü çalışan paket osascript'in yerelleştirmesini taşıyor).
+  add(TITLE, [
+    [TITLE + ' Hakkında', 'about:', '', actions],
+    null,
+    ['Gizle', 'hide:', 'h', app],
+    ['Diğerlerini Gizle', 'hideOtherApplications:', '', app],
+    ['Tümünü Göster', 'unhideAllApplications:', '', app],
+    null,
+    ['Çık', actions ? 'quitApp:' : 'terminate:', 'q', actions || app],
+  ]);
+  add('Dosya', [
+    ['Bağlantıyı Kopyala', 'copyLink:', 'l', actions],
+    null,
+    ['Pencereyi Kapat', 'performClose:', 'w', 'fr'],
+  ]);
+  add('Düzen', [
+    ['Geri Al', 'undo:', 'z', 'fr'],
+    ['Yinele', 'redo:', 'Z', 'fr'],
+    null,
+    ['Kes', 'cut:', 'x', 'fr'],
+    ['Kopyala', 'copy:', 'c', 'fr'],
+    ['Yapıştır', 'paste:', 'v', 'fr'],
+    ['Tümünü Seç', 'selectAll:', 'a', 'fr'],
+  ]);
+  add('Görünüm', [
+    ['Yakınlaş', 'zoomIn:', '+', actions],
+    ['Uzaklaş', 'zoomOut:', '-', actions],
+    ['Haritayı Sığdır', 'zoomFit:', '0', actions],
+    null,
+    ['Tabloyu Aç/Kapat', 'toggleTable:', 't', actions],
+    null,
+    ['Tam Ekran', 'toggleFullScreen:', 'f', 'fr'],
+  ]);
+  add('Pencere', [
+    ['Küçült', 'miniaturize:', 'm', 'fr'],
+    ['Yakınlaştır', 'zoom:', '', 'fr'],
+    null,
+    ['Kapat', 'performClose:', 'w', 'fr'],
+  ]);
   app.mainMenu = bar;
 
   function add(name, items) {
@@ -80,9 +208,11 @@ function buildMenu(app) {
     var menu = $.NSMenu.alloc.initWithTitle(name);
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
+      if (it === null) { menu.addItem($.NSMenuItem.separatorItem); continue; }
+      if (!it[3]) continue;                       // eylemi kurulamadıysa atla
       var mi = $.NSMenuItem.alloc.initWithTitleActionKeyEquivalent(
         it[0], $.NSSelectorFromString(it[1]), it[2]);
-      if (it[3]) mi.setTarget(app);
+      if (it[3] !== 'fr') mi.setTarget(it[3]);    // 'fr' = ilk yanıtlayıcı
       menu.addItem(mi);
     }
     top.setSubmenu(menu);

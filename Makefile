@@ -2,6 +2,8 @@
 SHELL := /bin/bash
 PY    := python3
 
+VER := $(shell tr -d '[:space:]' < VERSION)
+
 .PHONY: all data web desktop android check clean
 
 all: web
@@ -24,9 +26,9 @@ web: data
 
 ## desktop: macOS .app + .dmg, Windows .exe  (Go 1.21+ gerekir)
 desktop: web
-	cd desktop && CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 go build -ldflags "-s -w" -o out/mac-arm64 .
-	cd desktop && CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 go build -ldflags "-s -w" -o out/mac-amd64 .
-	cd desktop && CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -H windowsgui" -o out/win-amd64.exe .
+	cd desktop && CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 go build -ldflags "-s -w -X main.version=$(VER)" -o out/mac-arm64 .
+	cd desktop && CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 go build -ldflags "-s -w -X main.version=$(VER)" -o out/mac-amd64 .
+	cd desktop && CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -H windowsgui -X main.version=$(VER)" -o out/win-amd64.exe .
 	cd desktop && $(PY) package.py
 
 ## android: imzalı APK  (Android SDK build-tools 34 + JDK 17 gerekir)

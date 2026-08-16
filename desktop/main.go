@@ -18,6 +18,10 @@ import (
 //go:embed app.html
 var page []byte
 
+// Derlemede -ldflags "-X main.version=..." ile doldurulur; macOS'ta
+// Hakkında panelinde görünür.
+var version = ""
+
 const (
 	appName  = "Dünya Dilleri Atlası"
 	dirName  = "DunyaDilleriAtlasi"

@@ -384,6 +384,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .off-chip i { width: 9px; height: 9px; border-radius: 1px; background: var(--c); flex: none; }
 .off-chip i.oth { background-image: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 3px); }
 .off-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+/* karşılaştırma: iki yer yan yana */
+.cmp { display: grid; gap: 18px; }
+@media (min-width: 760px) { .cmp { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .cmp { grid-column: 1 / 3; } }
+.cmp-side { min-width: 0; }
+.cmp-side h4 { font: 400 1.25rem/1.2 "Newsreader", Georgia, serif; margin: 0;
+  text-transform: none; letter-spacing: 0; color: var(--ink); }
+.cmp-sup { font-size: .75rem; color: var(--ink-3); margin: 2px 0 6px; }
+.cmp-side .bars { margin-top: 8px; }
 .d-note { margin-top: 9px; font-size: .8125rem; line-height: 1.45; color: var(--ink-2); }
 .d-act { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--rule);
   display: flex; flex-wrap: wrap; gap: 6px 22px; }
@@ -545,6 +554,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
             <button id="layHome" aria-pressed="true" title="Evde konuşulan dil">Ana dil</button>
             <button id="layScr" aria-pressed="false" title="Dilin yazıldığı alfabe">Yazı</button>
             <button id="layOff" aria-pressed="false" title="Devletin resmî dili">Resmî dil</button>
+            <button id="layKnow" aria-pressed="false" title="Bildiğiniz dillerle nerede anlaşabilirsiniz">Bildiğim</button>
           </div>
           <div class="seg" role="group" aria-label="Renk ölçütü" id="paintSeg">
             <button id="paintFam" aria-pressed="true" title="Ülkeleri dil ailesine göre renklendir">Aile</button>
@@ -559,6 +569,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
           <button class="tool" id="btnReset" hidden>Süzgeci kaldır</button>
           <button class="tool" id="btnTable" aria-pressed="false">Tablo</button>
           <button class="tool" id="btnLink">Bağlantı</button>
+          <button class="tool" id="btnPng" title="Görünümü PNG olarak indir">PNG</button>
+          <button class="tool" id="btnSvg" title="Görünümü SVG olarak indir">SVG</button>
           <button class="tool icon" id="btnOut" aria-label="Uzaklaş">−</button>
           <button class="tool icon" id="btnIn" aria-label="Yakınlaş">+</button>
           <button class="tool icon" id="btnFit" aria-label="Haritayı sığdır">⤢</button>
@@ -645,6 +657,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const subIds = Object.keys(SB);
   const subsOf = {};                    // ülke -> alt bölge kimlikleri
   subIds.forEach((sid) => (subsOf[SB[sid].p] = subsOf[SB[sid].p] || []).push(sid));
+  const KNOW_BINS = [5, 20, 45, 70, 90];
   const GORDER = ["rom", "ger", "ine", "trk", "afa", "nkg", "asi", "aus", "oth"];
   // Katmanlar: aynı ülkelere üç ayrı soru. Renkler ortak — katman değişince
   // gösterge de değiştiği için karışmıyor, karşılığında ikinci bir paletin
@@ -654,6 +667,23 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const SGCOL = { lat: "ger", cyr: "rom", ara: "afa", brh: "ine", sea: "asi",
                   cjk: "aus", alp: "trk", gez: "nkg", oth: "oth" };
   let layer = "home";
+  // "Bildiğim diller": seçilen dillerle bir ülkedeki kaç kişiyle
+  // anlaşılabileceği. Paylar toplanıyor ve %100'de kırpılıyor — iki dili
+  // birden bilenler iki kez sayıldığı için bu bir üst sınır.
+  const known = new Set((localStorage.getItem("wl-known") || "").split(",").filter(Boolean));
+  function reach(cid) {
+    const c = C[cid];
+    if (!c || !known.size) return 0;
+    const m = new Map((c.mix || []).map(([n, p]) => [n, p]));
+    const s2 = new Map((c.l2 || []).map(([n, p]) => [n, p]));
+    let t = 0;
+    known.forEach((slug) => {
+      const nm = LG[slug] && LG[slug].n;
+      if (!nm) return;
+      t += Math.max(m.get(nm) || 0, s2.get(nm) || 0);
+    });
+    return Math.min(100, t);
+  }
   const offOf = (id) => C[id] && C[id].o && C[id].o.length ? C[id].o[0] : null;
   // Ülkenin (ya da bölgenin) o anki katmandaki gösterge anahtarı
   function keyOf(o, cid) {
@@ -722,7 +752,16 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       keyNote: "Bir satıra tıklayarak o aileyi haritada yalnız bırakabilirsiniz.",
       languages: "Diller", sFam: "Aile", sCnt: "Ülke", sSpk: "Kişi",
       pFam: "Aile", pPct: "Yoğunluk", pPpl: "Kişi",
-      lHome: "Ana dil", lScr: "Yazı", lOff: "Resmî dil",
+      lHome: "Ana dil", lScr: "Yazı", lOff: "Resmî dil", lKnow: "Bildiğim",
+      keyKnow: "Bildiğim diller", capKnow: "Bildiğim dillerle dünya",
+      capKnowSub: (n, v) => n
+        ? `${n} dil seçili · dünyada ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2).replace(".", ",") + " milyar" : Math.round(v / 1000) + " milyon"} kişiyle anlaşılabilir`
+        : "Soldaki listeden bildiğiniz dilleri seçin.",
+      noteKnow: "Renk, o ülkede seçtiğiniz dillerden en az birini konuşan nüfusun payı — ana dil ya da ikinci dil olarak. Paylar toplandığı için iki dili birden bilenler iki kez sayılır: rakam bir üst sınırdır.",
+      noteKnowEmpty: "Soldaki dil listesinden bildiğiniz dillere tıklayın. Seçim tarayıcıda saklanır ve bağlantıya girer.",
+      knowScale: "anlaşılabilen nüfusun payı",
+      binsKnow: ["<%5", "%5–20", "%20–45", "%45–70", "%70–90", ">%90"],
+      knowLive: (n) => `${n} dil seçili.`,
       keyScr: "Yazı sistemleri", keyOff: "Resmî dilin ailesi",
       capScr: "Dünya · çoğunluğun dilinin yazısı",
       capScrSub: (n) => `${n} ülke ve bölge, ana dillerinin alfabesine göre.`,
@@ -740,6 +779,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       dAuto: "Oto", dOff: "Ülke", dOn: "Bölge",
       reset: "Süzgeci kaldır", table: "Tablo",
       link: "Bağlantı", linkOk: "Kopyalandı", linkFail: "Kopyalanamadı",
+      saved: "İndirildi", saveFail: "İndirilemedi",
+      cmpPin: (n) => `${n} ile karşılaştır →`, cmpClear: "Karşılaştırmayı iptal et",
+      cmpPinned: "Sabitlendi. Karşılaştırmak için ikinci bir yer seçin.",
+      cmpOff: "Karşılaştırma kapatıldı.", cmpEnd: "Karşılaştırmayı bitir →",
+      cmpBoth: "İki yerde de konuşulan diller", cmpNone: "Ortak dil yok.",
+      cmpNote: "Oranlar iki yerdeki payların küçük olanı: o dille kaç kişiyle anlaşılabileceğinin alt sınırı.",
+      cmpLive: (a, b) => `${a} ile ${b} karşılaştırılıyor.`,
       capAll: "Dünya · çoğunluğun konuştuğu dil",
       capAllSub: (n) => `${n} ülke ve bölge, ailelerine göre renklendirildi.`,
       countries: "Ülkeler", noHit: (q) => `“${q}” için sonuç yok.`,
@@ -789,7 +835,16 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       keyNote: "Click a row to show only that family on the map.",
       languages: "Languages", sFam: "Family", sCnt: "Countries", sSpk: "Speakers",
       pFam: "Family", pPct: "Density", pPpl: "People",
-      lHome: "Home", lScr: "Script", lOff: "Official",
+      lHome: "Home", lScr: "Script", lOff: "Official", lKnow: "I speak",
+      keyKnow: "Languages I speak", capKnow: "The world in the languages you speak",
+      capKnowSub: (n, v) => n
+        ? `${n} selected · you could talk to ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2) + " billion" : Math.round(v / 1000) + " million"} people`
+        : "Pick the languages you speak from the list on the left.",
+      noteKnow: "Colour shows the share of the population that speaks at least one of your languages — as a first or second language. Shares are added together, so people who speak two of them are counted twice: read the figure as an upper bound.",
+      noteKnowEmpty: "Click the languages you speak in the list on the left. The choice is stored in your browser and goes into the link.",
+      knowScale: "share of the population you could talk to",
+      binsKnow: ["<5%", "5–20%", "20–45%", "45–70%", "70–90%", ">90%"],
+      knowLive: (n) => `${n} languages selected.`,
       keyScr: "Writing systems", keyOff: "Family of the official language",
       capScr: "World · the script of the majority language",
       capScrSub: (n) => `${n} countries and territories, by the alphabet they write in.`,
@@ -807,6 +862,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       dAuto: "Auto", dOff: "Country", dOn: "Region",
       reset: "Clear filter", table: "Table",
       link: "Link", linkOk: "Copied", linkFail: "Copy failed",
+      saved: "Saved", saveFail: "Save failed",
+      cmpPin: (n) => `Compare with ${n} →`, cmpClear: "Cancel comparison",
+      cmpPinned: "Pinned. Pick a second place to compare.",
+      cmpOff: "Comparison cleared.", cmpEnd: "End comparison →",
+      cmpBoth: "Spoken in both", cmpNone: "No language in common.",
+      cmpNote: "Shares are the smaller of the two: a floor on how many people that language reaches in both places.",
+      cmpLive: (a, b) => `Comparing ${a} with ${b}.`,
       capAll: "World · majority language",
       capAllSub: (n) => `${n} countries and territories, coloured by family.`,
       countries: "Countries", noHit: (q) => `No results for “${q}”.`,
@@ -873,7 +935,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const scName = (k) => SCR[k] ? (ui === "en" ? SCR[k].ne : SCR[k].n) : k;
   const sc2Note = (l) => ui === "en" ? (l.s2e || l.s2n || "") : (l.s2n || "");
 
-  const state = { filter: null, sel: null, sort: "fam", q: "", table: false };
+  const state = { filter: null, sel: null, sort: "fam", q: "", table: false, cmp: null };
 
   /* --------------------------------------------------------- URL'de durum
      Bir görünümü paylaşabilmek için ne gösterildiği adres çubuğunda tutuluyor:
@@ -887,6 +949,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const p = [];
     if (ui !== "tr") p.push("l=" + ui);
     if (layer !== "home") p.push("k=" + layer);
+    if (known.size) p.push("kn=" + [...known].join("."));
     if (paint !== "fam") p.push("p=" + paint);
     if (lod !== "auto") p.push("d=" + lod);
     if (state.filter) p.push("f=" + state.filter.t + "." + state.filter.k);
@@ -1098,6 +1161,24 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   }
   function repaint() {
     const f = state.filter;
+    // "Bildiğim diller" katmanı sürekli bir ölçekle boyanıyor: aile
+    // renkleri değil, anlaşılabilen nüfusun payı.
+    if (layer === "know") {
+      const key = "know|--g-nkg";
+      if (key !== rampKey) { buildRamp("--g-nkg"); rampKey = key; }
+      const put = (n, cid) => {
+        const v = reach(cid);
+        n.style.fill = known.size ? ramp[binOf(v, KNOW_BINS)] : "";
+        n.style.fillOpacity = "";
+      };
+      svg.querySelectorAll(".cty, .dot").forEach((n) => put(n, n.dataset.id));
+      svg.querySelectorAll(".sub").forEach((n) => {
+        const sb = SB[n.dataset.sid]; if (sb) put(n, sb.p);
+      });
+      svg.classList.toggle("is-painting", known.size > 0);
+      renderScale();
+      return;
+    }
     const hue = f && f.t === "l" ? `--g-${LG[f.k].g}`
       : (f && f.t === "g" ? `--g-${layer === "scr" ? SGCOL[f.k] : f.k}` : "--g-ger");
     const key = paint + "|" + hue;
@@ -1116,6 +1197,15 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   }
   function renderScale() {
     const box = $("#scale");
+    if (layer === "know") {
+      if (!known.size) { box.hidden = true; box.innerHTML = ""; return; }
+      box.innerHTML = `<span class="scale-t">${t().knowScale}</span>` +
+        `<span class="scale-bins">` + ramp.map((c, i) =>
+          `<span class="scale-bin"><i style="background:${c}"></i><span>${t().binsKnow[i]}</span></span>`).join("") +
+        `</span>`;
+      box.hidden = false;
+      return;
+    }
     if (paint === "fam") { box.hidden = true; box.innerHTML = ""; return; }
     const f = state.filter;
     const what = f && f.t === "l" ? ln(LG[f.k]) : t().scaleWhat;
@@ -1159,7 +1249,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   function setLayer(v) {
     if (v === layer) return;
     layer = v;
-    ["home", "scr", "off"].forEach((j) => {
+    ["home", "scr", "off", "know"].forEach((j) => {
       const b = $("#lay" + j[0].toUpperCase() + j.slice(1));
       if (b) b.setAttribute("aria-pressed", String(j === v));
     });
@@ -1167,6 +1257,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     // katmanlarda karşılığı yok, o yüzden aileye dönülüyor.
     $("#paintSeg").querySelectorAll("button").forEach((b) => (b.disabled = v !== "home"));
     if (v !== "home" && paint !== "fam") setPaint("fam");
+    rampKey = "";
     applyLayer();
     renderKey();
     // Gösterge anahtarları katmanlar arasında ortak değil (aile "rom",
@@ -1175,7 +1266,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (state.sel) select(state.sel, state.selSub);
     queueHash();
   }
-  ["Home", "Scr", "Off"].forEach((k) => {
+  ["Home", "Scr", "Off", "Know"].forEach((k) => {
     $("#lay" + k).onclick = () => setLayer(k.toLowerCase());
   });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
@@ -1540,6 +1631,24 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const keyCol = (g) => col(layer === "scr" ? SGCOL[g] : g);
   const keyIsOth = (g) => (layer === "scr" ? SGCOL[g] : g) === "oth";
   function renderKey() {
+    // "Bildiğim diller" katmanında gösterge, aile listesi yerine seçilen
+    // dillerin listesi. Dizinden bir dile tıklamak onu ekler/çıkarır.
+    if (layer === "know") {
+      $("#keyTitle").textContent = t().keyKnow;
+      $("#keyRows").innerHTML = known.size
+        ? [...known].filter((k) => LG[k]).map((k) =>
+            `<button class="key-row" data-unknow="${k}" style="--c:${col(LG[k].g)}">
+               <span class="swatch ${LG[k].g === "oth" ? "oth" : ""}"></span>
+               <span class="key-name">${esc(ln(LG[k]))}</span>
+               <span class="key-count num">✕</span></button>`).join("")
+        : "";
+      $("#dist").innerHTML = "";
+      const n2 = $("#layNote");
+      n2.textContent = known.size ? t().noteKnow : t().noteKnowEmpty;
+      n2.hidden = false;
+      $("#keyNote").hidden = true;
+      return;
+    }
     countKeys();
     $("#keyRows").innerHTML = order().map((g) =>
       `<button class="key-row" data-g="${g}" aria-pressed="false" style="--c:${keyCol(g)}">
@@ -1555,9 +1664,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const ln2 = $("#layNote");
     ln2.textContent = layer === "scr" ? t().noteScr : layer === "off" ? t().noteOff : "";
     ln2.hidden = layer === "home";
+    $("#keyNote").hidden = false;
   }
   renderKey();
   $("#keyRows").addEventListener("click", (e) => {
+    const un = e.target.closest("[data-unknow]");
+    if (un) { toggleKnown(un.dataset.unknow); return; }
     const b = e.target.closest("[data-g]"); if (!b) return;
     const g = b.dataset.g;
     setFilter(state.filter && state.filter.t === "g" && state.filter.k === g ? null : { t: "g", k: g });
@@ -1603,7 +1715,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       return;
     }
     const row = (s) => {
-      const l = LG[s], on = state.filter && state.filter.t === "l" && state.filter.k === s;
+      const l = LG[s], on = layer === "know"
+        ? known.has(s)
+        : state.filter && state.filter.t === "l" && state.filter.k === s;
       return `<button class="idx-row" data-l="${s}" aria-pressed="${on}" style="--c:${col(l.g)}"
           title="${esc(spkTitle(s))}">
         <span class="idx-dot ${l.g === "oth" ? "oth" : ""}"></span>
@@ -1626,11 +1740,22 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       }).join("");
     }
   }
+  // seçilen dillerle dünyada kaç kişiyle anlaşılabilir (bin kişi)
+  function reachTotal() {
+    return Math.round(ids.reduce((a, i) => a + (C[i].pop || 0) * reach(i) / 100, 0));
+  }
+  function toggleKnown(slug) {
+    if (known.has(slug)) known.delete(slug); else known.add(slug);
+    localStorage.setItem("wl-known", [...known].join(","));
+    renderKey(); rampKey = ""; repaint(); renderIndex(); queueHash();
+    live(t().knowLive(known.size));
+  }
   idxList.addEventListener("click", (e) => {
     const c = e.target.closest("[data-c]");
     if (c) { select(c.dataset.c); focusCountry(c.dataset.c); return; }
     const b = e.target.closest("[data-l]"); if (!b) return;
     const s = b.dataset.l;
+    if (layer === "know") { toggleKnown(s); return; }
     setFilter(state.filter && state.filter.t === "l" && state.filter.k === s ? null : { t: "l", k: s });
   });
   /* ------------------------------------------------------------- sıralama grafiği */
@@ -1647,7 +1772,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     $("#rankTitle").textContent = m.h();
     $("#rankSub").textContent = m.sub();
     $("#rankRows").innerHTML = top.map((s) => {
-      const l = LG[s], on = state.filter && state.filter.t === "l" && state.filter.k === s;
+      const l = LG[s], on = layer === "know"
+        ? known.has(s)
+        : state.filter && state.filter.t === "l" && state.filter.k === s;
       return `<button class="rank-row" data-l="${s}" aria-pressed="${on}" style="--c:${col(l.g)}"
           title="${esc(spkTitle(s))}">
         <span class="rank-name">${esc(ln(l))}</span>
@@ -1667,6 +1794,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   $("#rankRows").addEventListener("click", (e) => {
     const b = e.target.closest("[data-l]"); if (!b) return;
     const s = b.dataset.l;
+    if (layer === "know") { toggleKnown(s); return; }
     setFilter(state.filter && state.filter.t === "l" && state.filter.k === s ? null : { t: "l", k: s });
   });
 
@@ -1793,9 +1921,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     btnReset.hidden = !f;
 
     if (!f) {
-      capT.textContent = layer === "scr" ? t().capScr : layer === "off" ? t().capOff : t().capAll;
+      capT.textContent = layer === "scr" ? t().capScr : layer === "off" ? t().capOff
+        : layer === "know" ? t().capKnow : t().capAll;
       capS.textContent = layer === "scr" ? t().capScrSub(ids.length)
-        : layer === "off" ? t().capOffSub(ids.length) : t().capAllSub(ids.length);
+        : layer === "off" ? t().capOffSub(ids.length)
+        : layer === "know" ? t().capKnowSub(known.size, reachTotal())
+        : t().capAllSub(ids.length);
     } else if (f.t === "l") {
       const l = LG[f.k];
       capT.innerHTML = `${esc(ln(l))} <span style="color:var(--ink-3);font-size:.8em">${esc(l.e)}</span>`;
@@ -1820,12 +1951,103 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
 
   /* ------------------------------------------------------------- detail */
   const detail = $("#detail");
+
+  // Dağılım çubukları. Nüfus açık parametre: karşılaştırma kartı da
+  // aynı çizimi kullanıyor, oradaki nüfus başka bir yerden geliyor.
+  function bars(list, hue, cap, pop) {
+    const show = cap ? list.slice(0, cap) : list;
+    const rest = list.length - show.length;
+    return `<div class="bars">` + show.map(([name, pct]) =>
+      `<div class="bar-row" style="--c:${hue}">
+         <span class="bar-name" title="${esc(tx(name))}">${esc(tx(name))}</span>
+         <span class="bar-track"><i style="width:${Math.min(100, pct)}%"></i></span>
+         <span class="bar-pct">${pc(pct)}</span>
+         <span class="bar-ppl" title="${pop ? "yaklaşık " + esc(fmtK(pop * pct / 100)) + " kişi" : ""}">${
+           pop ? fmtS(pop * pct / 100) : ""}</span>
+       </div>`).join("") + `</div>` +
+      (rest ? `<p class="d-hint">${t().more(rest, pc(show[show.length - 1][1]))}</p>` : "");
+  }
+
+  function offSection(cid) {
+    const o = C[cid], list = o.o || [];
+    if (!list.length) return "";
+    const chip = (s) => {
+      const g = LG[s] ? LG[s].g : "oth";
+      return `<button class="off-chip" data-off="${s}" style="--c:${col(g)}"
+        title="${esc(LG[s] ? lf(LG[s]) : "")}"><i class="${g === "oth" ? "oth" : ""}"></i>${
+        esc(LG[s] ? ln(LG[s]) : s)}</button>`;
+    };
+    return `<div class="d-off"><h4>${o.oj ? t().official : t().officialDe}</h4>` +
+      `<div class="off-rows">` + list.map(chip).join("") + `</div>` +
+      (o.od ? `<p class="d-hint">${t().officialDe}: ` +
+        o.od.map((s) => esc(LG[s] ? ln(LG[s]) : s)).join(", ") + `</p>` : "") +
+      (o.oj && !o.om ? "" : `<div class="off-tags">` +
+        (o.oj ? "" : `<span class="chip">${t().offNoneChip}</span>`) +
+        (o.om ? `<span class="chip chip-x">${t().offMismatch}</span>` : "") +
+      `</div>`) +
+      (offNote(o) ? `<p class="d-hint">${esc(offNote(o))}</p>` : "") +
+      `</div>`;
+  };
+
+  /* --------------------------------------------------------- karşılaştır */
+  // state.cmp: sabitlenmiş ilk yer ("<ülke>" ya da "<ülke>|<bölge>").
+  // İkinci yer seçilince kart iki sütunlu karşılaştırmaya dönüyor.
+  const cmpKey = (id, sid) => sid ? id + "|" + sid : id;
+  function cmpOf(key) {
+    const [id, sid] = key.split("|");
+    const sub = sid ? SB[sid] : null;
+    return sub
+      ? { name: sn(sub), sup: cn(C[sub.p]) + " · " + t().region, l: sub.l,
+          pop: sub.pop, mix: sub.mix, id: sub.p }
+      : { name: cn(C[id]), sup: ui === "en" ? C[id].re : C[id].r, l: C[id].l,
+          pop: C[id].pop, mix: C[id].mix || [], id: id };
+  }
+  function renderCompare(ka, kb) {
+    const A = cmpOf(ka), B = cmpOf(kb);
+    const nameOf = (row) => row[0];
+    const mapA = new Map(A.mix), mapB = new Map(B.mix);
+    // ikisinde de geçen diller, ortak payı büyükten küçüğe
+    const both = [...mapA.keys()].filter((n) => mapB.has(n))
+      .map((n) => [n, Math.min(mapA.get(n), mapB.get(n))])
+      .sort((x, y) => y[1] - x[1]);
+    const side = (X) => {
+      const l = LG[X.l];
+      return `<div class="cmp-side">` +
+        `<h4>${esc(X.name)}</h4><p class="cmp-sup">${esc(X.sup)}</p>` +
+        `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
+        `<p class="d-fam">${esc(lf(l))}${X.pop ? " · " + t().popIs(fmtK(X.pop)) : ""}</p>` +
+        bars(X.mix.slice(0, 10), col(l.g), 10, X.pop) + `</div>`;
+    };
+    detail.innerHTML =
+      `<button class="close" id="dClose" aria-label="Kapat">✕</button>` +
+      `<div class="cmp">` + side(A) + side(B) + `</div>` +
+      `<div class="d-sec"><h4>${t().cmpBoth}</h4>` +
+        (both.length
+          ? `<div class="off-rows">` + both.slice(0, 14).map(([n, p]) =>
+              `<span class="off-chip" style="--c:var(--ink-3)"><i></i>${esc(tx(n))} <b>${pc(p)}</b></span>`).join("") + `</div>`
+          : `<p class="d-hint">${t().cmpNone}</p>`) +
+        `<p class="d-hint">${t().cmpNote}</p></div>` +
+      `<div class="d-act"><button id="dCmpEnd">${t().cmpEnd}</button></div>`;
+    detail.classList.add("on");
+    $("#dClose").onclick = () => { state.cmp = null; select(null); };
+    $("#dCmpEnd").onclick = () => { state.cmp = null; select(state.sel, state.selSub); };
+    live(t().cmpLive(A.name, B.name));
+  }
+
   function select(id, sid) {
     state.sel = id; state.selSub = sid || null;
     queueHash();
     svg.querySelectorAll(".sel").forEach((n) => n.classList.remove("sel"));
     marks.innerHTML = "";
     if (!id) { detail.classList.remove("on"); return; }
+    // sabitlenmiş bir yer varsa ve başka bir yer seçildiyse karşılaştır
+    if (state.cmp && state.cmp !== cmpKey(id, sid)) {
+      nodesOf(state.cmp.split("|")[0]).forEach((n) => n.classList.add("sel"));
+      if (sid) { const n = subNode(sid); if (n) n.classList.add("sel"); }
+      else nodesOf(id).forEach((n) => n.classList.add("sel"));
+      renderCompare(state.cmp, cmpKey(id, sid));
+      return;
+    }
     const sub = sid ? SB[sid] : null;
     if (sub) { const n = subNode(sid); if (n) n.classList.add("sel"); }
     else nodesOf(id).forEach((n) => n.classList.add("sel"));
@@ -1847,40 +2069,6 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
 
     // Devletin dili: hukuken resmî diller, yoksa fiilî olan. Evin dili bu
     // listede hiç yoksa ayrıca işaretlenir — haritadaki çapraz tarama bu.
-    const offSection = (cid) => {
-      const o = C[cid], list = o.o || [];
-      if (!list.length) return "";
-      const chip = (s) => {
-        const g = LG[s] ? LG[s].g : "oth";
-        return `<button class="off-chip" data-off="${s}" style="--c:${col(g)}"
-          title="${esc(LG[s] ? lf(LG[s]) : "")}"><i class="${g === "oth" ? "oth" : ""}"></i>${
-          esc(LG[s] ? ln(LG[s]) : s)}</button>`;
-      };
-      return `<div class="d-off"><h4>${o.oj ? t().official : t().officialDe}</h4>` +
-        `<div class="off-rows">` + list.map(chip).join("") + `</div>` +
-        (o.od ? `<p class="d-hint">${t().officialDe}: ` +
-          o.od.map((s) => esc(LG[s] ? ln(LG[s]) : s)).join(", ") + `</p>` : "") +
-        (o.oj && !o.om ? "" : `<div class="off-tags">` +
-          (o.oj ? "" : `<span class="chip">${t().offNoneChip}</span>`) +
-          (o.om ? `<span class="chip chip-x">${t().offMismatch}</span>` : "") +
-        `</div>`) +
-        (offNote(o) ? `<p class="d-hint">${esc(offNote(o))}</p>` : "") +
-        `</div>`;
-    };
-    const bars = (list, hue, cap, popOverride) => {
-      const show = cap ? list.slice(0, cap) : list;
-      const rest = list.length - show.length;
-      const pop = popOverride !== undefined && popOverride !== 0 ? popOverride : c.pop;
-      return `<div class="bars">` + show.map(([name, pct]) =>
-        `<div class="bar-row" style="--c:${hue}">
-           <span class="bar-name" title="${esc(tx(name))}">${esc(tx(name))}</span>
-           <span class="bar-track"><i style="width:${Math.min(100, pct)}%"></i></span>
-           <span class="bar-pct">${pc(pct)}</span>
-           <span class="bar-ppl" title="${pop ? "yaklaşık " + esc(fmtK(pop * pct / 100)) + " kişi" : ""}">${
-             pop ? fmtS(pop * pct / 100) : ""}</span>
-         </div>`).join("") + `</div>` +
-        (rest ? `<p class="d-hint">${t().more(rest, pc(show[show.length - 1][1]))}</p>` : "");
-    };
 
     detail.innerHTML =
       `<button class="close" id="dClose" aria-label="Kapat">✕</button>` +
@@ -1906,20 +2094,27 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         // olarak giriyor ve ikinci satır açıp koca boşluklar bırakıyordu.
         offSection(id) +
       `</div>` +
-      (c.mix ? `<div class="d-sec"><h4>${t().home}</h4>${bars(c.mix, col(l.g), 12)}` +
+      (c.mix ? `<div class="d-sec"><h4>${t().home}</h4>${bars(c.mix, col(l.g), 12, c.pop)}` +
         `<p class="d-hint">${t().homeNote}</p></div>` : "") +
       (c.l2 ? `<div class="d-sec"><h4>${t().l2}</h4>` +
-        bars(c.l2, "var(--ink-3)") +
+        bars(c.l2, "var(--ink-3)", 0, c.pop) +
         `<p class="d-hint">${t().l2Note}` +
         (c.l2country ? t().l2Country(esc(cn(C[id]))) : "") + `</p></div>` : "") +
       `<div class="d-act">` +
         (c.sub ? `<button id="dUp">${esc(t().back(cn(C[id])))}</button>` : "") +
         (!c.sub && subsOf[id] ? `<button id="dSub">${esc(t().toSubs(cn(C[id])))}</button>` : "") +
         `<button id="dSame">${esc(t().showLang(ln(l), LG[c.l] ? LG[c.l].in.length : 0))}</button>` +
+        `<button id="dCmp">${esc(state.cmp ? t().cmpClear : t().cmpPin(c.sub ? sn(c) : cn(C[id])))}</button>` +
       `</div>`;
     detail.classList.add("on");
     $("#dClose").onclick = () => select(null);
     $("#dSame").onclick = () => setFilter({ t: "l", k: c.l });
+    // Sabitle: ikinci bir yer seçilince kart karşılaştırmaya döner
+    $("#dCmp").onclick = () => {
+      state.cmp = state.cmp ? null : cmpKey(id, sid);
+      select(id, sid);
+      live(state.cmp ? t().cmpPinned : t().cmpOff);
+    };
     // Resmî dil rozetine basınca o dilin resmî olduğu ülkeler süzülür
     detail.querySelectorAll("[data-off]").forEach((b) => {
       b.onclick = () => { setLayer("off"); setFilter({ t: "l", k: b.dataset.off }); };
@@ -2016,6 +2211,112 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     setTimeout(() => { btnLink.textContent = t().link; }, 1800);
   };
 
+  /* ------------------------------------------------------- dışa aktarma */
+  // O anki görünümü tek başına duran bir SVG'ye çevirir. Sayfanın stil
+  // sayfasından yalnız haritayı ilgilendiren kurallar ve kullanılan CSS
+  // değişkenleri kopyalanıyor; dosya böylece küçük ve tarayıcısız açılabilir
+  // kalıyor. Budanmış (.off) yollar hiç yazılmıyor.
+  const MAP_SEL = /^(svg|#map|\.cty|\.sub|\.sbase|\.dot|\.outer|\.inner|\.g-|\.crl|\.mism|\.sphere|\.graticule|\.orn|\.map-label|\.pin|\.sel|\.hit|\.eq)/;
+
+  function mapCSS() {
+    const out = [];
+    // kullanılan değişkenler: kök öğeden hesaplanmış hâlleriyle
+    const cs = getComputedStyle(document.documentElement);
+    const vars = ["--ocean", "--land", "--border", "--sub-line", "--ink", "--ink-2",
+                  "--ink-3", "--hatch", "--grat", "--ring", "--c-min", "--panel"]
+      .concat(GORDER.map((g) => "--g-" + g));
+    out.push(":root{" + vars.map((v) => `${v}:${cs.getPropertyValue(v).trim()}`).join(";") + "}");
+    for (const sheet of document.styleSheets) {
+      let rules;
+      try { rules = sheet.cssRules; } catch (_) { continue; }
+      for (const r of rules) {
+        if (!r.selectorText || !r.style) continue;
+        if (r.selectorText.split(",").some((s) => MAP_SEL.test(s.trim()))) out.push(r.cssText);
+      }
+    }
+    return out.join("\n");
+  }
+
+  function exportSVG() {
+    const clone = svg.cloneNode(true);
+    clone.querySelectorAll(".off").forEach((n) => n.remove());
+    clone.removeAttribute("tabindex");
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    const vbNow = svg.getAttribute("viewBox");
+    clone.setAttribute("viewBox", vbNow);
+    clone.setAttribute("width", Math.round(vb.w));
+    clone.setAttribute("height", Math.round(vb.h));
+    const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    st.textContent = mapCSS();
+    clone.insertBefore(st, clone.firstChild);
+    // deniz zemini: sayfada gövdeden geliyor, dosyada kendi dikdörtgeni olsun
+    const [x, y, w, h] = vbNow.split(/\s+/).map(Number);
+    const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("x", x); bg.setAttribute("y", y);
+    bg.setAttribute("width", w); bg.setAttribute("height", h);
+    bg.setAttribute("fill", getComputedStyle(document.documentElement)
+      .getPropertyValue("--ocean").trim() || "#0b0e13");
+    clone.insertBefore(bg, st.nextSibling);
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      new XMLSerializer().serializeToString(clone);
+  }
+
+  function fileStem() {
+    const f = state.filter;
+    const bits = ["dunya-dilleri"];
+    if (layer !== "home") bits.push(layer);
+    if (f) bits.push((f.t === "l" ? ln(LG[f.k]) : keyName(f.k)));
+    if (state.selSub) bits.push(sn(SB[state.selSub]));
+    else if (state.sel) bits.push(cn(C[state.sel]));
+    return bits.join("-").toLowerCase()
+      .replace(/[çğıöşü]/g, (c) => ({ "ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u" }[c]))
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  function save(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+  }
+
+  function flash(btn, msg, label) {
+    btn.textContent = msg; live(msg);
+    setTimeout(() => { btn.textContent = label; }, 1800);
+  }
+
+  $("#btnSvg").onclick = () => {
+    try {
+      save(new Blob([exportSVG()], { type: "image/svg+xml" }), fileStem() + ".svg");
+      flash($("#btnSvg"), t().saved, "SVG");
+    } catch (e) { flash($("#btnSvg"), t().saveFail, "SVG"); }
+  };
+
+  // PNG: SVG'yi bir görüntüye yükleyip iki kat ölçekte tuvale çiziyoruz.
+  $("#btnPng").onclick = () => {
+    const btn = $("#btnPng");
+    let url;
+    try {
+      url = URL.createObjectURL(new Blob([exportSVG()], { type: "image/svg+xml" }));
+    } catch (e) { flash(btn, t().saveFail, "PNG"); return; }
+    const img = new Image();
+    img.onload = () => {
+      const s = 2, cv = document.createElement("canvas");
+      cv.width = Math.round(vb.w * s); cv.height = Math.round(vb.h * s);
+      const cx = cv.getContext("2d");
+      cx.drawImage(img, 0, 0, cv.width, cv.height);
+      cv.toBlob((b) => {
+        URL.revokeObjectURL(url);
+        if (!b) { flash(btn, t().saveFail, "PNG"); return; }
+        save(b, fileStem() + ".png");
+        flash(btn, t().saved, "PNG");
+      }, "image/png");
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); flash(btn, t().saveFail, "PNG"); };
+    img.src = url;
+  };
+
   /* ------------------------------------------------- tema ve arayüz dili */
   let FOOT_TR = null;
   let theme = localStorage.getItem("wl-theme") || "auto";
@@ -2038,7 +2339,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     set("#idxTitle", t().languages);
     set("#sortFam", t().sFam); set("#sortCnt", t().sCnt); set("#sortSpk", t().sSpk);
     set("#paintFam", t().pFam); set("#paintPct", t().pPct); set("#paintPpl", t().pPpl);
-    set("#layHome", t().lHome); set("#layScr", t().lScr); set("#layOff", t().lOff);
+    set("#layHome", t().lHome); set("#layScr", t().lScr);
+    set("#layOff", t().lOff); set("#layKnow", t().lKnow);
     set("#lodAuto", t().dAuto); set("#lodOff", t().dOff); set("#lodOn", t().dOn);
     set("#rankSpk", t().rankSpk); set("#rankAll", t().rankAll); set("#rankCnt", t().rankCnt);
     set("#btnReset", t().reset); set("#btnTable", t().table); set("#btnLink", t().link);
@@ -2078,7 +2380,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     hashLock = true;
     try {
       if (T[h.l] && h.l !== ui) { ui = h.l; applyUi(); }
-      if (["home", "scr", "off"].includes(h.k)) setLayer(h.k);
+      if (h.kn) {
+        known.clear();
+        h.kn.split(".").filter((k) => LG[k]).forEach((k) => known.add(k));
+        localStorage.setItem("wl-known", [...known].join(","));
+      }
+      if (["home", "scr", "off", "know"].includes(h.k)) setLayer(h.k);
       if (["fam", "pct", "ppl"].includes(h.p)) setPaint(h.p);
       if (["auto", "off", "on"].includes(h.d)) setLodMode(h.d);
       if (h.f) {

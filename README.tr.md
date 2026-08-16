@@ -22,7 +22,7 @@ Arayüz **Türkçe ve İngilizce**; tema **otomatik, açık veya koyu** seçileb
 | | |
 |---|---|
 | **234** | ülke ve bağımlı bölge |
-| **219** | dil (121'i bir ülkede çoğunluk, 85'i yalnızca bölge düzeyinde, 13'ü yalnız resmî) |
+| **270** | dil (121'i bir ülkede çoğunluk, 136'sı yalnızca bölge düzeyinde, 13'ü yalnız resmî) |
 | **1.100+** | ülke × dil satırı — her ülkede evde konuşulan dillerin dağılımı |
 | **507** | eyalet / il / kanton (18 ülkede) |
 | **30** | yazı sistemi, dillerin kendi adlarından çıkarıldı |
@@ -126,6 +126,32 @@ dili ilk kez soran 2022 sayımından.
 
 ![Rusya'nın federal özneleri](docs/img/desktop-russia.png)
 
+### İki yeri karşılaştırma
+
+Bir ülke seçip **"… ile karşılaştır"** düğmesine basıyorsunuz; ikinci bir yer
+seçilince kart iki sütuna dönüyor ve iki dağılım yan yana geliyor. Altta
+**iki yerde de konuşulan diller** listeleniyor, her biri iki paydan küçüğüyle —
+yani o dille kaç kişiyle anlaşılabileceğinin alt sınırıyla. Ülkeler kadar
+bölgeler de karşılaştırılabiliyor: Tataristan ile Çuvaşistan, Québec ile Ontario.
+
+### Bildiğim dillerle dünya
+
+Dördüncü bir katman: **Bildiğim**. Listeden bildiğiniz dilleri seçiyorsunuz,
+harita her ülkeyi o dillerden en az birini konuşan nüfusun payıyla boyuyor —
+ana dil ya da ikinci dil olarak. Türkçe ile İngilizce ≈1,81 milyar kişi ediyor.
+Seçim tarayıcıda saklanıyor ve bağlantıya giriyor (`#k=know&kn=tr.en`).
+
+Paylar toplanıp %100'de kırpılıyor: iki dili birden bilenler iki kez sayıldığı
+için rakam bir üst sınır — panelde de böyle yazıyor.
+
+### Görünümü indirme
+
+**PNG** ve **SVG** düğmeleri o anki görünümü — yakınlık, katman, süzgeç, seçim —
+tek dosya olarak indiriyor. SVG tek başına duruyor: sayfanın stil sayfasından
+yalnız haritayı ilgilendiren kurallar kopyalanıyor, budanmış yollar hiç
+yazılmıyor. Dosya adı görünümden türetiliyor. Telefonda ikisi de katman
+menüsünde.
+
 ### Renkler
 
 Lejantta dokuz satır var: sekiz dil ailesi rengi ve nötr bir "diğer". Palet elle
@@ -143,7 +169,7 @@ bir ton olmak yerine fazladan bir bilgi taşıyor.
 ### İki dil, üç tema
 
 Arayüz dili Türkçe ve İngilizce arasında geçiş yapar — yalnızca menüler değil,
-219 dilin adı, 44 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
+270 dilin adı, 55 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
 notu, kıtalar ve sayı biçimi de çevrilir (1,2 milyar ↔ 1.2 billion). Tema
 sistemi izler ama elle açık/koyu da seçilebilir; seçim tarayıcıda saklanır.
 Bu depo da iki dilde: bu sayfanın İngilizcesi [README.md](README.md).
@@ -166,7 +192,7 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.7.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.8.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|

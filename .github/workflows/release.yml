@@ -50,6 +50,23 @@ jobs:
           tiffutil -cathidpicheck bg-1x.png bg-2x.png -out background.tiff
           ls -la background.tiff
 
+      # Mac'e erişimimiz olmadığı için menü çubuğu ancak burada
+      # doğrulanabiliyor: betik "dump" kipinde menüyü kurup yazdırıyor.
+      # Uygulama menüsünün başlığı çalışan paketin adından geliyor;
+      # osascript'in içinde koştuğumuz için orada "osascript" yazıyordu.
+      - name: menü çubuğunu doğrula
+        run: |
+          set -euo pipefail
+          OUT=$(/usr/bin/osascript -l JavaScript desktop/atlas.jxa \
+                  /dev/null "" "$(tr -d '[:space:]' < VERSION)" dump)
+          echo "$OUT"
+          echo "$OUT" | grep -q "paket adı: Dünya Dilleri Atlası" \
+            || { echo "HATA: uygulama menüsü hâlâ osascript adını taşıyor"; exit 1; }
+          for m in Dosya Düzen Görünüm Pencere; do
+            echo "$OUT" | grep -q "^$m:" || { echo "HATA: $m menüsü yok"; exit 1; }
+          done
+          echo "$OUT" | grep -q "Hakkında" || { echo "HATA: Hakkında yok"; exit 1; }
+
       - name: disk imajı
         run: |
           set -euo pipefail

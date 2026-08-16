@@ -425,6 +425,7 @@ body.zoomed .orn { opacity: 0; }
     <button data-lay="home" aria-pressed="true">Ana dil</button>
     <button data-lay="scr" aria-pressed="false">Yazı</button>
     <button data-lay="off" aria-pressed="false">Resmî dil</button>
+    <button data-lay="know" aria-pressed="false">Bildiğim</button>
   </div>
   <div id="popKey"></div>
   <p class="pop-t">Renk ölçütü</p>
@@ -446,6 +447,11 @@ body.zoomed .orn { opacity: 0; }
     <button data-theme="auto" aria-pressed="true">Oto</button>
     <button data-theme="light">Açık</button>
     <button data-theme="dark">Koyu</button>
+  </div>
+  <p class="pop-t">Dışa aktar</p>
+  <div class="seg" role="group" aria-label="Dışa aktar">
+    <button data-exp="png">PNG</button>
+    <button data-exp="svg">SVG</button>
   </div>
   <p class="pop-t" id="popLangT">Dil · Language</p>
   <div class="seg" role="group" aria-label="Dil">
@@ -484,6 +490,22 @@ body.zoomed .orn { opacity: 0; }
   const SGCOL = { lat: "ger", cyr: "rom", ara: "afa", brh: "ine", sea: "asi",
                   cjk: "aus", alp: "trk", gez: "nkg", oth: "oth" };
   const offOf = (cid) => C[cid] && C[cid].o && C[cid].o.length ? C[cid].o[0] : null;
+  // "Bildiğim diller": seçilen dillerle bir ülkedeki kaç kişiyle
+  // anlaşılabileceği. Paylar toplanıp %100'de kırpılıyor (üst sınır).
+  const KNOW_BINS = [5, 20, 45, 70, 90];
+  const known = new Set((localStorage.getItem("wl-known") || "").split(",").filter(Boolean));
+  function reach(cid) {
+    const c = C[cid];
+    if (!c || !known.size) return 0;
+    const m = new Map((c.mix || []).map(([n, q]) => [n, q]));
+    const s2 = new Map((c.l2 || []).map(([n, q]) => [n, q]));
+    let t2 = 0;
+    known.forEach((slug) => {
+      const nm = LG[slug] && LG[slug].n;
+      if (nm) t2 += Math.max(m.get(nm) || 0, s2.get(nm) || 0);
+    });
+    return Math.min(100, t2);
+  }
   function keyOf(o, cid) {
     if (state.layer === "scr") {
       const l = LG[o.l];
@@ -536,6 +558,7 @@ body.zoomed .orn { opacity: 0; }
       title: "Dünya dilleri", sub: (n) => `${n} ülke · çoğunluğun konuştuğu dil`,
       subScr: (n) => `${n} ülke · çoğunluğun dilinin yazısı`,
       subOff: (n) => `${n} ülke · devletin resmî dili`,
+      subKnow: (n) => n ? `${n} dil seçili · anlaşabileceğiniz yerler` : "Bildiğiniz dilleri seçin",
       search: "Dil veya ülke ara", countries: "Ülkeler", languages: "Diller",
       nLangs: (n) => `${n} dil`, bySpk: "Konuşan sayısı", byCnt: "Ülke sayısı",
       noHit: (q) => `“${q}” için sonuç yok`, cnt: (n) => `${n} ülke`,
@@ -554,6 +577,9 @@ body.zoomed .orn { opacity: 0; }
       native: (v) => `ana dili ${v} kişi`,
       paint: "Renk ölçütü", pFam: "Aile", pPct: "Yoğunluk", pPpl: "Kişi",
       layerT: "Katman", lHome: "Ana dil", lScr: "Yazı", lOff: "Resmî dil",
+      lKnow: "Bildiğim", saved: "İndirildi", saveFail: "İndirilemedi",
+      noteKnow: "Renk, seçtiğiniz dillerden en az birini konuşan nüfusun payı. Paylar toplandığı için bu bir üst sınır.",
+      noteKnowEmpty: "Aşağıdaki dil listesinden bildiğiniz dillere dokunun.",
       noteScr: "Yazı dilin değil devletin ve tarihin seçimi: Türkçe, Vietnamca ve Endonezce akraba değil ama üçü de Latin yazıyor.",
       noteOff: "Renk devletin resmî dilinin ailesini gösteriyor. Çapraz taranan ülkelerde evin dili resmî listede hiç yok.",
       script: "Yazı sistemi",
@@ -571,6 +597,7 @@ body.zoomed .orn { opacity: 0; }
       title: "World languages", sub: (n) => `${n} countries · majority language`,
       subScr: (n) => `${n} countries · the script of the majority language`,
       subOff: (n) => `${n} countries · the state's official language`,
+      subKnow: (n) => n ? `${n} selected · where you could get by` : "Pick the languages you speak",
       search: "Search a language or country", countries: "Countries", languages: "Languages",
       nLangs: (n) => `${n} languages`, bySpk: "Speakers", byCnt: "Countries",
       noHit: (q) => `No results for “${q}”`, cnt: (n) => `${n} countries`,
@@ -589,6 +616,9 @@ body.zoomed .orn { opacity: 0; }
       native: (v) => `${v} native speakers`,
       paint: "Colour by", pFam: "Family", pPct: "Density", pPpl: "People",
       layerT: "Layer", lHome: "Home", lScr: "Script", lOff: "Official",
+      lKnow: "I speak", saved: "Saved", saveFail: "Save failed",
+      noteKnow: "Colour shows the share of the population that speaks at least one of your languages. Shares are added, so read it as an upper bound.",
+      noteKnowEmpty: "Tap the languages you speak in the list below.",
       noteScr: "A script is chosen by states and by history, not by the language: Turkish, Vietnamese and Indonesian are unrelated yet all write in Latin.",
       noteOff: "Colour shows the family of the state's official language. In the cross-hatched countries the home language is not official at all.",
       script: "Writing system",
@@ -617,8 +647,9 @@ body.zoomed .orn { opacity: 0; }
   const tx = (n) => ui === "en" ? (TX[n] || n) : n;           // dağılımdaki dil adı
   const noteOf = (c) => ui === "en" ? (c.note_en || "") : (c.note || "");
   const offNote = (c) => ui === "en" ? (c.on_en || "") : (c.on || "");
-  const capSub = () => (state.layer === "scr" ? t().subScr
-    : state.layer === "off" ? t().subOff : t().sub)(ids.length);
+  const capSub = () => state.layer === "know"
+    ? t().subKnow(known.size)
+    : (state.layer === "scr" ? t().subScr : state.layer === "off" ? t().subOff : t().sub)(ids.length);
   const scName = (k) => SCR[k] ? (ui === "en" ? SCR[k].ne : SCR[k].n) : k;
   const sc2Note = (l) => ui === "en" ? (l.s2e || l.s2n || "") : (l.s2n || "");
 
@@ -634,6 +665,7 @@ body.zoomed .orn { opacity: 0; }
     const p = [];
     if (ui !== "tr") p.push("l=" + ui);
     if (state.layer !== "home") p.push("k=" + state.layer);
+    if (known.size) p.push("kn=" + [...known].join("."));
     if (state.paint !== "fam") p.push("p=" + state.paint);
     if (state.lod !== "auto") p.push("d=" + state.lod);
     if (state.filter) p.push("f=" + state.filter.t + "." + state.filter.k);
@@ -1136,6 +1168,20 @@ body.zoomed .orn { opacity: 0; }
       : binOf(o.pop ? o.pop * v / 100 : 0, PPL_BINS)];
   }
   function repaint() {
+    // "Bildiğim diller" katmanı sürekli ölçekle boyanıyor
+    if (state.layer === "know") {
+      if (rampKey !== "know") { buildRamp("--g-nkg"); rampKey = "know"; }
+      const put = (n, cid) => {
+        n.style.fill = known.size ? ramp[binOf(reach(cid), KNOW_BINS)] : "";
+        n.style.fillOpacity = "";
+      };
+      svg.querySelectorAll(".cty, .dot").forEach((n) => put(n, n.dataset.id));
+      svg.querySelectorAll(".sub").forEach((n) => {
+        const sb = SB[n.dataset.sid]; if (sb) put(n, sb.p);
+      });
+      svg.querySelectorAll(".sbase").forEach((n) => put(n, n.dataset.id));
+      return;
+    }
     const f = state.filter;
     const hue = f && f.t === "l" ? `--g-${LG[f.k].g}` : (f && f.t === "g" ? `--g-${f.k}` : "--g-ger");
     const key = state.paint + "|" + hue;
@@ -1365,6 +1411,16 @@ body.zoomed .orn { opacity: 0; }
   const keyCol = (g) => col(state.layer === "scr" ? SGCOL[g] : g);
   const keyIsOth = (g) => (state.layer === "scr" ? SGCOL[g] : g) === "oth";
   function keyHTML() {
+    if (state.layer === "know") {
+      const rows = [...known].filter((k) => LG[k]).map((k) =>
+        `<button class="chip" data-unknow="${k}" style="--c:${col(LG[k].g)}">${
+          esc(ln(LG[k]))} ✕</button>`).join("");
+      return (rows ? `<div class="chips" style="margin-top:4px">${rows}</div>` : "") +
+        `<p class="pop-n">${known.size ? t().noteKnow : t().noteKnowEmpty}</p>` +
+        (known.size ? `<div class="scale"><span>${t().scaleLo}</span>` +
+          ramp.map((c) => `<i style="background:${c}"></i>`).join("") +
+          `<span>${t().scaleHi}</span></div>` : "");
+    }
     if (state.layer === "home") return "";
     const n = {};
     ids.forEach((i) => { const k = keyOf(C[i], i); n[k] = (n[k] || 0) + 1; });
@@ -1387,12 +1443,90 @@ body.zoomed .orn { opacity: 0; }
       if (s) reclass(n, s, s.p);
     });
   }
+  function toggleKnown(slug) {
+    if (known.has(slug)) known.delete(slug); else known.add(slug);
+    localStorage.setItem("wl-known", [...known].join(","));
+    rampKey = ""; repaint(); syncPop(); render(); queueHash();
+  }
+
+  // Dışa aktarma: o anki görünümü tek başına duran bir SVG'ye çevirip
+  // indiriyor; PNG için aynı SVG iki kat ölçekte tuvale çiziliyor.
+  const MAP_SEL = /^(svg|#map|\.cty|\.sub|\.sbase|\.dot|\.outer|\.inner|\.g-|\.crl|\.mism|\.sphere|\.graticule|\.orn|\.map-label|\.hitdot|\.sel|\.hit)/;
+  function mapCSS() {
+    const cs = getComputedStyle(document.documentElement);
+    const vars = ["--ocean", "--land", "--border", "--sub-line", "--ink", "--ink-2",
+                  "--ink-3", "--hatch", "--grat", "--c-min"].concat(GORDER.map((g) => "--g-" + g));
+    const out = [":root{" + vars.map((v) => `${v}:${cs.getPropertyValue(v).trim()}`).join(";") + "}"];
+    for (const sheet of document.styleSheets) {
+      let rules; try { rules = sheet.cssRules; } catch (_) { continue; }
+      for (const r of rules) {
+        if (!r.selectorText || !r.style) continue;
+        if (r.selectorText.split(",").some((x) => MAP_SEL.test(x.trim()))) out.push(r.cssText);
+      }
+    }
+    return out.join("\n");
+  }
+  function exportSVG() {
+    const clone = svg.cloneNode(true);
+    clone.querySelectorAll(".off").forEach((n) => n.remove());
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("width", Math.round(vb.w));
+    clone.setAttribute("height", Math.round(vb.h));
+    const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    st.textContent = mapCSS();
+    clone.insertBefore(st, clone.firstChild);
+    const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("x", vb.x); bg.setAttribute("y", vb.y);
+    bg.setAttribute("width", vb.w); bg.setAttribute("height", vb.h);
+    bg.setAttribute("fill", getComputedStyle(document.documentElement)
+      .getPropertyValue("--ocean").trim() || "#0b0e13");
+    clone.insertBefore(bg, st.nextSibling);
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      new XMLSerializer().serializeToString(clone);
+  }
+  function saveBlob(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+  }
+  function exportMap(kind, btn) {
+    const label = btn.textContent;
+    const done = (ok) => {
+      btn.textContent = ok ? t().saved : t().saveFail;
+      setTimeout(() => { btn.textContent = label; }, 1800);
+    };
+    let svgText;
+    try { svgText = exportSVG(); } catch (e) { done(false); return; }
+    if (kind === "svg") {
+      try { saveBlob(new Blob([svgText], { type: "image/svg+xml" }), "dunya-dilleri.svg"); done(true); }
+      catch (e) { done(false); }
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([svgText], { type: "image/svg+xml" }));
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement("canvas");
+      cv.width = Math.round(vb.w * 2); cv.height = Math.round(vb.h * 2);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      cv.toBlob((bl) => {
+        URL.revokeObjectURL(url);
+        if (!bl) { done(false); return; }
+        saveBlob(bl, "dunya-dilleri.png"); done(true);
+      }, "image/png");
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); done(false); };
+    img.src = url;
+  }
+
   function setLayer(v) {
     if (v === state.layer) return;
     state.layer = v;
     // Yoğunluk ve kişi boyaması evdeki dilin payını anlatıyor; öbür
     // katmanlarda karşılığı yok.
-    if (v !== "home" && state.paint !== "fam") { state.paint = "fam"; rampKey = ""; }
+    if (v !== "home" && state.paint !== "fam") state.paint = "fam";
+    rampKey = "";
     applyLayer();
     // Gösterge anahtarları katmanlar arasında ortak değil.
     setFilter(state.filter && state.filter.t === "g" ? null : state.filter);
@@ -1514,7 +1648,7 @@ body.zoomed .orn { opacity: 0; }
     P[2].textContent = t().detail; P[3].textContent = t().theme;
     $("#popNote").textContent = t().lodNote;
     const lbl = [["[data-lay='home']", t().lHome], ["[data-lay='scr']", t().lScr],
-                 ["[data-lay='off']", t().lOff],
+                 ["[data-lay='off']", t().lOff], ["[data-lay='know']", t().lKnow],
                  ["[data-paint='fam']", t().pFam], ["[data-paint='pct']", t().pPct],
                  ["[data-paint='ppl']", t().pPpl], ["[data-lod='auto']", t().dAuto],
                  ["[data-lod='off']", t().dOff], ["[data-lod='on']", t().dOn],
@@ -1524,9 +1658,11 @@ body.zoomed .orn { opacity: 0; }
   }
   $("#btnLayers").onclick = () => setPop(pop.hidden);
   pop.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-lay],[data-paint],[data-lod],[data-theme],[data-ui]");
+    const b = e.target.closest("[data-lay],[data-exp],[data-unknow],[data-paint],[data-lod],[data-theme],[data-ui]");
     if (!b) return;
     const d = b.dataset;
+    if (d.exp) { exportMap(d.exp, b); return; }
+    if (d.unknow) { toggleKnown(d.unknow); return; }
     if (d.lay) { setLayer(d.lay); }
     else if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); queueHash(); }
     else if (d.lod) { state.lod = d.lod; applyLod(); queueHash(); }
@@ -1568,6 +1704,7 @@ body.zoomed .orn { opacity: 0; }
     if (d.sub) { state.lod = "on"; applyLod(); focusCountry(d.sub); syncPop(); return; }
     if (d.close) { select(null); setDetent("peek"); return; }
     if (d.l) {
+      if (state.layer === "know") { toggleKnown(d.l); return; }
       const same = state.filter && state.filter.t === "l" && state.filter.k === d.l;
       setFilter(same ? null : { t: "l", k: d.l });
       if (!same) setDetent("peek");
@@ -1657,7 +1794,12 @@ body.zoomed .orn { opacity: 0; }
     hashLock = true;
     try {
       if (T[h.l] && h.l !== ui) setUi(h.l);
-      if (["home", "scr", "off"].includes(h.k)) setLayer(h.k);
+      if (h.kn) {
+        known.clear();
+        h.kn.split(".").filter((k) => LG[k]).forEach((k) => known.add(k));
+        localStorage.setItem("wl-known", [...known].join(","));
+      }
+      if (["home", "scr", "off", "know"].includes(h.k)) setLayer(h.k);
       if (["fam", "pct", "ppl"].includes(h.p)) { state.paint = h.p; rampKey = ""; repaint(); }
       if (["auto", "off", "on"].includes(h.d)) { state.lod = h.d; applyLod(); }
       if (h.f) {

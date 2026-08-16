@@ -10,6 +10,80 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.8.0 — 16 Ağustos 2026
+
+### 0,94 milyar kişinin dili görünmüyordu
+
+0.7.0'ı yazarken not ettiğim eksik, bakınca sandığımdan çok daha büyük
+çıktı. Dağılım tablolarında satırı olan ama dil tablosunda karşılığı
+bulunmayan **186 dil** vardı; eşleşmeyen satır sessizce düşüyordu ve
+düşenlerin toplamı **0,94 milyar kişiydi**. En büyükleri Cava dili
+(90 milyon), Wu Çincesi (85), Bhojpuri (74), Yorubaca (48), Lingala (44),
+Oromoca (44), Sunda dili (42), Sindhi (40).
+
+İki ayrı sorun çıktı. Bir kısmı gerçekten kayıtsızdı; bir kısmı ise
+**aynı dilin iki yazımıydı** — tablolar yıllar içinde farklı adlarla
+yazılmış: "Vu Çincesi" ile "Wu Çincesi", "Yoruba" ile "Yorubaca",
+"Tayvanca (Hokkien)" ile "Min Çincesi", "Fulfulde" ve "Pulaar" ile
+"Fulaca". Bunlar için bir takma ad tablosu kuruldu.
+
+2 milyondan çok konuşanı olan 63 dilin hepsi kaydedildi; düşen 0,94
+milyardan geriye **0,057 milyar** kaldı (89 küçük dil, en büyüğü
+2 milyon). Dil sayısı **219'dan 270'e**, aile etiketi 54'ten 55'e çıktı;
+ana dili sayılan nüfus 7,19 milyardan **7,98 milyara**.
+
+### Karşılaştırma
+
+Ülke kartındaki **"… ile karşılaştır"** düğmesi bir yeri sabitliyor;
+ikinci bir yer seçilince kart iki sütuna dönüyor. Altta **iki yerde de
+konuşulan diller** listeleniyor, oranlar iki paydan küçüğü — yani o dille
+kaç kişiyle anlaşılabileceğinin alt sınırı. Türkiye ile Almanya'yı
+karşılaştırınca ortak liste Türkçe %2, Kürtçe %1,2, Arapça %1,2 çıkıyor.
+Ülkeler kadar bölgeler de karşılaştırılabiliyor — Tataristan ile
+Çuvaşistan, Québec ile Ontario.
+
+### Bildiğim diller
+
+Dördüncü bir katman: **Bildiğim**. Dil listesinden bildiğiniz dilleri
+seçiyorsunuz, harita her ülkeyi o dillerden en az birini konuşan nüfusun
+payıyla boyuyor — ana dil ya da ikinci dil olarak. Türkçe + İngilizce
+seçince dünyada ≈1,81 milyar kişi çıkıyor. Seçim tarayıcıda saklanıyor ve
+bağlantıya giriyor (`#k=know&kn=tr.en`), yani paylaşılabiliyor.
+
+Paylar toplanıp %100'de kırpılıyor: iki dili birden bilenler iki kez
+sayıldığı için rakam bir üst sınır. Bu kartta ve göstergede yazıyor.
+
+### PNG ve SVG olarak indirme
+
+Üst çubuğa **PNG** ve **SVG** düğmeleri geldi; o anki görünüm — yakınlık,
+katman, süzgeç, seçim — tek dosya olarak iniyor. SVG tek başına duruyor:
+sayfanın stil sayfasından yalnız haritayı ilgilendiren kurallar ve
+kullanılan renkler içine kopyalanıyor, budanmış yollar hiç yazılmıyor.
+Dosya adı görünümden türetiliyor (`dunya-dilleri-off-french.svg`).
+Telefonda ikisi de katman menüsünde.
+
+### macOS menü çubuğu
+
+Uygulamanın menü çubuğunda ad olarak **"osascript"** yazıyordu ve
+Hakkında, Dosya, Görünüm menüleri hiç yoktu. Sebebi: uygulama menüsünün
+başlığı `NSMenuItem`'dan değil çalışan sürecin paket adından geliyor,
+pencere de osascript'in içinde açılıyor. Paket sözlüğündeki ad artık
+açılışta değiştiriliyor.
+
+Menü de tamamlandı: **Hakkında** (sürüm numarasıyla), Gizle / Diğerlerini
+Gizle / Tümünü Göster, **Dosya** (bağlantıyı kopyala, pencereyi kapat),
+**Düzen** (geri al, kes, kopyala, yapıştır, tümünü seç), **Görünüm**
+(yakınlaş, uzaklaş, sığdır, tabloyu aç/kapat, tam ekran), **Pencere**.
+Görünüm menüsü sayfanın kendi düğmelerini tetikliyor, yani menü ile araç
+çubuğu aynı işi yapıyor. "Çık" artık kendi seçicisini kullanıyor: eskiden
+macOS başlığı "Quit and Keep Windows" diye değiştiriyordu, üstelik
+İngilizce.
+
+Mac'e erişimim olmadığı için bunu körlemesine göndermek istemedim:
+betiğe menüyü kurup yazdıran bir denetim kipi eklendi ve yayım iş akışı
+bunu **macOS koşucusunda çalıştırıp** paket adının ve beş menünün
+yerinde olduğunu doğruluyor. Doğrulama düşerse sürüm yayımlanmıyor.
+
 ## v0.7.0 — 16 Ağustos 2026
 
 **Bölge verisi 12 ülkeden 18'e, 313 bölgeden 507'ye çıktı.** Haritanın en

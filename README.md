@@ -23,11 +23,12 @@ system or can be set to **light or dark** by hand.
 | | |
 |---|---|
 | **234** | countries and dependent territories |
-| **219** | languages (121 are a majority somewhere, 85 only at region level, 13 official only) |
+| **270** | languages (121 are a majority somewhere, 136 only at region level, 13 official only) |
 | **1,100+** | country × language rows — the home-language breakdown of every country |
 | **507** | states / provinces / cantons (in 18 countries) |
 | **30** | writing systems, derived from the languages' own names for themselves |
 | **8.09 billion** | people covered |
+| **7.98 billion** | counted under a named first language |
 
 The map answers four questions:
 
@@ -129,6 +130,33 @@ census, the first to ask which language a household speaks.
 
 ![Russia's federal subjects](docs/img/desktop-russia.png)
 
+### Compare two places
+
+Pick a country and press **Compare with …**; choose a second place and the card
+splits into two columns with both distributions side by side. Underneath,
+**spoken in both** lists the languages they share, each at the smaller of the two
+shares — a floor on how many people that language reaches in both. Regions work
+as well as countries: Tatarstan against Chuvashia, Québec against Ontario.
+
+### The world in the languages you speak
+
+A fourth layer, **I speak**. Tick the languages you know in the list and the map
+colours every country by the share of its population that speaks at least one of
+them, as a first or second language. Turkish plus English comes to roughly 1.81
+billion people. The choice is stored in your browser and travels in the link
+(`#k=know&kn=tr.en`), so it can be shared.
+
+Shares are added and capped at 100%, so people who speak two of your languages
+are counted twice — the figure is an upper bound, and the panel says so.
+
+### Download the view
+
+**PNG** and **SVG** buttons put the current view — zoom, layer, filter,
+selection — into a single file. The SVG stands on its own: only the rules that
+concern the map are copied out of the page's stylesheet, and culled paths are
+never written. The filename is derived from what is on screen
+(`dunya-dilleri-off-french.svg`). Both are in the layer menu on the phone.
+
 ### Colours
 
 Nine legend entries: eight language-family colours plus a neutral "other". The
@@ -161,7 +189,7 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.7.0** — get it from the
+Latest release **v0.8.0** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 
