@@ -10,6 +10,17 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.9.1 — 16 Ağustos 2026
+
+Tablo açıkken harita alanı gizleniyor; tam ekran düğmesi de o sırada
+görünmüyor. Ama macOS menüsündeki **Yalnız Harita (⇧⌘F)** düğmeye doğrudan
+basıyor, yani menüden girilince ekranı boş bir okyanus kaplıyordu. Tam ekran
+artık her zaman önce tabloyu kapatıyor.
+
+Pencere yeniden boyutlandırılınca harita gereksiz yere yeniden çiziliyor ve
+adres çubuğuna yazılıyordu; bu iş yalnız tam ekranda gerekli, orada
+sarmalayıcının ölçüsünü biz veriyoruz.
+
 ## v0.9.0 — 16 Ağustos 2026
 
 **Masaüstü arayüzü elden geçti.** Denetimler haritanın üstüne taşındı,

@@ -240,10 +240,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    kalıyor; buzlu cam yalnızca haritanın üstündeki yüzeylerde, çünkü orada
    altındaki renkli alanın görünmesi işe yarıyor — panelin nereye denk
    geldiği anlaşılıyor. */
-.hud {
-  position: absolute; inset: 0; pointer-events: none;
-  font-size: .75rem;
-}
+.hud { position: absolute; inset: 0; font-size: .75rem; }
 .hud > * { position: absolute; }
 /* Yalnız gerçekten bir şey çizen kutular tıklamayı yakalasın: panel sütunu
    çubuktan geniş, boş kalan yanı haritanın olmalı. */
@@ -281,7 +278,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .hud .bar { display: flex; align-items: center; gap: 2px; padding: 3px; max-width: 100%; flex-wrap: wrap; }
 .hud .stack { display: flex; flex-direction: column; padding: 3px; }
-.hud .stack + .stack { margin-top: 0; }
 .gbtn {
   padding: 6px 11px; border-radius: 9px; color: var(--ink-2); white-space: nowrap;
   font-size: .75rem; line-height: 1.25;
@@ -1741,6 +1737,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   }
   function setFs(on) {
     if (on === fsOn) return;
+    // Tablo açıkken harita gizli; tam ekrana o hâlde girilirse boş bir
+    // kaplama çıkardı. Tam ekran her zaman haritayı gösterir.
+    if (on && state.table) setTable(false);
     fsOn = on;
     area.classList.toggle("fs", on);
     document.body.classList.toggle("fs-on", on);
@@ -1774,7 +1773,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   document.addEventListener("fullscreenchange", () => {
     if (!document.fullscreenElement && fsOn && area.classList.contains("fs")) setFs(false);
   });
-  addEventListener("resize", sizeFs);
+  // Yalnız tam ekranda gerekli: sarmalayıcının ölçüsünü orada biz veriyoruz.
+  addEventListener("resize", () => { if (fsOn) sizeFs(); });
   addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (!SHEETS.every((s) => $("#" + s).hidden)) { closeSheets(); return; }
