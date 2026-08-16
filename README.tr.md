@@ -53,7 +53,8 @@ kademede görünür.
 
 ### İki katman daha
 
-Üst çubuktaki **Katman** düğmesi aynı ülkelere iki soru daha soruyor.
+Haritanın üstündeki **Görünüm** yaprağındaki **Katman** seçenekleri aynı
+ülkelere iki soru daha soruyor.
 
 **Yazı** — o dil hangi alfabeyle yazılıyor? Aile haritasının söylemediği bir şey
 söylüyor: Türkçe, Vietnamca ve Endonezce akraba değil ama üçü de Latin yazıyor;
@@ -150,13 +151,39 @@ konuşulur" ayrı sorular.
 Pay kipinde paylar toplanıp %100'de kırpılıyor: iki dili birden bilenler iki kez
 sayıldığı için rakam bir üst sınır — panelde de böyle yazıyor.
 
+Bir ülkenin üstünde durunca halkın yüzde kaçıyla anlaşabileceğiniz, kaç kişiye
+denk geldiği ve bu paya en çok katkı veren üç dil yazıyor. Ölçek kırmızıdan
+yeşile gidiyor; komşu kutuların en küçük farkı üç renk körlüğü türünde de
+ΔE 9,5 (CIEDE2000).
+
+![Bildiğim dillerle dünya](docs/img/desktop-know.png)
+
 ### Görünümü indirme
 
-**PNG** ve **SVG** düğmeleri o anki görünümü — yakınlık, katman, süzgeç, seçim —
+**Paylaş** yaprağındaki **PNG** ve **SVG** düğmeleri o anki görünümü — yakınlık, katman, süzgeç, seçim —
 tek dosya olarak indiriyor. SVG tek başına duruyor: sayfanın stil sayfasından
 yalnız haritayı ilgilendiren kurallar kopyalanıyor, budanmış yollar hiç
 yazılmıyor. Dosya adı görünümden türetiliyor. Telefonda ikisi de katman
 menüsünde.
+
+### Denetimler ve tam ekran
+
+Harita kipleri başlık şeridini doldurmuyor: haritanın üstünde yüzen üç düğmelik
+bir cam çubuk var — **Görünüm**, **Tablo**, **Paylaş**. Katman, renk ve ayrıntı
+seçenekleri Görünüm yaprağında gruplanmış, her grubun ne yaptığını anlatan birer
+satırla. Karşı köşede yakınlaştırma yığını, altında paneli diğer yana alan
+düğme (⇄) ve tam ekran (⛶).
+
+**Tam ekran** haritayı görünümün tamamına açıyor; sayfa, kenar çubuğu ve kartlar
+kalkıyor, denetimler haritanın üstünde kalıyor. Fullscreen API varsa gerçek tam
+ekrana geçiliyor, yoksa sabit konumlu bir kaplamaya düşülüyor. macOS
+uygulamasında Görünüm menüsünde **Yalnız Harita (⇧⌘F)** olarak da var.
+
+Yüzen yüzeyler buzlu cam. `backdrop-filter` desteklenmiyorsa ya da işletim
+sistemi ayarında saydamlık kapalıysa düz panel rengine düşüyor: okunurluk
+camdan önce geliyor.
+
+![Tam ekran harita](docs/img/desktop-fullscreen.png)
 
 ### Renkler
 
@@ -198,7 +225,7 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.8.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.9.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|

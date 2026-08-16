@@ -10,6 +10,78 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.9.0 — 16 Ağustos 2026
+
+**Masaüstü arayüzü elden geçti.** Denetimler haritanın üstüne taşındı,
+tam ekran kipi eklendi, "Bildiğim diller" katmanının rengi ve ipucu
+yeniden yapıldı.
+
+### Başlık şeridi on altı düğme taşıyordu
+
+Dört katman, üç boyama, üç ayrıntı düzeyi, süzgeci kaldır, tablo,
+bağlantı, PNG, SVG ve üç yakınlaştırma — hepsi tek bir sırada yan yana.
+Her yeni harita kipi bunu biraz daha karıştırdı.
+
+Şeritte artık yalnız başlık var. Haritanın sol üstünde üç düğmelik bir cam
+çubuk duruyor: **Görünüm**, **Tablo**, **Paylaş** (süzgeç açıkken bir de
+"Süzgeci kaldır"). Katman, renk ve ayrıntı seçenekleri Görünüm yaprağında
+gruplanmış, her grubun ne işe yaradığını anlatan birer satırla. Dışa
+aktarma Paylaş yaprağında. Karşı köşede yakınlaştırma yığını.
+
+### Tam ekran
+
+Harita bazen ekranda küçük kalıyordu. **⛶** düğmesi haritayı görünümün
+tamamına açıyor — sayfa, kenar çubuğu, kartlar kalkıyor. Fullscreen API
+varsa gerçek tam ekrana geçiliyor (tarayıcı çerçevesi de kalkıyor),
+yoksa sabit konumlu bir kaplamaya düşülüyor. Denetimler zaten haritanın
+içinde olduğu için iki kipte de aynı yerleşim geçerli. macOS uygulamasında
+Görünüm menüsünde **Yalnız Harita (⇧⌘F)** olarak da var.
+
+**Paneller sol ya da sağ kenarda durabiliyor** (⇄), seçim tarayıcıda
+saklanıyor.
+
+Yüzen yüzeyler buzlu cam — altındaki harita sızıyor, böylece panelin
+nereye denk geldiği görünüyor. `backdrop-filter` desteklenmiyorsa ya da
+kullanıcı saydamsızlık istiyorsa düz panel rengine düşüyor: okunurluk
+her durumda camdan önce geliyor. Sayfanın geri kalanı eskisi gibi düz ve
+keskin.
+
+### "Bildiğim diller": ipucunda yüzde, yeni renk şeridi
+
+Bir ülkenin üstünde dururken artık **halkın yüzde kaçıyla
+anlaşabileceğiniz**, kaç kişiye denk geldiği ve bu paya en çok katkı veren
+üç dil yazıyor.
+
+Renk şeridi de değişti. Eskisi tek tonun koyudan açığa gitmesiydi; komşu
+kutular arasındaki en küçük CIEDE2000 farkı **4,5** idi, yani Çin ile
+Afganistan ayırt edilemiyordu. Yenisi kırmızıdan yeşile gidiyor ve en kötü
+komşu farkı **9,5** — normal görme ve üç renk körlüğü türünün hepsinde
+ölçüldü. Düz kırmızı–yeşil şerit de denendi ama protanopide fark **1,1**'e
+düşüyor, uçlar arasında yalnız 3,1 kalıyordu; onun yerine parlaklığı da tek
+yönlü artan, OKLCH'te aranmış düzgün bir eğri kullanıldı (uçlar arası
+50,7–77,3).
+
+### macOS "Hakkında" penceresi
+
+Telif satırı yoktu ve uygulamanın simgesi yerine genel bir klasör
+görüntüsü çıkıyordu. Artık **© 2026 Crude** yazıyor, uygulamanın kendi
+simgesi görünüyor ve sürümün yanındaki parantez kalktı — oraya
+osascript'in derleme numarası sızıyordu. Yayım iş akışı bu üçünü de
+gerçek macOS koşucusunda doğruluyor.
+
+### Yol boyunca çıkan hatalar
+
+- Tablo açılınca harita alanı tümden gizleniyordu; denetimler oraya
+  taşınınca tabloyu kapatan düğme de kayboluyordu.
+- İpucu kapalıyken yalnız saydamlığı sıfırlanıyordu; kutu yerleşimde
+  kalıyor ve pencere daraltılınca sayfayı yana taşırıyordu.
+- `hover()` içinde yerel bir değişken dil sözlüğü erişimcisini
+  gölgeliyordu.
+- Bölge verisi olan ülke sayısı üç yerde hâlâ 12 yazıyordu; 0.7.0'da 18
+  olmuştu.
+
+Telefon arayüzü bu sürümde değişmedi.
+
 ## v0.8.0 — 16 Ağustos 2026
 
 ### 0,94 milyar kişinin dili görünmüyordu

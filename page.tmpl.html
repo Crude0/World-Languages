@@ -28,7 +28,7 @@ __FONTS__
   --on-color: #ffffff;
   /* Haritanın üstünde yüzen yüzeyler: altındaki renk sızsın diye yarı
      saydam, ama yazı okunabilsin diye yeterince kapaklı. */
-  --glass:        rgba(251,251,250,.72);
+  --glass:        rgba(251,251,250,.80);
   --glass-hi:     rgba(23,26,32,.06);
   --glass-line:   rgba(23,26,32,.12);
   --glass-shadow: 0 1px 2px rgba(20,24,32,.10), 0 12px 32px -14px rgba(20,24,32,.42);
@@ -55,7 +55,7 @@ __FONTS__
     --border:   rgba(0,0,0,.66);
     --sub-line: rgba(255,255,255,.58);
     --on-color: #0b0d11;
-    --glass:        rgba(25,28,35,.72);
+    --glass:        rgba(25,28,35,.78);
     --glass-hi:     rgba(236,238,242,.09);
     --glass-line:   rgba(236,238,242,.14);
     --glass-shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 34px -14px rgba(0,0,0,.8);
@@ -82,7 +82,7 @@ __FONTS__
   --border:   rgba(0,0,0,.66);
   --sub-line: rgba(255,255,255,.58);
   --on-color: #0b0d11;
-  --glass:        rgba(25,28,35,.72);
+  --glass:        rgba(25,28,35,.78);
   --glass-hi:     rgba(236,238,242,.09);
   --glass-line:   rgba(236,238,242,.14);
   --glass-shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 34px -14px rgba(0,0,0,.8);
@@ -253,8 +253,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .glass {
   background: var(--glass); border: 1px solid var(--glass-line);
   border-radius: 12px; box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass { background: var(--panel); }

@@ -55,7 +55,8 @@ lightest of all.
 
 ### Two more layers
 
-The **Layer** control asks the same countries two further questions.
+The **Layer** options in the **View** sheet, floating over the map, ask the
+same countries two further questions.
 
 **Script** — which alphabet is the language written in? It says something the
 family map does not: Turkish, Vietnamese and Indonesian are unrelated yet all
@@ -157,13 +158,39 @@ In share mode the shares are added and capped at 100%, so people who speak two o
 your languages are counted twice — the figure is an upper bound, and the panel
 says so.
 
+Hovering a country tells you what share of its population you could talk to, how
+many people that is, and the three languages contributing most. The scale runs
+red to green; the smallest gap between neighbouring bins is ΔE 9.5 (CIEDE2000),
+under all three kinds of colour blindness as well as normal vision.
+
+![The world in the languages you speak](docs/img/desktop-know.png)
+
 ### Download the view
 
-**PNG** and **SVG** buttons put the current view — zoom, layer, filter,
+The **PNG** and **SVG** buttons in the **Share** sheet put the current view — zoom, layer, filter,
 selection — into a single file. The SVG stands on its own: only the rules that
 concern the map are copied out of the page's stylesheet, and culled paths are
 never written. The filename is derived from what is on screen
 (`dunya-dilleri-off-french.svg`). Both are in the layer menu on the phone.
+
+### Controls and full screen
+
+Map modes do not crowd the title bar: a three-button glass bar floats over the
+map — **View**, **Table**, **Share**. Layer, colour and detail live in the View
+sheet, grouped, each group with a line saying what it does. The zoom stack sits
+in the opposite corner, with buttons to move the panels to the other side (⇄)
+and to go full screen (⛶).
+
+**Full screen** hands the whole viewport to the map: page, sidebar and cards go
+away, the controls stay because they are already on the map. It uses the
+Fullscreen API where available and falls back to a fixed overlay where it is
+not. The macOS app has it in the View menu as **Map Only (⇧⌘F)**.
+
+Floating surfaces are frosted glass. Where `backdrop-filter` is unsupported, or
+the system asks for reduced transparency, they fall back to a solid panel
+colour: legibility comes before the material.
+
+![Full-screen map](docs/img/desktop-fullscreen.png)
 
 ### Colours
 
@@ -197,7 +224,7 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.8.0** — get it from the
+Latest release **v0.9.0** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 
