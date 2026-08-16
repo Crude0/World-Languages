@@ -1,10 +1,4 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Dünya Dilleri</title><meta name="color-scheme" content="light dark"><style>*,*::before,*::after{box-sizing:border-box}</style><link rel="manifest" href="manifest-mobile.webmanifest">
-<link rel="icon" href="icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef0f3">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101318">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head><body><style>
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Dünya Dilleri</title><meta name="color-scheme" content="light dark"><style>*,*::before,*::after{box-sizing:border-box}</style></head><body><style>
 /* ============================================================ temel ===== */
 :root {
   /* İki temayı da desteklediğimizi bildirmezsek Android WebView sayfayı kendi
@@ -621,6 +615,7 @@ body.zoomed .orn { opacity: 0; }
       kmShare: "Pay", kmHome: "Ana dil",
       noteHome: "Yalnız seçtiğiniz dillerin evde konuşulan çoğunluk dili olduğu ülkeler yanıyor; öbürleri sönük.",
       noteKnow: "Renk, seçtiğiniz dillerden en az birini konuşan nüfusun payı. Paylar toplandığı için bu bir üst sınır.",
+      exportT: "Dışa aktar",
       tipKnow: (p) => `halkın ${p}’i ile anlaşabilirsiniz`,
       tipKnowNone: "bildiğiniz diller burada kayda değer değil",
       noteKnowEmpty: "Aşağıdaki dil listesinden bildiğiniz dillere dokunun.",
@@ -665,6 +660,7 @@ body.zoomed .orn { opacity: 0; }
       kmShare: "Share", kmHome: "Home language",
       noteHome: "Only countries where one of your languages is the majority language spoken at home are lit; the rest are dimmed.",
       noteKnow: "Colour shows the share of the population that speaks at least one of your languages. Shares are added, so read it as an upper bound.",
+      exportT: "Export",
       tipKnow: (p) => `you could talk to ${p} of the population`,
       tipKnowNone: "none of your languages registers here",
       noteKnowEmpty: "Tap the languages you speak in the list below.",
@@ -1771,6 +1767,7 @@ body.zoomed .orn { opacity: 0; }
     const P = pop.querySelectorAll(".pop-t");
     P[0].textContent = t().layerT; P[1].textContent = t().paint;
     P[2].textContent = t().detail; P[3].textContent = t().theme;
+    if (P[4]) P[4].textContent = t().exportT;   // atlanmıştı: İngilizce arayüzde Türkçe kalıyordu
     $("#popNote").textContent = t().lodNote;
     const lbl = [["[data-lay='home']", t().lHome], ["[data-lay='scr']", t().lScr],
                  ["[data-lay='off']", t().lOff], ["[data-lay='know']", t().lKnow],
@@ -1962,10 +1959,4 @@ body.zoomed .orn { opacity: 0; }
   setTimeout(() => { buildGeo(); applyGeoLod(); }, 0);
 })();
 </script>
-<script>
-// Hizmet çalışanı yalnızca http(s) altında anlamlı; dosyadan açılan kopyada
-// kayıt zaten başarısız olur, boş yere denemiyoruz.
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
-}
-</script></body></html>
+</body></html>
