@@ -366,6 +366,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .chip-s { margin-top: 0; vertical-align: baseline; }
 .chip-x { border-color: var(--ink-3); color: var(--ink); }
+/* Resmî dil bloğu ana sütunun içinde, ince bir çizgiyle ayrılmış */
+.d-off { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); }
+.d-off h4 {
+  font-family: inherit; font-size: .6875rem; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3); margin: 0;
+}
+.d-off .d-hint { margin-top: 6px; }
 /* resmî dil rozetleri */
 .off-rows { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
 .off-chip {
@@ -378,8 +385,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .off-chip i.oth { background-image: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 3px); }
 .off-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .d-note { margin-top: 9px; font-size: .8125rem; line-height: 1.45; color: var(--ink-2); }
-.d-act { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--rule); }
-@media (min-width: 900px) { .d-act { grid-column: 1; } }
+.d-act { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--rule);
+  display: flex; flex-wrap: wrap; gap: 6px 22px; }
+/* Eylem bağlantıları ızgaranın son satırında, bütün sütunları kaplar. Tek
+   sütuna sıkışınca en uzun sütunun altını bekliyor ve arada boşluk kalıyordu. */
+@media (min-width: 900px) { .d-act { grid-column: 1 / -1; } }
 .d-act button { font-size: .8125rem; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule-2); }
 .d-act button:hover { text-decoration-color: var(--ink); }
 
@@ -1846,14 +1856,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
           title="${esc(LG[s] ? lf(LG[s]) : "")}"><i class="${g === "oth" ? "oth" : ""}"></i>${
           esc(LG[s] ? ln(LG[s]) : s)}</button>`;
       };
-      return `<div class="d-sec"><h4>${o.oj ? t().official : t().officialDe}</h4>` +
+      return `<div class="d-off"><h4>${o.oj ? t().official : t().officialDe}</h4>` +
         `<div class="off-rows">` + list.map(chip).join("") + `</div>` +
         (o.od ? `<p class="d-hint">${t().officialDe}: ` +
           o.od.map((s) => esc(LG[s] ? ln(LG[s]) : s)).join(", ") + `</p>` : "") +
-        `<div class="off-tags">` +
+        (o.oj && !o.om ? "" : `<div class="off-tags">` +
           (o.oj ? "" : `<span class="chip">${t().offNoneChip}</span>`) +
           (o.om ? `<span class="chip chip-x">${t().offMismatch}</span>` : "") +
-        `</div>` +
+        `</div>`) +
         (offNote(o) ? `<p class="d-hint">${esc(offNote(o))}</p>` : "") +
         `</div>`;
     };
@@ -1891,8 +1901,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
          </div>` +
         (c.m ? "" : `<span class="chip">${t().noMajChip}</span>`) +
         (noteOf(C[id]) ? `<p class="d-note">${esc(noteOf(C[id]))}</p>` : "") +
+        // Resmî dil ülkenin kimlik bilgisi; iki büyük dağılım tablosunun
+        // yanında ayrı bir sütun olarak durursa ızgaraya dördüncü öğe
+        // olarak giriyor ve ikinci satır açıp koca boşluklar bırakıyordu.
+        offSection(id) +
       `</div>` +
-      offSection(id) +
       (c.mix ? `<div class="d-sec"><h4>${t().home}</h4>${bars(c.mix, col(l.g), 12)}` +
         `<p class="d-hint">${t().homeNote}</p></div>` : "") +
       (c.l2 ? `<div class="d-sec"><h4>${t().l2}</h4>` +

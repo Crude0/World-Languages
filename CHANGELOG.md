@@ -10,6 +10,23 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.6.1 — 15 Ağustos 2026
+
+**Ülke kartındaki boşluklar.** 0.6.0'da resmî dil bölümü kartın üç sütunlu
+ızgarasına dördüncü öğe olarak girdi; ızgara ikinci satır açtı ve tek rozetlik
+bir bölüm koca bir sütun kapladı. Resmî dil zaten ülkenin kimlik bilgisi —
+aile ve yazı sistemi satırlarının olduğu ana sütuna, ince bir çizgiyle ayrılmış
+olarak taşındı. Kart yeniden üç sütun.
+
+Bunu düzeltirken **0.6.0'dan eski bir boşluk** da kapandı: eylem bağlantıları
+("Türkiye'yi bölgelere ayır", "… konuşulan ülkeleri göster") ızgaranın birinci
+sütununa sıkışıyor, dolayısıyla en uzun sütunun altını bekliyordu — Türkiye
+kartında arada 205 piksel boşluk kalıyordu. Artık son satırda, bütün sütunları
+kaplayacak şekilde yan yana duruyorlar. Türkiye kartı 840 pikselden 467'ye indi.
+
+Bir de gereksiz bir kutu kalktı: resmî dili hukuken ilan edilmiş ve evin diliyle
+uyuşan ülkelerde artık boş bir rozet satırı çizilmiyor.
+
 ## v0.6.0 — 15 Ağustos 2026
 
 **İki yeni harita katmanı.** Harita bugüne kadar tek bir soruyu yanıtlıyordu:
