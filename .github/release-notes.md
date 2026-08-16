@@ -1,57 +1,42 @@
-<!-- title: Panning got 20× cheaper -->
-### Panning: 774 ms of raster down to 39 ms
+<!-- title: The phone gets the same fix -->
+### Same cause on the phone, same fix
 
-Panning in full screen, zoomed into Europe with regions on, stuttered badly. My
-first measurement was wrong: a frame counter reported 60 fps in every case,
-which proves nothing — `requestAnimationFrame` keeps ticking even when raster
-cannot keep up. Measuring rasterisation through the tracing API, for a
-one-second drag:
+The stutter on the phone came from the same place as on the desktop. Measured
+(Pixel 7, Europe, region mode, one-second drag): **398 ms of raster over 613
+tasks**; turning off every stroke gave 371 ms, so it is not the strokes there
+either.
 
-```
-full screen, Europe, regions   raster 774 ms / 1465 tasks
-windowed                       raster 389 ms /  600 tasks
-all strokes off                raster 779 ms      ← no change
-hatch patterns flat            raster 804 ms      ← no change
-device pixel ratio 1           raster 794 ms      ← no change
-```
+The gesture buffer is now on the phone too: **398 → 80–88 ms** (613 → ~275
+tasks), consistent over three runs. The margin is 0.28; 0.5, 0.8 and 1.1 were
+measured as well and were no better (81 / 88 / 90 ms).
 
-Not the strokes — the 0.4.0 stroke work holds. The cost is tile count: changing
-`viewBox` every frame invalidates the whole layer, so every tile is
-re-rasterised, and doubling the area doubles the work.
+Porting it surfaced a bug. The phone's drag took its scale from
+`svg.getBoundingClientRect()`. Because the buffer draws the SVG larger than the
+visible area, that scale shrank and the map lagged behind the finger — 116
+pixels of movement for 180 pixels of drag, exactly the buffer ratio. It now
+measures `#stage`, which is what the comment in that code already said it
+should do. Deviation after a drag is **0.000**.
 
-The gesture now freezes `viewBox` and translates the layer with a CSS
-transform. This was tried once and reverted, because the compositor can only
-move pixels it has already drawn and the trailing edge went blank. The
-difference: the map is now drawn **28% beyond the visible area on every side**,
-and the buffer is redrawn once when that margin runs out.
+### "I speak" comes to the phone
 
-```
-full screen, Europe, regions   774 → 39 ms   (1465 → 56 tasks)
-windowed                       389 → 20 ms
-```
+The new red-to-green scale (worst neighbouring gap ΔE 9.5) is used on the phone
+as well; the old one was a single hue. With no cursor there, the place card does
+what the desktop tooltip does: the share of the population you could talk to,
+how many people that is, and the three languages contributing most.
 
-Correctness was checked separately: after a drag longer than the margin the
-`viewBox` deviates by **0.000** map units, the set of culled paths and hit tests
-at five points are identical to the unbuffered path, and every inline style is
-cleaned up when the gesture ends. No blank edge mid-gesture.
+The border dissolve comes from the data, so it applies on the phone too: the UK
+4, France 18, Spain 19, Türkiye 81.
 
-### Borders are drawn at the level the data exists
+### Two desktop fixes
 
-France has data per région, not per département — but the map drew every
-département boundary, so it looked as though you could pick Manchester by hand,
-while hovering said "England". The same in Spain, Italy and the UK.
+**The card ends where its text ends.** In 0.10.0 I had it fill the column, so a
+short card left the glass box running on into empty space. It is now as tall as
+its content, capping and scrolling when it does not fit (Belarus: 702 px box for
+700 px of content; India: 779 px box for 1050 px of content).
 
-The border network now compares the *data units* on either side of an edge
-rather than the administrative units in the source file: if both sides fall in
-the same unit, the edge is not drawn at all. The inner border network went from
-**11,883 points to 9,445**, and from 126 buckets to 99.
-
-The UK becomes its four nations, France its 18 régions, Spain its 19 autonomous
-communities, Italy its 20 regions. Türkiye's 81 provinces, Germany's 16 states
-and Russia's 83 federal subjects are unchanged — the data is already at that
-level there.
-
-### The country card in full screen
-
-It now stretches to the bottom of the panel column instead of scrolling inside
-a fixed box, stopping above the scale strip when that is visible.
+**The glass drops its blur during a gesture.** While panning, the glass showed a
+stale image that took seconds to catch up. That was a side effect of 0.10.0: the
+map is now moved by the compositor and not re-rasterised, so the source that
+`backdrop-filter` samples was not refreshing either. The blur now turns off for
+the duration of the gesture and settles when it ends — which is what the phone
+interface already did.

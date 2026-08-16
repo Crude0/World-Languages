@@ -10,6 +10,48 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.11.0 — 16 Ağustos 2026
+
+### Telefonda da aynı sebep, aynı çözüm
+
+Telefondaki kasma masaüstündekiyle aynı kaynaktanmış. Ölçüldü (Pixel 7,
+Avrupa, bölge kipi, 1 sn kaydırma): **398 ms raster / 613 iş**; bütün
+konturları kapatmak 371 ms, yani orada da kontur değil.
+
+Jest tamponu telefona da taşındı: **398 → 80–88 ms** (613 → ~275 iş), üç
+koşuda tutarlı. Tampon payı 0,28; 0,5 / 0,8 / 1,1 de denendi, daha iyisini
+vermedi (81 / 88 / 90 ms).
+
+Taşırken bir hata çıktı: mobil sürükleme ölçeğini `svg.getBoundingClientRect()`
+üzerinden alıyordu. Tampon SVG'yi görünenden büyük çizdiği için ölçek küçülüyor
+ve harita parmaktan yavaş kayıyordu — 180 pikselde 116 piksel, tam olarak
+tampon oranı kadar. Ölçü artık `#stage`ten; koddaki yorum da zaten bunu
+söylüyordu ama satır öyle yapmıyormuş. Sürükleme sonrası sapma **0,000**.
+
+### "Bildiğim diller" telefona geldi
+
+Yeni kırmızı–yeşil şerit (komşu kutular arası en kötü fark ΔE 9,5) telefonda
+da kullanılıyor; eskisi tek tonluydu. Telefonda imleç olmadığı için
+masaüstündeki ipucunun işini yer kartı yapıyor: halkın yüzde kaçıyla
+anlaşılabileceği, kaç kişi ettiği ve paya en çok katkı veren üç dil.
+
+Bölge birleştirmesi veriden geldiği için telefonda da geçerli: Birleşik
+Krallık 4, Fransa 18, İspanya 19, Türkiye 81.
+
+### Masaüstünde iki düzeltme
+
+**Kart metnin bittiği yerde bitiyor.** 0.10.0'da kartı sütunu dolduracak
+şekilde ayarlamıştım; içerik kısa olunca cam kutu boş boş devam ediyordu.
+Artık içeriği kadar uzun, sığmazsa tavana dayanıp kendi içinde kayıyor
+(Belarus 702 px kutu / 700 px içerik; Hindistan 779 px kutu / 1050 px içerik).
+
+**Cam jest boyunca bulanıklığı bırakıyor.** Kaydırırken cam, arkasındakine
+uyum sağlaması saniyeler süren bayat bir görüntü gösteriyordu. Sebebi 0.10.0'ın
+yan etkisi: harita artık compositor'la kaydırılıyor ve yeniden rasterize
+edilmiyor, dolayısıyla `backdrop-filter`ın kaynağı da tazelenmiyor. Jest
+boyunca bulanıklık kapanıyor, bitince yerine oturuyor — telefon arayüzü bunu
+zaten böyle yapıyordu.
+
 ## v0.10.0 — 16 Ağustos 2026
 
 ### Kaydırma: 774 ms rasterden 39 ms'ye

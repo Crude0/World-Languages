@@ -103,8 +103,10 @@ body.busy #map { shape-rendering: optimizeSpeed; }
 body.busy .sheet { transition: none; }
 
 /* ============================================================ harita ==== */
-#stage { position: fixed; inset: 0; background: var(--ocean); }
+#stage { position: fixed; inset: 0; background: var(--ocean); overflow: hidden; }
 #map { display: block; width: 100%; height: 100%; touch-action: none; }
+/* Kaydırma compositor'da kalsın diye jest boyunca kendi katmanına alınıyor */
+body.busy #map { will-change: transform; }
 .sphere { fill: var(--ocean); }
 
 /* kenar süslemeleri */
@@ -342,6 +344,10 @@ body.zoomed .orn { opacity: 0; }
 .bar-t { grid-column: 1 / -1; height: 7px; border-radius: 4px; background: var(--rule); overflow: hidden; }
 .bar-t i { display: block; height: 100%; background: var(--c); border-radius: 4px; }
 .note { margin: 10px 0 0; font-size: .8125rem; color: var(--ink-3); }
+/* "Bildiğim diller" kipinde yer kartının yüzde satırı */
+.know-line { color: var(--ink); display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; }
+.know-line i { width: 10px; height: 10px; border-radius: 2px; align-self: center; flex: none; }
+.know-line span { flex: 1 1 100%; color: var(--ink-3); font-size: .75rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
 .chip {
   display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 11px;
@@ -499,10 +505,34 @@ body.zoomed .orn { opacity: 0; }
   // "Bildiğim diller": seçilen dillerle bir ülkedeki kaç kişiyle
   // anlaşılabileceği. Paylar toplanıp %100'de kırpılıyor (üst sınır).
   const KNOW_BINS = [5, 20, 45, 70, 90];
+  // "Bildiğim diller" şeridi: kırmızıdan yeşile. Eskisi tek tonun koyudan
+  // açığa gitmesiydi ve komşu kutuların en küçük CIEDE2000 farkı 4,5'ti —
+  // Çin ile Afganistan ayırt edilemiyordu. Bu şeritte en kötü komşu farkı
+  // 9,5; normal görme ve üç renk körlüğü türünün hepsinde ölçüldü.
+  const KNOW_RAMP = ["#752110", "#8d4700", "#9c6f08", "#a29738", "#9fc06b", "#95e8a7"];
   const known = new Set((localStorage.getItem("wl-known") || "").split(",").filter(Boolean));
   // İki okuma biçimi: pay (nüfusun oranı) ve yalnız evin dili olduğu yerler.
   let knowMode = localStorage.getItem("wl-knowmode") === "home" ? "home" : "share";
   const speaksHome = (o) => !!(o && known.has(o.l));
+  // Masaüstünde bu bilgiyi fare ipucu veriyor; telefonda imleç yok, o yüzden
+  // yer kartında duruyor: halkın yüzde kaçıyla anlaşılabileceği, kaç kişi
+  // ettiği ve paya en çok katkı veren üç dil.
+  function knowLine(cid, c) {
+    if (state.layer !== "know" || !known.size || knowMode === "home") return "";
+    const v = reach(cid);
+    const m = new Map((c.mix || []).map(([n, q]) => [n, q]));
+    const s2 = new Map((c.l2 || []).map(([n, q]) => [n, q]));
+    const rows = [...known].filter((k) => LG[k])
+      .map((k) => [LG[k], Math.max(m.get(LG[k].n) || 0, s2.get(LG[k].n) || 0)])
+      .filter(([, q]) => q > 0).sort((x, y) => y[1] - x[1]);
+    const top = rows.length
+      ? rows.slice(0, 3).map(([l, q]) => `${esc(ln(l))} ${pc(q)}`).join(" · ")
+      : t().tipKnowNone;
+    return `<p class="note know-line"><i style="background:${KNOW_RAMP[binOf(v, KNOW_BINS)]}"></i>` +
+      `<b>${t().tipKnow(pc(Math.round(v * 10) / 10))}</b>` +
+      (c.pop ? ` · ≈ ${fmtK(c.pop * v / 100)} / ${fmtK(c.pop)}` : "") +
+      `<span>${top}</span></p>`;
+  }
   function reach(cid) {
     const c = C[cid];
     if (!c || !known.size) return 0;
@@ -591,6 +621,8 @@ body.zoomed .orn { opacity: 0; }
       kmShare: "Pay", kmHome: "Ana dil",
       noteHome: "Yalnız seçtiğiniz dillerin evde konuşulan çoğunluk dili olduğu ülkeler yanıyor; öbürleri sönük.",
       noteKnow: "Renk, seçtiğiniz dillerden en az birini konuşan nüfusun payı. Paylar toplandığı için bu bir üst sınır.",
+      tipKnow: (p) => `halkın ${p}’i ile anlaşabilirsiniz`,
+      tipKnowNone: "bildiğiniz diller burada kayda değer değil",
       noteKnowEmpty: "Aşağıdaki dil listesinden bildiğiniz dillere dokunun.",
       noteScr: "Yazı dilin değil devletin ve tarihin seçimi: Türkçe, Vietnamca ve Endonezce akraba değil ama üçü de Latin yazıyor.",
       noteOff: "Renk devletin resmî dilinin ailesini gösteriyor. Çapraz taranan ülkelerde evin dili resmî listede hiç yok.",
@@ -633,6 +665,8 @@ body.zoomed .orn { opacity: 0; }
       kmShare: "Share", kmHome: "Home language",
       noteHome: "Only countries where one of your languages is the majority language spoken at home are lit; the rest are dimmed.",
       noteKnow: "Colour shows the share of the population that speaks at least one of your languages. Shares are added, so read it as an upper bound.",
+      tipKnow: (p) => `you could talk to ${p} of the population`,
+      tipKnowNone: "none of your languages registers here",
       noteKnowEmpty: "Tap the languages you speak in the list below.",
       noteScr: "A script is chosen by states and by history, not by the language: Turkish, Vietnamese and Indonesian are unrelated yet all write in Latin.",
       noteOff: "Colour shows the family of the state's official language. In the cross-hatched countries the home language is not official at all.",
@@ -831,8 +865,59 @@ body.zoomed .orn { opacity: 0; }
                                : Math.min(H + PAD - vb.h, Math.max(-PAD, vb.y));
   }
   function applyVB() {                      // kareye bir kez uygula
+    if (buf) endBuffer();
     if (raf) return;
     raf = requestAnimationFrame(() => { raf = 0; commitVB(); });
+  }
+
+  /* ------------------------------------------------- jest tamponu
+     Masaüstünde ölçülen sorun burada da aynen var: viewBox her karede
+     değişince katmanın tamamı geçersizleşiyor ve her karo yeniden
+     rasterize ediliyor. Telefonda ölçüldü (Avrupa, bölge kipi, 1 sn
+     kaydırma): 398 ms raster / 613 iş; konturların hepsini kapatmak
+     371 ms, yani kontur değil.
+
+     Jest boyunca viewBox donduruluyor, katman CSS dönüşümüyle
+     kaydırılıyor. Görünenin her kenarından %28 fazlası çizildiği için
+     kaydırılan yönde boşluk kalmıyor; pay tükenince tampon yenileniyor. */
+  const BUFPAD = 0.28;
+  let buf = null;
+  function beginBuffer() {
+    if (buf) return;
+    const r = mapRect();
+    if (!r.width || !r.height) return;
+    const mx = Math.round(r.width * BUFPAD), my = Math.round(r.height * BUFPAD);
+    const sc = vb.w / r.width;
+    buf = { x: vb.x - mx * sc, y: vb.y - my * sc,
+            w: vb.w + 2 * mx * sc, h: vb.h + 2 * my * sc,
+            mx, my, sc, ox: vb.x, oy: vb.y };
+    svg.style.position = "absolute";
+    svg.style.left = -mx + "px";
+    svg.style.top = -my + "px";
+    svg.style.width = (r.width + 2 * mx) + "px";
+    svg.style.height = (r.height + 2 * my) + "px";
+    svg.setAttribute("viewBox",
+      `${buf.x.toFixed(2)} ${buf.y.toFixed(2)} ${buf.w.toFixed(2)} ${buf.h.toFixed(2)}`);
+    cull(buf);
+  }
+  function panBuffer() {
+    if (!buf) { applyVB(); return; }
+    clampVB();
+    const dx = (buf.ox - vb.x) / buf.sc, dy = (buf.oy - vb.y) / buf.sc;
+    if (Math.abs(dx) > buf.mx || Math.abs(dy) > buf.my) {
+      endBuffer(); beginBuffer(); panBuffer();
+      return;
+    }
+    svg.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`;
+  }
+  function endBuffer() {
+    if (!buf) return;
+    buf = null;
+    svg.style.transform = "";
+    svg.style.position = ""; svg.style.left = ""; svg.style.top = "";
+    svg.style.width = ""; svg.style.height = "";
+    rectCache = null;
+    commitVB();
   }
   /* ------------------------------------------------- görüş alanı budaması
      Ekranın dışında kalan yolu çizdirmenin anlamı yok. Sınırlayıcı kutular
@@ -853,10 +938,13 @@ body.zoomed .orn { opacity: 0; }
       } catch (_) { /* çizilmemiş yol */ }
     });
   }
-  function cull() {
+  // win verilirse ona göre budanır: jest tamponu görünenden geniş çiziliyor,
+  // görünür kutuya göre budarsak kaydırınca kenarda delik kalır.
+  function cull(win) {
     if (!cullList) buildCull();
-    const m = vb.w * 0.08;                       // küçük pay: kenarda pop olmasın
-    const x0 = vb.x - m, y0 = vb.y - m, x1 = vb.x + vb.w + m, y1 = vb.y + vb.h + m;
+    const r = win || vb;
+    const m = r.w * 0.08;                        // küçük pay: kenarda pop olmasın
+    const x0 = r.x - m, y0 = r.y - m, x1 = r.x + r.w + m, y1 = r.y + r.h + m;
     for (let i = 0; i < cullList.length; i++) {
       const c = cullList[i];
       const off = c[3] < x0 || c[1] > x1 || c[4] < y0 || c[2] > y1;
@@ -964,7 +1052,7 @@ body.zoomed .orn { opacity: 0; }
     if (busy === on) return;
     busy = on;
     document.body.classList.toggle("busy", on);
-    if (!on) { refineMarks(); applyVB(); }
+    if (!on) { endBuffer(); refineMarks(); applyVB(); }
   }
   const svgPt = (cx, cy) => {
     const r = mapRect();
@@ -1035,12 +1123,15 @@ body.zoomed .orn { opacity: 0; }
       return;
     }
     if (!drag) { hover(e); return; }
-    const r = svg.getBoundingClientRect(), sc = vb.w / r.width;
+    // Ölçü #map'ten değil #stage'ten: jest tamponu #map'i görünenden büyük
+    // çiziyor, svg'nin kutusunu ölçersek harita parmaktan yavaş kayıyor.
+    const r = mapRect(), sc = vb.w / r.width;
     const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
     if (Math.abs(dx) + Math.abs(dy) > 4) {
-      drag.moved = true; tip.classList.remove("on"); setBusy(true);
+      drag.moved = true; tip.classList.remove("on"); setBusy(true); beginBuffer();
     }
-    vb.x = drag.vx - dx * sc; vb.y = drag.vy - dy * sc; applyVB();
+    vb.x = drag.vx - dx * sc; vb.y = drag.vy - dy * sc;
+    if (drag.moved) panBuffer(); else applyVB();
   });
   const endPtr = (e) => {
     pts.delete(e.pointerId);
@@ -1197,7 +1288,7 @@ body.zoomed .orn { opacity: 0; }
         svg.querySelectorAll(".sub").forEach((n) => put(n, SB[n.dataset.sid]));
         return;
       }
-      if (rampKey !== "know") { buildRamp("--g-nkg"); rampKey = "know"; }
+      if (rampKey !== "know") { ramp = KNOW_RAMP.slice(); rampKey = "know"; }
       const put = (n, cid) => {
         n.style.fill = known.size ? ramp[binOf(reach(cid), KNOW_BINS)] : "";
         n.style.fillOpacity = "";
@@ -1627,6 +1718,7 @@ body.zoomed .orn { opacity: 0; }
          <div><b class="num">${c.pop ? fmtK(c.pop * c.p / 100) : "—"}</b><span>${t().people}</span></div>
          <div><b class="num">${c.pop ? fmtK(c.pop) : "—"}</b><span>${t().pop}</span></div>
        </div>` +
+      knowLine(id, c) +
       (c.m === 0 ? `<p class="note">${t().noMajority}</p>` : "") +
       (c.note ? `<p class="note">${esc(c.note)}</p>` : "") +
       offSection(id) +

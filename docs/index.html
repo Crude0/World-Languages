@@ -275,6 +275,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-transparency: reduce) {
   .glass { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
+/* Jest boyunca bulanıklık kapalı. Harita artık compositor'la kaydırılıyor ve
+   yeniden rasterize edilmiyor; yani backdrop-filter'ın kaynağı da tazelenmiyor
+   ve cam, jest bitene kadar sürüklemeden ÖNCEKİ görüntüyü gösteriyordu.
+   Kapatınca bayat görüntü de olmuyor, bitince yerine oturuyor. */
+body.busy .glass,
+body.busy .hud-panels > .detail.on,
+body.busy .hud-panels > .minor {
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
 
 .hud .bar { display: flex; align-items: center; gap: 2px; padding: 3px; max-width: 100%; flex-wrap: wrap; }
 .hud .stack { display: flex; flex-direction: column; padding: 3px; }
@@ -344,9 +353,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    :has() yerine sınıf: renderScale zaten görünürlüğü biliyor ve
    macOS 10.15'teki WebKit :has() bilmiyor. */
 .map-area.fs.has-scale .hud-panels { bottom: 62px; }
-/* Kart kalan boşluğu doldursun — sabit bir kutuda kaydırmak yerine.
-   min-height:0 olmadan flex çocuğu içeriğinden küçülmüyor ve taşıyor. */
-.map-area.fs .hud-panels > .detail.on { flex: 1 1 auto; min-height: 0; max-height: none; }
+/* Kart içeriği kadar uzun; sütunda yer varsa uzamıyor, yer yoksa küçülüp
+   kendi içinde kayıyor. flex:1 verilince metnin bittiği yerde cam kutu
+   devam ediyordu. min-height:0 olmadan flex çocuğu içeriğinin altına
+   inemiyor ve taşıyor. */
+.map-area.fs .hud-panels > .detail.on { flex: 0 1 auto; min-height: 0; max-height: none; }
 .hud-panels > .detail.on,
 .hud-panels > .minor {
   display: block; width: 100%; border: 0; border-radius: 12px;
@@ -1771,6 +1782,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     svg.setAttribute("viewBox",
       `${buf.x.toFixed(2)} ${buf.y.toFixed(2)} ${buf.w.toFixed(2)} ${buf.h.toFixed(2)}`);
     cull(buf);
+    document.body.classList.add("busy");
   }
   function panBuffer() {
     if (!buf) { applyVB(); return; }
@@ -1788,6 +1800,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   function endBuffer() {
     if (!buf) return;
     buf = null;
+    document.body.classList.remove("busy");
     const box = svg.parentElement;
     svg.style.transform = "";
     svg.style.position = ""; svg.style.left = ""; svg.style.top = "";
