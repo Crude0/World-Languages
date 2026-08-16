@@ -126,11 +126,24 @@ jobs:
         run: |
           NOTES=.github/release-notes.md
           test -s "$NOTES" || { echo "$NOTES boş ya da yok"; exit 1; }
+
+          # Release başlığı "v0.3.0 — Vivid palette" biçiminde: sürüm numarası
+          # tek başına listede hiçbir şey anlatmıyor. Özet notların ilk
+          # satırındaki işaretten okunuyor; yoksa yayım burada duruyor, çünkü
+          # eskiden başlık sabit "v$V" idi ve sessizce böyle kalmıştı.
+          TITLE=$(sed -n '1s/^<!-- title: \(.*\) -->$/\1/p' "$NOTES")
+          if [ -z "$TITLE" ]; then
+            echo "HATA: $NOTES ilk satırı '<!-- title: Kısa özet -->' olmalı"
+            exit 1
+          fi
+          BODY=$(mktemp)
+          tail -n +2 "$NOTES" > "$BODY"
+
           # Mac'te üretilen imaj depodakinin yerine geçiyor
           cp macdmg/Dunya-Dilleri-Atlasi.dmg dist/Dunya-Dilleri-Atlasi.dmg
           if gh release view "v$V" >/dev/null 2>&1; then
-            echo "v$V var, notlar ve dosyalar güncelleniyor"
-            gh release edit "v$V" --notes-file "$NOTES"
+            echo "v$V var, başlık, notlar ve dosyalar güncelleniyor"
+            gh release edit "v$V" --title "v$V — $TITLE" --notes-file "$BODY"
             gh release upload "v$V" --clobber \
               "dist/Dunya-Dilleri-Atlasi.apk" \
               "dist/Dunya-Dilleri-Atlasi.dmg" \
@@ -141,8 +154,8 @@ jobs:
           git tag -f "v$V"
           git push -f origin "v$V"
           gh release create "v$V" \
-            --title "v$V" \
-            --notes-file "$NOTES" \
+            --title "v$V — $TITLE" \
+            --notes-file "$BODY" \
             "dist/Dunya-Dilleri-Atlasi.apk" \
             "dist/Dunya-Dilleri-Atlasi.dmg" \
             "dist/Dunya-Dilleri-Atlasi-mac.zip" \

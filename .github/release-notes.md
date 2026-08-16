@@ -1,3 +1,4 @@
+<!-- title: Updates arrive on the first reload -->
 **If you opened the web version after 0.9.0 and saw the old interface, this is
 why.** The service worker served the page from its cache first and refreshed the
 network copy in the background, so a newly released version only appeared on the
