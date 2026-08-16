@@ -57,8 +57,9 @@ jobs:
       - name: menü çubuğunu doğrula
         run: |
           set -euo pipefail
+          VER=$(tr -d '[:space:]' < VERSION)
           OUT=$(/usr/bin/osascript -l JavaScript desktop/atlas.jxa \
-                  /dev/null "" "$(tr -d '[:space:]' < VERSION)" dump)
+                  /dev/null desktop/AppIcon.icns "$VER" dump)
           echo "$OUT"
           echo "$OUT" | grep -q "paket adı: Dünya Dilleri Atlası" \
             || { echo "HATA: uygulama menüsü hâlâ osascript adını taşıyor"; exit 1; }
@@ -66,6 +67,14 @@ jobs:
             echo "$OUT" | grep -q "^$m:" || { echo "HATA: $m menüsü yok"; exit 1; }
           done
           echo "$OUT" | grep -q "Hakkında" || { echo "HATA: Hakkında yok"; exit 1; }
+          # Hakkında penceresi: telif, sürüm ve uygulamanın kendi simgesi
+          echo "$OUT" | grep -q "hakkında telif: © 2026 Crude" \
+            || { echo "HATA: telif satırı yok"; exit 1; }
+          echo "$OUT" | grep -q "hakkında sürüm: $VER" \
+            || { echo "HATA: sürüm yanlış"; exit 1; }
+          if echo "$OUT" | grep -q "hakkında simge: yok"; then
+            echo "HATA: Hakkında penceresi osascript simgesine düşecek"; exit 1
+          fi
 
       - name: disk imajı
         run: |

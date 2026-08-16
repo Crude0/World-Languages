@@ -6,8 +6,10 @@ ObjC.import('Cocoa');
 ObjC.import('WebKit');
 
 var TITLE = 'Dünya Dilleri Atlası';
+var COPY = '© 2026 Crude · Açık veri · Natural Earth sınırları';
 var keep = [];   // çöp toplayıcıdan korunacak nesneler
 var web = null;  // menüden sayfaya komut göndermek için
+var appIcon = null;  // Hakkında penceresi de bunu kullanıyor
 
 function run(argv) {
   var htmlPath = argv[0];
@@ -30,7 +32,11 @@ function run(argv) {
 
   if (iconPath) {
     var img = $.NSImage.alloc.initWithContentsOfFile(iconPath);
-    if (!img.isNil()) app.applicationIconImage = img;
+    if (!img.isNil()) {
+      app.applicationIconImage = img;
+      appIcon = img;
+      keep.push(img);
+    }
   }
 
   var rect = $.NSMakeRect(0, 0, 1440, 940);
@@ -73,6 +79,12 @@ function run(argv) {
     out.push('paket adı: ' + ObjC.unwrap(
       $.NSBundle.mainBundle.objectForInfoDictionaryKey('CFBundleName')));
     out.push('süreç adı: ' + ObjC.unwrap($.NSProcessInfo.processInfo.processName));
+    var ab = aboutOptions(version);
+    var icon = ab.objectForKey($('ApplicationIcon'));
+    out.push('hakkında telif: ' + ObjC.unwrap(ab.objectForKey($('Copyright'))));
+    out.push('hakkında sürüm: ' + ObjC.unwrap(ab.objectForKey($('ApplicationVersion'))));
+    out.push('hakkında simge: ' + (!icon || icon.isNil() ? 'yok'
+      : Math.round(icon.size.width) + 'x' + Math.round(icon.size.height)));
     $.NSFileHandle.fileHandleWithStandardOutput.writeData(
       $(out.join('\n') + '\n').dataUsingEncoding($.NSUTF8StringEncoding));
     return;
@@ -100,6 +112,23 @@ function run(argv) {
   app.run;
 }
 
+// "Hakkında" penceresinin seçenekleri. Denetim kipi de bunu okuyor, yani
+// yayım iş akışı gerçek macOS'ta değerleri doğruluyor.
+function aboutOptions(version) {
+  var d = $.NSMutableDictionary.alloc.init;
+  d.setObjectForKey($(TITLE), $('ApplicationName'));
+  d.setObjectForKey($(version || ''), $('ApplicationVersion'));
+  // Standart pencere sürümün yanına parantez içinde derleme numarasını
+  // yazar; osascript'in içinde koştuğumuz için oraya onun numarası ("410")
+  // düşüyordu. Boş verince parantez hiç çıkmıyor.
+  d.setObjectForKey($(''), $('Version'));
+  d.setObjectForKey($(COPY), $('Copyright'));
+  // Simgeyi de açıkça veriyoruz: yoksa pencere paketin simgesini arıyor ve
+  // osascript'inkini (genel klasör görüntüsü) buluyor.
+  if (appIcon) d.setObjectForKey(appIcon, $('ApplicationIcon'));
+  return d;
+}
+
 // Menüden sayfaya köprü. Yakınlaştırma ve sığdırma sayfanın kendi
 // düğmelerini tetikler, böylece menü ile araç çubuğu aynı işi yapar.
 function makeActions(version) {
@@ -114,11 +143,7 @@ function makeActions(version) {
         'about:': {
           types: ['void', ['id']],
           implementation: function () {
-            var d = $.NSMutableDictionary.alloc.init;
-            d.setObjectForKey($(version || ''), $('ApplicationVersion'));
-            d.setObjectForKey($('Açık veri · Natural Earth sınırları'),
-                              $('Copyright'));
-            $.NSApp.orderFrontStandardAboutPanelWithOptions(d);
+            $.NSApp.orderFrontStandardAboutPanelWithOptions(aboutOptions(version));
           }
         },
         'quitApp:': {
@@ -144,6 +169,12 @@ function makeActions(version) {
         'copyLink:': {
           types: ['void', ['id']],
           implementation: function () { js('document.getElementById("btnLink").click()'); }
+        },
+        // Pencerenin tam ekranı değil, sayfanın kendi harita kipi: başlık,
+        // kenar çubuğu ve kartlar da kalkıyor, geriye yalnız harita kalıyor.
+        'mapFull:': {
+          types: ['void', ['id']],
+          implementation: function () { js('document.getElementById("btnFull").click()'); }
         }
       }
     });
@@ -193,6 +224,7 @@ function buildMenu(app, actions) {
     null,
     ['Tabloyu Aç/Kapat', 'toggleTable:', 't', actions],
     null,
+    ['Yalnız Harita', 'mapFull:', 'F', actions],
     ['Tam Ekran', 'toggleFullScreen:', 'f', 'fr'],
   ]);
   add('Pencere', [

@@ -53,7 +53,7 @@ PLIST = f"""<?xml version="1.0" encoding="UTF-8"?>
 	<key>LSMinimumSystemVersion</key><string>10.15</string>
 	<key>LSUIElement</key><true/>
 	<key>NSHighResolutionCapable</key><true/>
-	<key>NSHumanReadableCopyright</key><string>Açık veri · Natural Earth sınırları</string>
+	<key>NSHumanReadableCopyright</key><string>© 2026 Crude · Açık veri · Natural Earth sınırları</string>
 </dict>
 </plist>
 """

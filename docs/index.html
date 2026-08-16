@@ -42,6 +42,12 @@
   --border:   rgba(10,12,16,.62);
   --sub-line: rgba(255,255,255,.70);
   --on-color: #ffffff;
+  /* Haritanın üstünde yüzen yüzeyler: altındaki renk sızsın diye yarı
+     saydam, ama yazı okunabilsin diye yeterince kapaklı. */
+  --glass:        rgba(251,251,250,.72);
+  --glass-hi:     rgba(23,26,32,.06);
+  --glass-line:   rgba(23,26,32,.12);
+  --glass-shadow: 0 1px 2px rgba(20,24,32,.10), 0 12px 32px -14px rgba(20,24,32,.42);
 }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
@@ -65,6 +71,10 @@
     --border:   rgba(0,0,0,.66);
     --sub-line: rgba(255,255,255,.58);
     --on-color: #0b0d11;
+    --glass:        rgba(25,28,35,.72);
+    --glass-hi:     rgba(236,238,242,.09);
+    --glass-line:   rgba(236,238,242,.14);
+    --glass-shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 34px -14px rgba(0,0,0,.8);
   }
 }
 :root[data-theme="dark"] {
@@ -88,6 +98,10 @@
   --border:   rgba(0,0,0,.66);
   --sub-line: rgba(255,255,255,.58);
   --on-color: #0b0d11;
+  --glass:        rgba(25,28,35,.72);
+  --glass-hi:     rgba(236,238,242,.09);
+  --glass-line:   rgba(236,238,242,.14);
+  --glass-shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 34px -14px rgba(0,0,0,.8);
 }
 
 /* ---------------------------------------------------------------- base */
@@ -220,14 +234,129 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .caption { min-width: 0; }
 .caption h2 { font-size: 1.15rem; line-height: 1.2; }
 .caption p { font-size: .8125rem; color: var(--ink-2); margin-top: 2px; }
-.tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.tool {
-  border: 1px solid var(--rule-2); border-radius: 2px; background: var(--panel);
-  padding: 5px 9px; font-size: .75rem; color: var(--ink-2); white-space: nowrap;
+
+/* ----------------------------------------------------------------- hud
+   Haritanın üstünde yüzen denetimler. Sayfanın geri kalanı düz ve keskin
+   kalıyor; buzlu cam yalnızca haritanın üstündeki yüzeylerde, çünkü orada
+   altındaki renkli alanın görünmesi işe yarıyor — panelin nereye denk
+   geldiği anlaşılıyor. */
+.hud {
+  position: absolute; inset: 0; pointer-events: none;
+  font-size: .75rem;
 }
-.tool:hover { color: var(--ink); border-color: var(--ink-3); }
-.tool[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
-.tool.icon { width: 28px; padding: 5px 0; text-align: center; font-family: "Plex Mono", monospace; }
+.hud > * { position: absolute; }
+/* Yalnız gerçekten bir şey çizen kutular tıklamayı yakalasın: panel sütunu
+   çubuktan geniş, boş kalan yanı haritanın olmalı. */
+.hud, .hud-panels, .hud-ctl { pointer-events: none; }
+.hud-panels > *, .hud-ctl > *, .hud .scale { pointer-events: auto; }
+/* Yaprak haritanın altına taşabilir: harita eni sabit oranlı olduğu için
+   dar pencerede alçak kalıyor ve yaprağı içine sığdırmaya çalışmak onu
+   kaydırılan bir yarığa çeviriyordu. Açılır panel gibi davransın, aşağıdaki
+   kartların üstünü örtsün — z-index onun için. */
+.hud-panels {
+  top: 10px; z-index: 10; display: flex; flex-direction: column; align-items: flex-start;
+  gap: 8px; width: min(300px, calc(100% - 20px));
+}
+.hud-ctl { bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.hud .scale { bottom: 10px; max-width: calc(100% - 76px); padding: 7px 11px; }
+[data-side="left"]  .hud-panels, [data-side="left"]  .hud .scale { left: 10px; }
+[data-side="left"]  .hud-ctl { right: 10px; }
+[data-side="right"] .hud-panels, [data-side="right"] .hud .scale { right: 10px; align-items: flex-end; }
+[data-side="right"] .hud-ctl { left: 10px; }
+
+/* Buzlu cam. backdrop-filter yoksa (ya da kullanıcı saydamsızlık istiyorsa)
+   düz panel rengine düşüyor: okunurluk hiçbir durumda camdan önce gelir. */
+.glass {
+  background: var(--glass); border: 1px solid var(--glass-line);
+  border-radius: 12px; box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: var(--panel); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+.hud .bar { display: flex; align-items: center; gap: 2px; padding: 3px; max-width: 100%; flex-wrap: wrap; }
+.hud .stack { display: flex; flex-direction: column; padding: 3px; }
+.hud .stack + .stack { margin-top: 0; }
+.gbtn {
+  padding: 6px 11px; border-radius: 9px; color: var(--ink-2); white-space: nowrap;
+  font-size: .75rem; line-height: 1.25;
+}
+.gbtn:hover { background: var(--glass-hi); color: var(--ink); }
+.gbtn[aria-pressed="true"], .gbtn[aria-expanded="true"] { background: var(--ink); color: var(--panel); }
+.gbtn.icon {
+  width: 30px; height: 28px; padding: 0; text-align: center;
+  font-family: "Plex Mono", monospace; font-size: .875rem;
+}
+.stack .gbtn.icon + .gbtn.icon { border-top: 1px solid var(--glass-line); border-radius: 0; }
+.stack .gbtn.icon:first-child { border-radius: 9px 9px 0 0; }
+.stack .gbtn.icon:last-child { border-radius: 0 0 9px 9px; }
+.stack .gbtn.icon:only-child { border-radius: 9px; }
+
+.hud-cap { padding: 6px 11px; font-size: .75rem; color: var(--ink); max-width: 100%; }
+.hud-cap b { font-weight: 600; }
+.hud-cap span { color: var(--ink-2); }
+
+.sheet {
+  padding: 11px 13px 13px; width: 100%;
+  max-height: min(70vh, 520px); overflow-y: auto; overscroll-behavior: contain;
+}
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.sheet-head h3 { font-family: inherit; }
+.sheet-x { width: 20px; height: 20px; border-radius: 6px; color: var(--ink-3); line-height: 1; }
+.sheet-x:hover { background: var(--glass-hi); color: var(--ink); }
+.mgroup { margin-top: 11px; }
+.mgroup h4 {
+  margin: 0; font: 600 .75rem/1.3 inherit; color: var(--ink);
+}
+.mgroup p, .mgroup-p { margin: 1px 0 6px; font-size: .6875rem; color: var(--ink-3); line-height: 1.35; }
+.mgroup-p { margin-top: 8px; }
+.opts { display: flex; flex-wrap: wrap; gap: 4px; }
+.opts button {
+  padding: 5px 10px; border-radius: 8px; font-size: .75rem; color: var(--ink-2);
+  border: 1px solid var(--glass-line); background: var(--glass-hi);
+}
+.opts button:hover { color: var(--ink); border-color: var(--ink-3); }
+.opts button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.opts button:disabled { opacity: .38; cursor: default; }
+.opts button:disabled[aria-pressed="true"] { background: var(--rule-2); color: var(--ink-3); border-color: var(--rule-2); }
+.opts.wide button { flex: 1 1 auto; text-align: center; }
+
+/* Tam ekran: harita görünümü kaplıyor, denetimler zaten üstünde yüzdüğü
+   için yerleşimin değişmesi gerekmiyor. Fullscreen API varsa o kullanılıyor;
+   yoksa (ya da reddedilirse) sabit konumlu bir kaplama aynı işi görüyor. */
+.map-area.fs {
+  position: fixed; inset: 0; z-index: 60; background: var(--ocean);
+  display: flex; align-items: center; justify-content: center;
+}
+/* Sarmalayıcının ölçüsü JS'ten geliyor: görünüme sığan en büyük W×H kutusu.
+   SVG'nin kendi letterbox'ına bırakırsak sarmalayıcı ile çizilen harita
+   çakışmaz ve imleç–harita koordinat çevrimi kayar. */
+.map-area.fs .map-wrap { border: 0; border-radius: 0; }
+.map-area.fs .map-wrap::after { display: none; }
+body.fs-on { overflow: hidden; }
+
+/* Tablo görünümünde harita yok, ama denetim çubuğu kalmalı: yoksa tabloyu
+   açan düğme de haritayla birlikte gizlenir ve geri dönülemez. */
+.map-area.table-on .map-wrap,
+.map-area.table-on .hud-ctl,
+.map-area.table-on .scale { display: none; }
+.map-area.table-on .hud { position: static; }
+.map-area.table-on .hud-panels { position: static; width: auto; max-height: none; }
+
+@media (max-width: 640px) {
+  .hud-panels { width: calc(100% - 20px); }
+  .hud .scale { max-width: calc(100% - 20px); bottom: 52px; }
+  .hud-ctl { flex-direction: row; align-items: flex-end; }
+  .hud-ctl .stack { flex-direction: row; }
+  .stack .gbtn.icon + .gbtn.icon { border-top: 0; border-left: 1px solid var(--glass-line); }
+  .stack .gbtn.icon:first-child { border-radius: 9px 0 0 9px; }
+  .stack .gbtn.icon:last-child { border-radius: 0 9px 9px 0; }
+}
 
 .map-area { position: relative; }
 .map-wrap { position: relative; background: var(--ocean); border: 1px solid var(--rule-2); border-radius: 2px; }
@@ -317,6 +446,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   box-shadow: var(--shadow); padding: 7px 10px; min-width: 132px; max-width: 240px;
   transform: translate(-50%, calc(-100% - 12px));
 }
+/* Kapalıyken yerleşimden de çıksın: yalnız saydamlığı sıfırlamak yetmiyordu,
+   kutu duruyor ve son bırakıldığı yerden sayfayı yana taşıyabiliyordu. */
+.tip:not(.on) { display: none; }
 .tip.on { opacity: 1; }
 @media (pointer: coarse) { .tip { display: none; } }
 .tip b { display: block; font-size: .8125rem; font-weight: 600; }
@@ -425,6 +557,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ------------------------------------------------------------ renk ölçeği */
 .scale { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .6875rem; color: var(--ink-3); }
+/* display kuralı [hidden]'ı eziyor: cam kutu boşken de bir hap gibi görünüyordu */
+.scale[hidden] { display: none; }
 .scale-t { letter-spacing: .04em; text-transform: uppercase; }
 .scale-bins { display: flex; align-items: stretch; }
 .scale-bin { display: grid; gap: 3px; justify-items: center; }
@@ -568,38 +702,89 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
           <h2 id="capTitle">Dünya · çoğunluğun konuştuğu dil</h2>
           <p id="capSub">234 ülke ve bölge, ailelerine göre renklendirildi.</p>
         </div>
-        <div class="tools">
-          <div class="seg" role="group" aria-label="Katman">
-            <button id="layHome" aria-pressed="true" title="Evde konuşulan dil">Ana dil</button>
-            <button id="layScr" aria-pressed="false" title="Dilin yazıldığı alfabe">Yazı</button>
-            <button id="layOff" aria-pressed="false" title="Devletin resmî dili">Resmî dil</button>
-            <button id="layKnow" aria-pressed="false" title="Bildiğiniz dillerle nerede anlaşabilirsiniz">Bildiğim</button>
-          </div>
-          <div class="seg" role="group" aria-label="Renk ölçütü" id="paintSeg">
-            <button id="paintFam" aria-pressed="true" title="Ülkeleri dil ailesine göre renklendir">Aile</button>
-            <button id="paintPct" aria-pressed="false" title="Dilin nüfustaki payına göre koyulaştır">Yoğunluk</button>
-            <button id="paintPpl" aria-pressed="false" title="Konuşan kişi sayısına göre koyulaştır">Kişi</button>
-          </div>
-          <div class="seg" role="group" aria-label="Ayrıntı düzeyi">
-            <button id="lodAuto" aria-pressed="true" title="Uzakta ülke, yaklaşınca il/eyalet">Oto</button>
-            <button id="lodOff" aria-pressed="false" title="Her zaman ülke düzeyi">Ülke</button>
-            <button id="lodOn" aria-pressed="false" title="Veri olan 12 ülkede il/eyalet düzeyi">Bölge</button>
-          </div>
-          <button class="tool" id="btnReset" hidden>Süzgeci kaldır</button>
-          <button class="tool" id="btnTable" aria-pressed="false">Tablo</button>
-          <button class="tool" id="btnLink">Bağlantı</button>
-          <button class="tool" id="btnPng" title="Görünümü PNG olarak indir">PNG</button>
-          <button class="tool" id="btnSvg" title="Görünümü SVG olarak indir">SVG</button>
-          <button class="tool icon" id="btnOut" aria-label="Uzaklaş">−</button>
-          <button class="tool icon" id="btnIn" aria-label="Yakınlaş">+</button>
-          <button class="tool icon" id="btnFit" aria-label="Haritayı sığdır">⤢</button>
-        </div>
       </div>
 
-      <div class="map-area" id="mapArea">
+      <!-- Denetimler haritanın üstünde yüzüyor. Böylece başlık şeridi
+           kalabalıklaşmıyor ve tam ekranda da aynı denetimler elde kalıyor:
+           tek bir yerleşim, iki kip. -->
+      <div class="map-area" id="mapArea" data-side="left">
         <div class="map-wrap" id="mapWrap">
           <svg id="map" role="img" tabindex="0" aria-label="Dünya haritası: ülkelerde çoğunluğun konuştuğu dilin ailesi"></svg>
           <div class="tip" id="tip" aria-hidden="true"></div>
+        </div>
+
+        <div class="hud">
+          <div class="hud-panels">
+            <p class="hud-cap glass" id="hudCap" hidden></p>
+            <div class="glass bar" role="toolbar" aria-label="Harita denetimleri">
+              <button class="gbtn" id="btnModes" aria-expanded="false" aria-controls="modes">Görünüm</button>
+              <button class="gbtn" id="btnReset" hidden>Süzgeci kaldır</button>
+              <button class="gbtn" id="btnTable" aria-pressed="false">Tablo</button>
+              <button class="gbtn" id="btnShare" aria-expanded="false" aria-controls="shareMenu">Paylaş</button>
+            </div>
+
+            <div class="glass sheet" id="modes" hidden aria-labelledby="modesTitle">
+              <div class="sheet-head">
+                <h3 id="modesTitle" class="eyebrow">Görünüm</h3>
+                <button class="sheet-x" data-close="modes" aria-label="Kapat">✕</button>
+              </div>
+              <div class="mgroup">
+                <h4 id="mLayT">Katman</h4>
+                <p id="mLayD">Haritanın yanıtladığı soru.</p>
+                <div class="opts" role="group" aria-labelledby="mLayT">
+                  <button id="layHome" aria-pressed="true" title="Evde konuşulan dil">Ana dil</button>
+                  <button id="layScr" aria-pressed="false" title="Dilin yazıldığı alfabe">Yazı</button>
+                  <button id="layOff" aria-pressed="false" title="Devletin resmî dili">Resmî dil</button>
+                  <button id="layKnow" aria-pressed="false" title="Bildiğiniz dillerle nerede anlaşabilirsiniz">Bildiğim</button>
+                </div>
+              </div>
+              <div class="mgroup">
+                <h4 id="mPaiT">Renk</h4>
+                <p id="mPaiD">Ülkelerin neye göre koyulaşacağı.</p>
+                <div class="opts" role="group" aria-labelledby="mPaiT" id="paintSeg">
+                  <button id="paintFam" aria-pressed="true" title="Ülkeleri dil ailesine göre renklendir">Aile</button>
+                  <button id="paintPct" aria-pressed="false" title="Dilin nüfustaki payına göre koyulaştır">Yoğunluk</button>
+                  <button id="paintPpl" aria-pressed="false" title="Konuşan kişi sayısına göre koyulaştır">Kişi</button>
+                </div>
+              </div>
+              <div class="mgroup">
+                <h4 id="mDetT">Ayrıntı</h4>
+                <p id="mDetD">Ülke mi, il ve eyalet mi görünsün.</p>
+                <div class="opts" role="group" aria-labelledby="mDetT">
+                  <button id="lodAuto" aria-pressed="true" title="Uzakta ülke, yaklaşınca il/eyalet">Oto</button>
+                  <button id="lodOff" aria-pressed="false" title="Her zaman ülke düzeyi">Ülke</button>
+                  <button id="lodOn" aria-pressed="false" title="Veri olan 18 ülkede il/eyalet düzeyi">Bölge</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass sheet" id="shareMenu" hidden aria-labelledby="shareTitle">
+              <div class="sheet-head">
+                <h3 id="shareTitle" class="eyebrow">Paylaş</h3>
+                <button class="sheet-x" data-close="shareMenu" aria-label="Kapat">✕</button>
+              </div>
+              <p class="mgroup-p" id="mShrD">Şu anki görünüm — aynı katman, süzgeç ve yakınlık.</p>
+              <div class="opts wide">
+                <button id="btnLink">Bağlantı</button>
+                <button id="btnPng" title="Görünümü PNG olarak indir">PNG</button>
+                <button id="btnSvg" title="Görünümü SVG olarak indir">SVG</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hud-ctl">
+            <div class="glass stack">
+              <button class="gbtn icon" id="btnIn" aria-label="Yakınlaş">+</button>
+              <button class="gbtn icon" id="btnOut" aria-label="Uzaklaş">−</button>
+              <button class="gbtn icon" id="btnFit" aria-label="Haritayı sığdır">⤢</button>
+            </div>
+            <div class="glass stack">
+              <button class="gbtn icon" id="btnSide" aria-label="Panelleri diğer yana al">⇄</button>
+              <button class="gbtn icon" id="btnFull" aria-pressed="false" aria-label="Tam ekran">⛶</button>
+            </div>
+          </div>
+
+          <div class="scale glass" id="scale" hidden></div>
         </div>
       </div>
 
@@ -609,8 +794,6 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
           <tbody id="tbody"></tbody>
         </table>
       </div>
-
-      <div class="scale" id="scale" hidden></div>
 
       <p class="plate-note" id="plateNote">
         <span id="noteProj">Doğal Dünya (Natural Earth) projeksiyonu</span>
@@ -648,7 +831,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     </div>
     <div>
       <h3 id="fh2">Bölge ayrıntısı ve şehirler</h3>
-      <p id="fp2">“Bölge” düğmesi (ya da yeterince yakınlaşmak) 12 ülkede eyalet/il/kanton düzeyine iner: Kanada, ABD, İsviçre, Belçika, İspanya, Birleşik Krallık, İtalya, Hindistan, Türkiye, Ukrayna, Finlandiya, Bolivya. Bunlar ulusal sayımların dil sorularına dayanır; Türkiye'de resmî dil sayımı olmadığı için il rakamları anket temelli tahmindir. <b>Şehir düzeyine inilmedi</b>, çünkü belediye bazında dil istatistiği çoğu ülkede yayımlanmıyor — örneğin İsveç, belediye başına doğum ülkesi verir, konuşulan dili değil. Uydurmaktansa boş bırakmak daha doğru.</p>
+      <p id="fp2">“Bölge” düğmesi (ya da yeterince yakınlaşmak) 18 ülkede eyalet/il/kanton düzeyine iner: Kanada, ABD, İsviçre, Belçika, İspanya, Birleşik Krallık, İtalya, Hindistan, Türkiye, Ukrayna, Finlandiya, Bolivya, Rusya, Çin, Nijerya, Güney Afrika, Fransa, Almanya. Bunlar ulusal sayımların dil sorularına dayanır; Türkiye'de resmî dil sayımı olmadığı için il rakamları anket temelli tahmindir. <b>Şehir düzeyine inilmedi</b>, çünkü belediye bazında dil istatistiği çoğu ülkede yayımlanmıyor — örneğin İsveç, belediye başına doğum ülkesi verir, konuşulan dili değil. Uydurmaktansa boş bırakmak daha doğru.</p>
     </div>
     <div>
       <h3 id="fh3">Göçmen ve azınlık toplulukları</h3>
@@ -817,6 +1000,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       reset: "Süzgeci kaldır", table: "Tablo",
       link: "Bağlantı", linkOk: "Kopyalandı", linkFail: "Kopyalanamadı",
       saved: "İndirildi", saveFail: "İndirilemedi",
+      view: "Görünüm", share: "Paylaş", close: "Kapat",
+      mLayer: "Katman", mLayerD: "Haritanın yanıtladığı soru.",
+      mPaint: "Renk", mPaintD: "Ülkelerin neye göre koyulaşacağı.",
+      mDetail: "Ayrıntı", mDetailD: "Ülke mi, il ve eyalet mi görünsün.",
+      mShareD: "Şu anki görünüm — aynı katman, süzgeç ve yakınlık.",
+      full: "Tam ekran", fullExit: "Tam ekrandan çık",
+      sideSwap: "Panelleri diğer yana al",
       cmpPin: (n) => `${n} ile karşılaştır →`, cmpClear: "Karşılaştırmayı iptal et",
       cmpPinned: "Sabitlendi. Karşılaştırmak için ikinci bir yer seçin.",
       cmpOff: "Karşılaştırma kapatıldı.", cmpEnd: "Karşılaştırmayı bitir →",
@@ -907,6 +1097,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       reset: "Clear filter", table: "Table",
       link: "Link", linkOk: "Copied", linkFail: "Copy failed",
       saved: "Saved", saveFail: "Save failed",
+      view: "View", share: "Share", close: "Close",
+      mLayer: "Layer", mLayerD: "The question the map answers.",
+      mPaint: "Colour", mPaintD: "What makes a country darker.",
+      mDetail: "Detail", mDetailD: "Countries, or states and provinces.",
+      mShareD: "The current view — same layer, filter and zoom.",
+      full: "Full screen", fullExit: "Leave full screen",
+      sideSwap: "Move the panels to the other side",
       cmpPin: (n) => `Compare with ${n} →`, cmpClear: "Cancel comparison",
       cmpPinned: "Pinned. Pick a second place to compare.",
       cmpOff: "Comparison cleared.", cmpEnd: "End comparison →",
@@ -953,7 +1150,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       filterOff: "Filter cleared.", hi: (c, n) => `${c}: ${n} countries highlighted.`,
       footer: [
         ["Criterion", "For each country the map shows the language spoken by the largest share of the population in daily life. That is not always a first language: in Tanzania Swahili, in Indonesia Indonesian and in Pakistan Urdu are mostly spoken as a second language, serving as a lingua franca."],
-        ["Regional detail and cities", "The <b>Region</b> control (or zooming in far enough) drops to state, province or canton level in 12 countries: Canada, the United States, Switzerland, Belgium, Spain, the United Kingdom, Italy, India, Türkiye, Ukraine, Finland and Bolivia. These come from national census language questions; Türkiye has no official language census, so its provincial figures are survey-based estimates. <b>City level is not covered</b>, because language statistics are rarely published per municipality — Sweden, for example, publishes country of birth per municipality, not language spoken. Leaving it out is more honest than making it up."],
+        ["Regional detail and cities", "The <b>Region</b> control (or zooming in far enough) drops to state, province or canton level in 18 countries: Canada, the United States, Switzerland, Belgium, Spain, the United Kingdom, Italy, India, Türkiye, Ukraine, Finland, Bolivia, Russia, China, Nigeria, South Africa, France and Germany. These come from national census language questions; Türkiye has no official language census, so its provincial figures are survey-based estimates. <b>City level is not covered</b>, because language statistics are rarely published per municipality — Sweden, for example, publishes country of birth per municipality, not language spoken. Leaving it out is more honest than making it up."],
         ["Migrant and minority communities", "When you pick a language, countries where it is spoken as a minority language are marked in a pale shade alongside the countries where it is the majority. This layer goes down to 0.05% for the main destination countries; it lists the communities that can be documented, not every small community everywhere. Shares refer to the language spoken at home — lower than ancestry counts, because transmission weakens in the second and third generation."],
         ["Countries without a majority language", "In some countries no single language is spoken by half the population. These are marked “no majority language” and shown with their most widely spoken language — India, Nigeria, South Africa and the Democratic Republic of the Congo foremost among them."],
         ["Data and borders", "Speaker counts are calculated: country population (UN, 2024 estimate) × the language's share in that country. They are therefore not exact and should be read as orders of magnitude; people who speak a language in more than one country are added together. Shares are approximate, compiled and rounded from censuses, Ethnologue and official language policies. Second-language shares rely on Eurobarometer 386 (2012) “able to hold a conversation” in Europe, and on national censuses and estimates elsewhere — so be careful comparing across countries. Borders come from Natural Earth 1:50m data and reflect no claim of sovereignty."],
@@ -1490,6 +1687,99 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   $("#btnIn").onclick = () => zoomBy(1 / 1.6);
   $("#btnOut").onclick = () => zoomBy(1.6);
   $("#btnFit").onclick = () => { vb = { x: 0, y: 0, w: W, h: H }; applyVB(); };
+
+  /* ------------------------------------------------------------- hud */
+  // Katman, renk ve ayrıntı seçenekleri artık başlık şeridinde yan yana
+  // durmuyor; hepsi haritanın üstünde açılan tek bir "Görünüm" yaprağında.
+  // Aynı yaprak tam ekranda da elde kalıyor, çünkü haritanın içinde.
+  const area = $("#mapArea");
+  const SHEETS = ["modes", "shareMenu"];
+  const opener = { modes: "btnModes", shareMenu: "btnShare" };
+  function openSheet(id) {
+    SHEETS.forEach((s) => {
+      const on = s === id;
+      $("#" + s).hidden = !on;
+      $("#" + opener[s]).setAttribute("aria-expanded", String(on));
+    });
+  }
+  const closeSheets = () => openSheet(null);
+  SHEETS.forEach((s) => {
+    $("#" + opener[s]).onclick = () => openSheet($("#" + s).hidden ? s : null);
+  });
+  document.querySelectorAll(".sheet-x").forEach((b) => { b.onclick = closeSheets; });
+  // dışarı tıklayınca kapansın; yaprağın kendi içindeki tıklamalar sayılmaz
+  addEventListener("pointerdown", (e) => {
+    if (SHEETS.every((s) => $("#" + s).hidden)) return;
+    if (e.target.closest(".sheet, .hud .bar")) return;
+    closeSheets();
+  }, true);
+
+  // Paneller solda ya da sağda durabilir; hangi elinizin altında olmasını
+  // istediğiniz sizin bileceğiniz iş, seçim tarayıcıda saklanıyor.
+  const setSide = (v) => {
+    area.dataset.side = v;
+    try { localStorage.setItem("wl-side", v); } catch (e) {}
+  };
+  setSide(localStorage.getItem("wl-side") === "right" ? "right" : "left");
+  $("#btnSide").onclick = () => setSide(area.dataset.side === "left" ? "right" : "left");
+
+  // Tam ekran. Fullscreen API varsa gerçek tam ekrana geçiyoruz (tarayıcı
+  // çerçevesi de kalkıyor); reddedilirse sabit konumlu kaplamaya düşülüyor.
+  // İki yolda da .fs sınıfı taşındığı için biçimlendirme tek yerde duruyor.
+  let fsOn = false;
+  function sizeFs() {
+    const box = svg.parentElement;
+    if (!fsOn) { box.style.width = ""; box.style.height = ""; }
+    else {
+      const r = area.getBoundingClientRect();
+      const s = Math.min(r.width / W, r.height / H);
+      box.style.width = Math.floor(W * s) + "px";
+      box.style.height = Math.floor(H * s) + "px";
+    }
+    rectCache = null;
+    commitVB();   // etiket puntosu ve budama yeni ölçüye göre
+  }
+  function setFs(on) {
+    if (on === fsOn) return;
+    fsOn = on;
+    area.classList.toggle("fs", on);
+    document.body.classList.toggle("fs-on", on);
+    $("#btnFull").setAttribute("aria-pressed", String(on));
+    $("#btnFull").setAttribute("aria-label", on ? t().fullExit : t().full);
+    $("#btnFull").textContent = on ? "✕" : "⛶";
+    $("#btnTable").hidden = on;          // tablo tam ekranda görünmüyor
+    $("#hudCap").hidden = !on;
+    syncHudCap();
+    closeSheets();
+    sizeFs();
+  }
+  // Tam ekranda başlık şeridi görünmüyor; ne baktığınız haritanın üstünde
+  // küçük bir şeritte yazıyor.
+  function syncHudCap() {
+    const c = $("#hudCap");
+    if (!c || c.hidden) return;
+    c.innerHTML = `<b>${$("#capTitle").innerHTML}</b> <span>${esc($("#capSub").textContent)}</span>`;
+  }
+  $("#btnFull").onclick = () => {
+    if (fsOn) {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => setFs(false));
+      else setFs(false);
+      return;
+    }
+    if (area.requestFullscreen) {
+      area.requestFullscreen().then(() => setFs(true)).catch(() => setFs(true));
+    } else setFs(true);
+  };
+  // Tarayıcının kendi çıkışı (Esc, sistem düğmesi) da yakalanmalı
+  document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement && fsOn && area.classList.contains("fs")) setFs(false);
+  });
+  addEventListener("resize", sizeFs);
+  addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (!SHEETS.every((s) => $("#" + s).hidden)) { closeSheets(); return; }
+    if (fsOn && !document.fullscreenElement) setFs(false);
+  });
   // Harita klavyeyle de gezilebilmeli: fare olmadan yakınlaşmanın yolu yoktu.
   // Adım görüş kutusunun kesri, böylece her yakınlıkta aynı oranda kayıyor.
   svg.addEventListener("keydown", (e) => {
@@ -1687,6 +1977,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     return `<span class="tm">` + rows.slice(0, 3)
       .map(([l, v]) => `${esc(ln(l))} ${pc(v)}`).join(" · ") + `</span>`;
   }
+  // Pencere yeniden boyutlanınca ipucu eski yerinde kalıyordu: imleç
+  // hareket etmediği için gizlenmiyor, mutlak konumu da artık yanlış —
+  // dar ekranda sayfayı yana taşıracak kadar.
+  addEventListener("resize", () => { tip.classList.remove("on"); });
   function place(e) {
     const r = wrap.getBoundingClientRect();
     const x = Math.min(r.width - 12, Math.max(12, e.clientX - r.left));
@@ -2038,6 +2332,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       capT.textContent = keyName(f.k);
       capS.textContent = `${keyDesc(f.k)} · ${t().nCount(gCount[f.k])}`;
     }
+    syncHudCap();
     live(f ? t().hi(capT.textContent, hits.length) : t().filterOff);
     rampKey = "";
     repaint();
@@ -2279,7 +2574,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     queueHash();
     $("#btnTable").setAttribute("aria-pressed", String(on));
     $("#tableWrap").classList.toggle("on", on);
-    $("#mapArea").style.display = on ? "none" : "";
+    $("#mapArea").classList.toggle("table-on", on);
     $("#plateNote").hidden = on;
     detail.style.display = on ? "none" : "";
     minorBox.style.display = on ? "none" : "";
@@ -2442,6 +2737,17 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     set("#lodAuto", t().dAuto); set("#lodOff", t().dOff); set("#lodOn", t().dOn);
     set("#rankSpk", t().rankSpk); set("#rankAll", t().rankAll); set("#rankCnt", t().rankCnt);
     set("#btnReset", t().reset); set("#btnTable", t().table); set("#btnLink", t().link);
+    set("#btnModes", t().view); set("#modesTitle", t().view);
+    set("#btnShare", t().share); set("#shareTitle", t().share);
+    set("#mLayT", t().mLayer); set("#mLayD", t().mLayerD);
+    set("#mPaiT", t().mPaint); set("#mPaiD", t().mPaintD);
+    set("#mDetT", t().mDetail); set("#mDetD", t().mDetailD);
+    set("#mShrD", t().mShareD);
+    document.querySelectorAll(".sheet-x").forEach((b) => b.setAttribute("aria-label", t().close));
+    $("#btnSide").setAttribute("aria-label", t().sideSwap);
+    $("#btnSide").title = t().sideSwap;
+    $("#btnFull").setAttribute("aria-label", $("#mapArea").classList.contains("fs") ? t().fullExit : t().full);
+    $("#btnFull").title = $("#btnFull").getAttribute("aria-label");
     set("#noteProj", t().proj); set("#noteAnt", t().noAnt);
     set("#noteCount", t().nCount(ids.length));
     set("#navHint", matchMedia("(pointer: coarse)").matches ? t().navTouch : t().navMouse);
