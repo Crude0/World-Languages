@@ -10,6 +10,31 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.9.3 — 16 Ağustos 2026
+
+**0.9.0, 0.9.1 ve 0.9.2 sürümleri 0.8.0 ikililerini yayımlamış.** İndirilen
+.dmg'nin "Hakkında" penceresi 0.8.0 yazıyordu ve yeni arayüz yoktu; sürüm
+numarası, notlar, etiket, hepsi doğruydu — yalnız dosyalar eskiydi.
+
+Sebep: `make desktop` paketleri `desktop/dist/` altına üretiyor (orası
+`.gitignore`'da), yayım iş akışı ise depodaki `dist/` klasörünü yüklüyordu.
+İkisi arasında kopyalayan bir şey yoktu, yani `dist/` en son elle güncellendiği
+güne — 0.8.0'a — çakılı kalmıştı.
+
+İki tarafı da kapatıldı. Derleme artık paketleri `dist/`e taşıyor
+(`make publish`), ve yeni bir denetim (`tools/check-dist.py`) paketlerin içine
+bakıyor: mac paketinin `Info.plist` sürümü, ikililerdeki sürüm dizgesi ve
+APK'nın içindeki sayfanın depodakiyle aynı olması. Yayım iş akışı bunu
+yüklemeden önce koşuyor, düşerse sürüm çıkmıyor. Bayat paketler bu denetime
+sokulduğunda dördünde de takıldı.
+
+**Tam ekranda üstte ve altta boş şerit kalıyordu.** Harita 2,29:1, ekran ise
+genelde 16:10; sarmalayıcı haritanın oranında ölçüldüğü için görünüme
+sığdırılıyor ve kalan yer boş duruyordu. Artık görüş kutusunun oranını ekran
+belirliyor: harita ekranı dolduruyor, yaklaşmışken kenarlarda daha çok yer
+görünüyor. Dünya görünümünde kutu haritadan yüksek kaldığında ortalanıyor,
+üstte ve altta okyanus devam ediyor — dikiş belli olmuyor.
+
 ## v0.9.2 — 16 Ağustos 2026
 
 **Yayımlanan sürüm ikinci yenilemeye kadar görünmüyordu.** Hizmet çalışanı

@@ -4,7 +4,7 @@ PY    := python3
 
 VER := $(shell tr -d '[:space:]' < VERSION)
 
-.PHONY: all data web desktop android check clean
+.PHONY: all data web desktop android check clean publish dist-check
 
 all: web
 
@@ -30,10 +30,30 @@ desktop: web
 	cd desktop && CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 go build -ldflags "-s -w -X main.version=$(VER)" -o out/mac-amd64 .
 	cd desktop && CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -H windowsgui -X main.version=$(VER)" -o out/win-amd64.exe .
 	cd desktop && $(PY) package.py
+	$(MAKE) publish
+
+## publish: paketleri depodaki dist/ klasörüne taşır.
+## Yayım iş akışı dist/ içindekileri yüklüyor; package.py ise desktop/dist/
+## altına yazıyor ve orası .gitignore'da. Aradaki kopyalama eksikti, bu yüzden
+## 0.9.0–0.9.2 sürümleri 0.8.0 ikililerini yayımladı. Artık derlemenin parçası.
+.PHONY: publish
+publish:
+	@mkdir -p dist
+	@cp -p "desktop/dist/Dunya-Dilleri-Atlasi-mac.zip" dist/ 2>/dev/null || true
+	@cp -p "desktop/dist/Dunya-Dilleri-Atlasi.dmg"     dist/ 2>/dev/null || true
+	@cp -p "desktop/dist/Dunya Dilleri Atlasi.exe"     dist/ 2>/dev/null || true
+	@cp -p "desktop/dist/Dunya-Dilleri-Atlasi.apk"     dist/ 2>/dev/null || true
+	@$(PY) tools/check-dist.py
 
 ## android: imzalı APK  (Android SDK build-tools 34 + JDK 17 gerekir)
 android: data
 	./android/build.sh
+	$(MAKE) publish
+
+## dist: paketlerin bu sürümle tutarlı olduğunu doğrular
+.PHONY: dist-check
+dist-check:
+	$(PY) tools/check-dist.py
 
 ## check: Playwright ile arayüz denetimi  (npm i playwright)
 check: web

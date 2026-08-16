@@ -318,6 +318,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    çakışmaz ve imleç–harita koordinat çevrimi kayar. */
 .map-area.fs .map-wrap { border: 0; border-radius: 0; }
 .map-area.fs .map-wrap::after { display: none; }
+/* Sarmalayıcı görünümü kaplıyor ve görüş kutusu onun oranını aldığı için
+   SVG'nin letterbox'ı devreye girmiyor; yine de yuvarlamadan kalan bir
+   piksellik boşluk olmasın diye yükseklik açıkça veriliyor. */
+.map-area.fs #map { height: 100%; }
 body.fs-on { overflow: hidden; }
 
 /* Tablo görünümünde harita yok, ama denetim çubuğu kalmalı: yoksa tabloyu
@@ -1529,11 +1533,20 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // kaydırılan yönde de boş alan kalıyordu. Gerçek viewBox yazılıyor; rAF ile
   // kareye bir kez — fare bir karede kaç kez kıpırdarsa kıpırdasın tek çizim.
   let raf = 0;
+  // Görüş kutusunun boy/en oranı. Normalde haritanınki (dünya 2,29:1 ve
+  // sarmalayıcı da o oranda). Tam ekranda ekranın oranı geçiyor: aksi hâlde
+  // harita ekrana sığdırılıp altta ve üstte boş şeritler kalıyordu —
+  // Avrupa'ya yaklaşmışken gösterilecek veri varken bile.
+  let vbAR = H / W;
+  const vbH = (w) => w * vbAR;
   function clampVB() {
     vb.w = Math.min(W, Math.max(MINW, vb.w));
-    vb.h = vb.w * H / W;
+    vb.h = vbH(vb.w);
     vb.x = Math.min(W - vb.w, Math.max(0, vb.x));
-    vb.y = Math.min(H - vb.h, Math.max(0, vb.y));
+    // Kutu haritadan yüksekse (geniş ekranda uzaklaşınca olur) ortalanıyor;
+    // kırpmak yerine üstte ve altta okyanus görünüyor, dikiş belli olmuyor.
+    vb.y = vb.h >= H ? (H - vb.h) / 2
+                     : Math.min(H - vb.h, Math.max(0, vb.y));
   }
   /* ------------------------------------------------- görüş alanı budaması
      Ekranın dışında kalan yolu çizdirmenin anlamı yok. Sınırlayıcı kutular
@@ -1651,7 +1664,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     raf = requestAnimationFrame(() => { raf = 0; commitVB(); });
   }
   function zoomTo(cx, cy, w) {
-    vb.w = w; vb.h = w * H / W; vb.x = cx - vb.w / 2; vb.y = cy - vb.h / 2; applyVB();
+    vb.w = w; vb.h = vbH(w); vb.x = cx - vb.w / 2; vb.y = cy - vb.h / 2; applyVB();
   }
   function zoomBy(f, cx, cy) {
     const nx = cx === undefined ? vb.x + vb.w / 2 : cx, ny = cy === undefined ? vb.y + vb.h / 2 : cy;
@@ -1709,14 +1722,21 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   let fsOn = false;
   function sizeFs() {
     const box = svg.parentElement;
-    if (!fsOn) { box.style.width = ""; box.style.height = ""; }
-    else {
+    if (!fsOn) {
+      box.style.width = ""; box.style.height = "";
+      vbAR = H / W;
+    } else {
+      // Sarmalayıcı görünümü tümüyle kaplıyor ve görüş kutusu onun oranını
+      // alıyor; böylece harita ekranı dolduruyor, kenarlarda daha çok yer
+      // görünüyor. Eskiden sarmalayıcı harita oranında ölçülüyordu ve
+      // 16:10 bir ekranda üstte-altta ~%20 boş şerit kalıyordu.
       const r = area.getBoundingClientRect();
-      const s = Math.min(r.width / W, r.height / H);
-      box.style.width = Math.floor(W * s) + "px";
-      box.style.height = Math.floor(H * s) + "px";
+      box.style.width = Math.round(r.width) + "px";
+      box.style.height = Math.round(r.height) + "px";
+      vbAR = r.height / r.width;
     }
     rectCache = null;
+    clampVB();
     commitVB();   // etiket puntosu ve budama yeni ölçüye göre
   }
   function setFs(on) {
@@ -1877,7 +1897,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         const [a, b] = [...pointers.values()], r = mapRect();
         const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
         vb.w = Math.min(W, Math.max(MINW, pinch.w * pinch.d / d));
-        vb.h = vb.w * H / W;
+        vb.h = vbH(vb.w);
         // parmakların şu anki orta noktası, jestin başındaki yeri göstersin
         vb.x = pinch.p.x - ((cx - r.left) / r.width) * vb.w;
         vb.y = pinch.p.y - ((cy - r.top) / r.height) * vb.h;
@@ -2789,7 +2809,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       if (h.v) {
         const [x, y, w] = h.v.split(",").map(Number);
         if ([x, y, w].every(Number.isFinite) && w > 0) {
-          vb.w = w; vb.h = w * H / W; vb.x = x; vb.y = y; commitVB();
+          vb.w = w; vb.h = vbH(w); vb.x = x; vb.y = y; commitVB();
         }
       }
       // Seçim görüş kutusundan sonra: bölge seçimi ayrıntı düzeyini açtırıyor.

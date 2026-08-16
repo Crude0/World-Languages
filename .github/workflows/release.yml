@@ -119,6 +119,14 @@ jobs:
         id: v
         run: echo "version=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
 
+      # dist/ içindekiler gerçekten bu sürüm mü? 0.9.0–0.9.2 yayımlandı ve
+      # üçü de 0.8.0 ikililerini taşıyordu: paketler desktop/dist/ altına
+      # üretiliyor, yayım ise depodaki dist/ klasörünü yüklüyordu ve arada
+      # kopyalayan bir şey yoktu. Numara, notlar, etiket doğruydu; dosyalar
+      # eskiydi. Bu adım o duruma bir daha izin vermiyor.
+      - name: paketleri doğrula
+        run: python3 tools/check-dist.py
+
       - name: etiket ve release
         env:
           GH_TOKEN: ${{ github.token }}
