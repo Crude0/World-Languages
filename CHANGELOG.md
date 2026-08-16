@@ -50,8 +50,14 @@ payıyla boyuyor — ana dil ya da ikinci dil olarak. Türkçe + İngilizce
 seçince dünyada ≈1,81 milyar kişi çıkıyor. Seçim tarayıcıda saklanıyor ve
 bağlantıya giriyor (`#k=know&kn=tr.en`), yani paylaşılabiliyor.
 
-Paylar toplanıp %100'de kırpılıyor: iki dili birden bilenler iki kez
-sayıldığı için rakam bir üst sınır. Bu kartta ve göstergede yazıyor.
+Katmanın iki okuma biçimi var. **Pay** yukarıdaki gibi çalışıyor. **Ana dil**
+ise yalnız seçtiğiniz dillerden birinin *evde konuşulan çoğunluk dili* olduğu
+ülkeleri yakıyor — her biri kendi dil ailesinin renginde, öbürleri sönük.
+Türkçe + İngilizce seçince 38 ülke, ≈538 milyon kişi. "Nerede anlaşırım" ile
+"nerede benim dilim konuşulur" ayrı sorular; ikisi ayrı kipte duruyor.
+
+Pay kipinde paylar toplanıp %100'de kırpılıyor: iki dili birden bilenler iki
+kez sayıldığı için rakam bir üst sınır. Bu kartta ve göstergede yazıyor.
 
 ### PNG ve SVG olarak indirme
 

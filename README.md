@@ -146,8 +146,16 @@ them, as a first or second language. Turkish plus English comes to roughly 1.81
 billion people. The choice is stored in your browser and travels in the link
 (`#k=know&kn=tr.en`), so it can be shared.
 
-Shares are added and capped at 100%, so people who speak two of your languages
-are counted twice — the figure is an upper bound, and the panel says so.
+The layer reads two ways. **Share** works as above. **Home language** instead
+lights only the countries where one of your languages is the *majority language
+spoken at home*, each in the colour of its own family, and dims the rest —
+Turkish plus English gives 38 countries and about 538 million people. "Where
+could I get by" and "where is my language the language" are different questions,
+and they get different modes.
+
+In share mode the shares are added and capped at 100%, so people who speak two of
+your languages are counted twice — the figure is an upper bound, and the panel
+says so.
 
 ### Download the view
 

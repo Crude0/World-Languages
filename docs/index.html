@@ -400,6 +400,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .off-chip i { width: 9px; height: 9px; border-radius: 1px; background: var(--c); flex: none; }
 .off-chip i.oth { background-image: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 3px); }
 .off-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.know-seg { margin-bottom: 9px; width: fit-content; }
 /* karşılaştırma: iki yer yan yana */
 .cmp { display: grid; gap: 18px; }
 @media (min-width: 760px) { .cmp { grid-template-columns: 1fr 1fr; } }
@@ -687,6 +688,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // anlaşılabileceği. Paylar toplanıyor ve %100'de kırpılıyor — iki dili
   // birden bilenler iki kez sayıldığı için bu bir üst sınır.
   const known = new Set((localStorage.getItem("wl-known") || "").split(",").filter(Boolean));
+  // İki okuma biçimi: "share" seçilen dilleri konuşan nüfusun payı,
+  // "home" ise yalnız o dillerin evin dili olduğu ülkeleri yakar.
+  let knowMode = localStorage.getItem("wl-knowmode") === "home" ? "home" : "share";
+  const speaksHome = (o) => !!(o && known.has(o.l));
   function reach(cid) {
     const c = C[cid];
     if (!c || !known.size) return 0;
@@ -778,6 +783,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       knowScale: "anlaşılabilen nüfusun payı",
       binsKnow: ["<%5", "%5–20", "%20–45", "%45–70", "%70–90", ">%90"],
       knowLive: (n) => `${n} dil seçili.`,
+      kmShare: "Pay", kmHome: "Ana dil",
+      capHomeSub: (n, c, v) => n
+        ? `${n} dil seçili · ${c} ülkede evin dili · ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2).replace(".", ",") + " milyar" : Math.round(v / 1000) + " milyon"} kişi`
+        : "Soldaki listeden bildiğiniz dilleri seçin.",
+      noteHome: "Yalnız seçtiğiniz dillerden birinin evde konuşulan çoğunluk dili olduğu ülkeler yanıyor; her biri kendi dil ailesinin renginde. Öbürleri sönük — orada diliniz konuşuluyor olabilir ama çoğunluğun dili değil.",
       keyScr: "Yazı sistemleri", keyOff: "Resmî dilin ailesi",
       capScr: "Dünya · çoğunluğun dilinin yazısı",
       capScrSub: (n) => `${n} ülke ve bölge, ana dillerinin alfabesine göre.`,
@@ -861,6 +871,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       knowScale: "share of the population you could talk to",
       binsKnow: ["<5%", "5–20%", "20–45%", "45–70%", "70–90%", ">90%"],
       knowLive: (n) => `${n} languages selected.`,
+      kmShare: "Share", kmHome: "Home language",
+      capHomeSub: (n, c, v) => n
+        ? `${n} selected · the home language in ${c} countries · ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2) + " billion" : Math.round(v / 1000) + " million"} people`
+        : "Pick the languages you speak from the list on the left.",
+      noteHome: "Only countries where one of your languages is the majority language spoken at home are lit, each in the colour of its own family. The rest are dimmed — your language may well be spoken there, just not by most people.",
       keyScr: "Writing systems", keyOff: "Family of the official language",
       capScr: "World · the script of the majority language",
       capScrSub: (n) => `${n} countries and territories, by the alphabet they write in.`,
@@ -966,6 +981,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (ui !== "tr") p.push("l=" + ui);
     if (layer !== "home") p.push("k=" + layer);
     if (known.size) p.push("kn=" + [...known].join("."));
+    if (knowMode !== "share") p.push("km=" + knowMode);
     if (paint !== "fam") p.push("p=" + paint);
     if (lod !== "auto") p.push("d=" + lod);
     if (state.filter) p.push("f=" + state.filter.t + "." + state.filter.k);
@@ -1180,11 +1196,23 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     // "Bildiğim diller" katmanı sürekli bir ölçekle boyanıyor: aile
     // renkleri değil, anlaşılabilen nüfusun payı.
     if (layer === "know") {
+      if (knowMode === "home") {
+        // Yalnız ana dil: eşleşen yer dilin kendi aile renginde, ötekiler sönük.
+        const put = (n, o) => {
+          n.style.fillOpacity = "";
+          n.style.fill = !known.size ? ""
+            : speaksHome(o) ? `var(--g-${LG[o.l].g})` : "var(--land-mute)";
+        };
+        svg.querySelectorAll(".cty, .dot").forEach((n) => put(n, C[n.dataset.id]));
+        svg.querySelectorAll(".sub").forEach((n) => put(n, SB[n.dataset.sid]));
+        svg.classList.toggle("is-painting", known.size > 0);
+        renderScale();
+        return;
+      }
       const key = "know|--g-nkg";
       if (key !== rampKey) { buildRamp("--g-nkg"); rampKey = key; }
       const put = (n, cid) => {
-        const v = reach(cid);
-        n.style.fill = known.size ? ramp[binOf(v, KNOW_BINS)] : "";
+        n.style.fill = known.size ? ramp[binOf(reach(cid), KNOW_BINS)] : "";
         n.style.fillOpacity = "";
       };
       svg.querySelectorAll(".cty, .dot").forEach((n) => put(n, n.dataset.id));
@@ -1214,7 +1242,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   function renderScale() {
     const box = $("#scale");
     if (layer === "know") {
-      if (!known.size) { box.hidden = true; box.innerHTML = ""; return; }
+      if (!known.size || knowMode === "home") { box.hidden = true; box.innerHTML = ""; return; }
       box.innerHTML = `<span class="scale-t">${t().knowScale}</span>` +
         `<span class="scale-bins">` + ramp.map((c, i) =>
           `<span class="scale-bin"><i style="background:${c}"></i><span>${t().binsKnow[i]}</span></span>`).join("") +
@@ -1651,16 +1679,21 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     // dillerin listesi. Dizinden bir dile tıklamak onu ekler/çıkarır.
     if (layer === "know") {
       $("#keyTitle").textContent = t().keyKnow;
-      $("#keyRows").innerHTML = known.size
+      $("#keyRows").innerHTML =
+        `<div class="seg know-seg" role="group" aria-label="${t().keyKnow}">
+           <button data-km="share" aria-pressed="${knowMode === "share"}">${t().kmShare}</button>
+           <button data-km="home" aria-pressed="${knowMode === "home"}">${t().kmHome}</button>
+         </div>` + (known.size
         ? [...known].filter((k) => LG[k]).map((k) =>
             `<button class="key-row" data-unknow="${k}" style="--c:${col(LG[k].g)}">
                <span class="swatch ${LG[k].g === "oth" ? "oth" : ""}"></span>
                <span class="key-name">${esc(ln(LG[k]))}</span>
                <span class="key-count num">✕</span></button>`).join("")
-        : "";
+        : "");
       $("#dist").innerHTML = "";
       const n2 = $("#layNote");
-      n2.textContent = known.size ? t().noteKnow : t().noteKnowEmpty;
+      n2.textContent = !known.size ? t().noteKnowEmpty
+        : knowMode === "home" ? t().noteHome : t().noteKnow;
       n2.hidden = false;
       $("#keyNote").hidden = true;
       return;
@@ -1684,6 +1717,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   }
   renderKey();
   $("#keyRows").addEventListener("click", (e) => {
+    const km = e.target.closest("[data-km]");
+    if (km) {
+      knowMode = km.dataset.km;
+      localStorage.setItem("wl-knowmode", knowMode);
+      renderKey(); rampKey = ""; repaint(); setFilter(state.filter); queueHash();
+      return;
+    }
     const un = e.target.closest("[data-unknow]");
     if (un) { toggleKnown(un.dataset.unknow); return; }
     const b = e.target.closest("[data-g]"); if (!b) return;
@@ -1756,6 +1796,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       }).join("");
     }
   }
+  // ana dil kipi: seçilen dillerin evin dili olduğu ülke sayısı ve nüfusu
+  const homeCount = () => ids.filter((i) => speaksHome(C[i])).length;
+  const homePop = () => Math.round(ids.reduce((a, i) =>
+    a + (speaksHome(C[i]) ? (C[i].pop || 0) * C[i].p / 100 : 0), 0));
   // seçilen dillerle dünyada kaç kişiyle anlaşılabilir (bin kişi)
   function reachTotal() {
     return Math.round(ids.reduce((a, i) => a + (C[i].pop || 0) * reach(i) / 100, 0));
@@ -1941,7 +1985,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         : layer === "know" ? t().capKnow : t().capAll;
       capS.textContent = layer === "scr" ? t().capScrSub(ids.length)
         : layer === "off" ? t().capOffSub(ids.length)
-        : layer === "know" ? t().capKnowSub(known.size, reachTotal())
+        : layer === "know" ? (knowMode === "home"
+            ? t().capHomeSub(known.size, homeCount(), homePop())
+            : t().capKnowSub(known.size, reachTotal()))
         : t().capAllSub(ids.length);
     } else if (f.t === "l") {
       const l = LG[f.k];
@@ -2401,6 +2447,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         h.kn.split(".").filter((k) => LG[k]).forEach((k) => known.add(k));
         localStorage.setItem("wl-known", [...known].join(","));
       }
+      // Bağlantı görünümü belirler: km yoksa varsayılan kip demektir,
+      // tarayıcıda saklanan tercih paylaşılan bağlantıyı ezmemeli.
+      knowMode = h.km === "home" ? "home" : "share";
+      localStorage.setItem("wl-knowmode", knowMode);
       if (["home", "scr", "off", "know"].includes(h.k)) setLayer(h.k);
       if (["fam", "pct", "ppl"].includes(h.p)) setPaint(h.p);
       if (["auto", "off", "on"].includes(h.d)) setLodMode(h.d);
