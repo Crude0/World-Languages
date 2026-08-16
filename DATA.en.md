@@ -15,7 +15,7 @@ of magnitude, not to the decimal.
 | Migrant/minority tail | `diaspora.py` | 56 countries, 440 rows | Communities below 1%, down to 0.05% |
 | Second language | `lang_mix.py` (`L2`) | 189/234 | Languages spoken well enough to hold a conversation without being native |
 | Population | `population.py` | 234/234 | UN 2024 estimate, thousands |
-| State / province | `subdiv.py` | 313 regions, 12 countries | Language distribution and population per region |
+| State / province | `subdiv.py` | 507 regions, 18 countries | Language distribution and population per region |
 | Writing system | `layers.py` (`SCRIPT_FIX`, `SCRIPT2`) | 155/155 languages | Which alphabet the language is written in; the second one where two are in use |
 | Official language | `layers.py` (`OFFICIAL`, `DE_FACTO`) | 234/234 | The state's official languages in law; the de facto one where none is declared |
 
@@ -36,6 +36,21 @@ official language policy.
 
 **Second language** — Eurobarometer 386 (2012) in Europe, on the "able to hold a
 conversation" criterion. National censuses and estimates elsewhere.
+
+**Regional language data** is compiled from different sources per country: the
+2021 Russian census; the Language Atlas of China (中国语言地图集) together with
+the ethnic breakdown of the 2020 census; South Africa's Census 2022; Germany's
+Zensus 2022 (the language predominantly spoken in the household — first asked in
+2022); Ethnologue and ethnic-distribution estimates for Nigeria, which has no
+census asking about language; and INED/INSEE surveys for France, whose census
+does not ask either. The Nigerian and French figures are therefore estimates.
+
+**What is left out.** Brazil's 27 states are not included: Portuguese is around
+98% in every one of them, so 2389 points of geometry would buy a single flat
+colour. Crimea, Sevastopol and the Paracel Islands are not included either —
+Natural Earth's admin-1 data attaches them to Russia and China, and this
+repository takes no position on borders. Switching to region level therefore
+never changes which country a place is counted as part of.
 
 **The writing system is not typed in by hand**: the letters of each language's
 own name for itself (its endonym) are counted by Unicode block, and the most

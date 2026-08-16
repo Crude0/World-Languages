@@ -148,9 +148,9 @@ body.zoomed .orn { opacity: 0; }
 /* stroke yok ama vector-effect kalmalı: seçim ve vurgu kuralları
    kalınlığı bu özellik üzerinden CSS pikseline sabitliyor. */
 .sub { stroke: none; vector-effect: non-scaling-stroke; }
-.outer { fill: none; stroke: var(--border); stroke-width: 1.2; stroke-linejoin: round;
+.outer { fill: none; stroke: var(--border); stroke-width: 1.2;
          vector-effect: non-scaling-stroke; pointer-events: none; }
-.inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
+.inner { fill: none; stroke: var(--sub-line); stroke-width: 1;
          vector-effect: non-scaling-stroke; pointer-events: none; }
 /* Bölge kipinde alt bölgeli ülkelerin ülke konturu gereksiz: aynı sınırı
    .outer çiziyor ve ülke yolu bölge dolgularının altında kalıyor. */
@@ -746,12 +746,12 @@ body.zoomed .orn { opacity: 0; }
       `<path class="sub ${gcls(SB[sid], SB[sid].p)}" data-sid="${sid}" d="${SB[sid].d}"></path>`).join("") + `</g>` +
     // Ülkenin dış çeperi; bölge dolgularının üstünde (masaüstü şablonundaki
     // açıklamaya bak).
-    `<g class="outer-g">` + Object.keys(D.outer || {}).map((cid) =>
-      `<path class="outer" d="${D.outer[cid]}"></path>`).join("") + `</g>` +
+    `<g class="outer-g">` + Object.values(D.outer || {}).flat().map((d) =>
+      `<path class="outer" d="${d}"></path>`).join("") + `</g>` +
     `<g class="dots">` + order.filter((id) => C[id].a < DOT_AT).map((id) =>
       `<circle class="dot ${gcls(C[id], id)}" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="3"></circle>`).join("") + `</g>` +
-    `<g class="inner-g">` + Object.keys(D.inner || {}).map((cid) =>
-      `<path class="inner" d="${D.inner[cid]}"></path>`).join("") + `</g>` +
+    `<g class="inner-g">` + Object.values(D.inner || {}).flat().map((d) =>
+      `<path class="inner" d="${d}"></path>`).join("") + `</g>` +
     `<g class="hits">` + order.filter((id) => C[id].a < HIT_AT).map((id) =>
       `<circle class="hitdot" data-id="${id}" cx="${C[id].c[0]}" cy="${C[id].c[1]}" r="11"></circle>`).join("") + `</g>` +
     `<g class="marks"></g>`;

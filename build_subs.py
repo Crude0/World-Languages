@@ -29,7 +29,20 @@ WANT = {
     "BEL": ("056", "self"), "ESP": ("724", "region"), "GBR": ("826", "nation"),
     "IND": ("356", "self"), "ITA": ("380", "region"), "TUR": ("792", "self"),
     "UKR": ("804", "self"), "FIN": ("246", "self"), "BOL": ("068", "self"),
+    # 0.7.0'da eklendi. Brezilya bilerek dışarıda: 27 eyaletin hepsinde
+    # Portekizce ~%98, yani 2389 nokta karşılığında tek renkli bir yüzey.
+    "RUS": ("643", "self"), "CHN": ("156", "self"), "NGA": ("566", "self"),
+    "ZAF": ("710", "self"), "FRA": ("250", "region"), "DEU": ("276", "self"),
 }
+
+# Natural Earth admin-1'de Kırım ve Sivastopol Rusya'ya bağlı görünüyor.
+# Bu depo sınırlarda taraf tutmuyor (bkz. README): ülke katmanı Natural
+# Earth 1:50m'i olduğu gibi çiziyor, alt bölge katmanı da bu iki birimi
+# hiç almıyor. Böylece bölge kipine geçmek yarımadanın hangi ülkeye ait
+# sayıldığını değiştirmiyor — 0.6.1'deki davranış birebir korunuyor.
+# Paracel (Xisha) Adaları da aynı sebeple dışarıda: Çin, Vietnam ve Tayvan
+# talep ediyor, üzerinde yerleşik nüfus yok.
+SKIP = {("RUS", "Crimea"), ("RUS", "Sevastopol"), ("CHN", "Paracel Islands")}
 
 GBR_NATION = {
     "Northern Ireland": "Kuzey İrlanda",
@@ -124,7 +137,27 @@ def _chain(edges):
                 chain.append(nxt)
             chain.reverse()
         paths.append(chain)
-    return "".join("M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in c) for c in paths)
+    return paths
+
+
+CELL = 40.0            # kova ızgarası (svg birimi) — bkz. bucket()
+
+
+def bucket(chains):
+    """Zincirleri mekânsal kovalara ayırıp her kova için bir yol üretir.
+
+    Sınır ağı eskiden ülke başına *tek* bir yoldu. Budama yol düzeyinde
+    çalıştığı için Rusya'nın 153 zincirlik çeperi, ekranda yüzde onu
+    görünse bile bütünüyle konturlanıyordu. Zincirler kaba bir ızgaraya
+    dağıtılınca ekran dışında kalan kovalar eleniyor.
+    """
+    cells = defaultdict(list)
+    for c in chains:
+        cx = sum(x for x, _ in c) / len(c)
+        cy = sum(y for _, y in c) / len(c)
+        cells[(int(cx // CELL), int(cy // CELL))].append(c)
+    return ["".join("M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in c) for c in group)
+            for _, group in sorted(cells.items())]
 
 
 def border_network(rings_by_country):
@@ -152,8 +185,8 @@ def border_network(rings_by_country):
             for i in range(n):
                 a, b = ring[i], ring[(i + 1) % n]
                 count[(a, b) if a <= b else (b, a)] += 1
-        inner[cid] = _chain([e for e, c in count.items() if c >= 2])
-        outer[cid] = _chain([e for e, c in count.items() if c == 1])
+        inner[cid] = bucket(_chain([e for e, c in count.items() if c >= 2]))
+        outer[cid] = bucket(_chain([e for e, c in count.items() if c == 1]))
     return inner, outer
 
 
@@ -216,6 +249,8 @@ def main():
             continue
         cid, mode = WANT[iso3]
         name = p.get("name") or p.get("name_en") or ""
+        if (iso3, name) in SKIP:
+            continue
         if mode == "region":
             key = p.get("region")
         elif mode == "nation":
@@ -260,9 +295,11 @@ def main():
     json.dump({"w": round(W, 1), "h": round(H, 1), "s": res,
                "inner": inner, "outer": outer},
               open(OUT, "w"), separators=(",", ":"), ensure_ascii=False)
-    ipts = sum(v.count("L") + v.count("M") for v in inner.values())
-    opts = sum(v.count("L") + v.count("M") for v in outer.values())
-    print(f"  sınır ağı: iç {ipts} nokta, dış {opts} nokta "
+    npts = lambda net: sum(d.count("L") + d.count("M")
+                           for paths in net.values() for d in paths)
+    nbox = lambda net: sum(len(paths) for paths in net.values())
+    print(f"  sınır ağı: iç {npts(inner)} nokta / {nbox(inner)} kova, "
+          f"dış {npts(outer)} nokta / {nbox(outer)} kova "
           f"(eskiden dış çeper için {pts_of(res)} nokta konturlanıyordu)")
     per = defaultdict(int)
     for v in res.values():

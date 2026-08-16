@@ -28,6 +28,16 @@ FAM_EN = {
     "Hint-Aryan temelli kreol": "Indo-Aryan-based creole",
     "Hint-Avrupa · Arnavut": "Indo-European · Albanian",
     "Hint-Avrupa · Balt": "Indo-European · Baltic",
+    "Hmong-Mien dilleri": "Hmong-Mien languages",
+    "Kuzeybatı Kafkas dilleri": "Northwest Caucasian languages",
+    "Nah-Dağıstan dilleri": "Northeast Caucasian languages",
+    "Nijer-Kongo · Bantoid": "Niger-Congo · Bantoid",
+    "Nijer-Kongo · Cross River": "Niger-Congo · Cross River",
+    "Nijer-Kongo · Volta-Nijer": "Niger-Congo · Volta-Niger",
+    "Nijer-Kongo · İjo": "Niger-Congo · Ijoid",
+    "Nil-Sahra dilleri": "Nilo-Saharan languages",
+    "Tunguz dilleri": "Tungusic languages",
+    "Çukçi-Kamçatka dilleri": "Chukotko-Kamchatkan languages",
     "Hint-Avrupa · Kelt": "Indo-European · Celtic",
     "Hint-Avrupa · İtalik": "Indo-European · Italic",
     "Hint-Avrupa · Cermen": "Indo-European · Germanic",
@@ -63,6 +73,27 @@ FAM_EN = {
 
 # ------------------------------------------------------- 142 dilin adları
 LANG_EN = {
+    # 0.7.0: Rusya'nın cumhuriyet dilleri
+    "tt": "Tatar", "ba": "Bashkir", "cv": "Chuvash", "sah": "Yakut",
+    "tyv": "Tuvan", "alt": "Altai", "kjh": "Khakas", "kum": "Kumyk",
+    "krc": "Karachay-Balkar", "nog": "Nogai", "ce": "Chechen", "inh": "Ingush",
+    "av": "Avar", "dar": "Dargin", "lez": "Lezgian", "lbe": "Lak",
+    "tab": "Tabasaran", "os": "Ossetian", "kbd": "Kabardian", "ady": "Adyghe",
+    "abq": "Abaza", "chm": "Mari", "mdf": "Mordvin", "udm": "Udmurt",
+    "kv": "Komi", "krl": "Karelian", "yrk": "Nenets", "kca": "Khanty",
+    "bua": "Buryat", "xal": "Kalmyk", "ckt": "Chukchi", "evn": "Evenki",
+    # 0.7.0: Güney Afrika, Nijerya
+    "nso": "Sepedi", "ts": "Tsonga", "ve": "Venda", "yo": "Yoruba",
+    "ig": "Igbo", "kr": "Kanuri", "tiv": "Tiv", "ibb": "Ibibio",
+    "ijo": "Ijaw", "bin": "Edo", "nup": "Nupe", "urh": "Urhobo", "efi": "Efik",
+    # 0.7.0: Çin
+    "ug": "Uyghur", "bo": "Tibetan", "wuu": "Wu Chinese", "nan": "Min Chinese",
+    "hak": "Hakka", "hsn": "Xiang Chinese", "gan": "Gan Chinese", "ii": "Yi",
+    "za": "Zhuang", "pcc": "Bouyei", "hmn": "Hmong",
+    # 0.7.0: Fransa, Almanya
+    "co": "Corsican", "br": "Breton", "oc": "Occitan",
+    "gcf": "Antillean Creole", "gcr": "Guianese Creole", "rcf": "Réunion Creole",
+    "buc": "Kibushi", "wen": "Sorbian",
     # yalnız resmî dil olarak geçenler
     "ga": "Irish", "ps": "Pashto", "tzm": "Berber (Tamazight)",
     "af": "Afrikaans", "be": "Belarusian", "nd": "Ndebele", "mi": "Māori",
@@ -366,6 +397,53 @@ SUB_EN = {
     "792-Çankırı": "Çankırı", "792-Çorum": "Çorum",
 }
 
+
+SUB_EN.update({
+    # 0.7.0'da eklenen ülkeler. Anahtar: "<ülke>-<Türkçe ad>".
+    "643-Başkurdistan": "Bashkortostan", "643-Tataristan": "Tatarstan",
+    "643-Çuvaşistan": "Chuvashia", "643-Saha (Yakutistan)": "Sakha (Yakutia)",
+    "643-Altay Cumhuriyeti": "Altai Republic", "643-Altay Krayı": "Altai Krai",
+    "643-Hakasya": "Khakassia", "643-Çeçenistan": "Chechnya",
+    "643-İnguşetya": "Ingushetia", "643-Dağıstan": "Dagestan",
+    "643-Kuzey Osetya": "North Ossetia", "643-Kabardey-Balkar": "Kabardino-Balkaria",
+    "643-Karaçay-Çerkes": "Karachay-Cherkessia", "643-Adigey": "Adygea",
+    "643-Mordovya": "Mordovia", "643-Udmurtya": "Udmurtia",
+    "643-Karelya": "Karelia", "643-Buryatya": "Buryatia",
+    "643-Kalmukya": "Kalmykia", "643-Çukotka": "Chukotka",
+    "643-Nenets ÖO": "Nenets Okrug", "643-Yamalo-Nenets": "Yamalo-Nenets",
+    "643-Hantı-Mansi": "Khanty-Mansi", "643-Yahudi Özerk Oblastı": "Jewish AO",
+    "643-Zabaykalye": "Zabaykalsky Krai", "643-Moskova": "Moscow",
+    "643-Moskova Oblastı": "Moscow Oblast", "643-Sankt-Peterburg": "St Petersburg",
+    "643-Arhangelsk": "Arkhangelsk", "643-Astrahan": "Astrakhan",
+    "643-Çelyabinsk": "Chelyabinsk", "643-Habarovsk": "Khabarovsk",
+    "643-Kamçatka": "Kamchatka", "643-Nijni Novgorod": "Nizhny Novgorod",
+    "643-Sahalin": "Sakhalin", "643-Tümen": "Tyumen", "643-Voronej": "Voronezh",
+    "643-Oryol": "Oryol", "643-İrkutsk": "Irkutsk", "643-İvanovo": "Ivanovo",
+    "643-Perm": "Perm", "643-Ryazan": "Ryazan", "643-Stavropol": "Stavropol",
+    "643-Tver": "Tver", "643-Ulyanovsk": "Ulyanovsk", "643-Primorye": "Primorsky Krai",
+    "643-Magadan": "Magadan", "643-Mari El": "Mari El", "643-Komi": "Komi",
+    "643-Tuva": "Tuva", "643-Krasnoyarsk": "Krasnoyarsk", "643-Yaroslavl": "Yaroslavl",
+    # Çin
+    "156-Tibet": "Tibet", "156-İç Moğolistan": "Inner Mongolia",
+    "156-Sincan (Doğu Türkistan)": "Xinjiang", "156-Pekin": "Beijing",
+    "156-Şanghay": "Shanghai", "156-Şaanksi": "Shaanxi", "156-Şanksi": "Shanxi",
+    "156-Şandong": "Shandong", "156-Siçuan": "Sichuan",
+    "156-Çongçing": "Chongqing", "156-Tiencin": "Tianjin", "156-Çinghay": "Qinghai",
+    # Güney Afrika
+    "710-Batı Cape": "Western Cape", "710-Doğu Cape": "Eastern Cape",
+    "710-Kuzey Cape": "Northern Cape", "710-Özgür Devlet": "Free State",
+    "710-Kuzey Batı": "North West",
+    # Fransa
+    "250-Fransız Guyanası": "French Guiana", "250-Korsika": "Corsica",
+    "250-Bretanya": "Brittany", "250-Normandiya": "Normandy",
+    # Almanya
+    "276-Bavyera": "Bavaria", "276-Saksonya": "Saxony",
+    "276-Saksonya-Anhalt": "Saxony-Anhalt", "276-Aşağı Saksonya": "Lower Saxony",
+    "276-Kuzey Ren-Vestfalya": "North Rhine-Westphalia",
+    "276-Türingiya": "Thuringia", "276-Renanya-Pfalz": "Rhineland-Palatinate",
+    "276-Mecklenburg-Ön Pomeranya": "Mecklenburg-Vorpommern",
+})
+
 # ------------------------------------------------------------ renk grupları
 GROUP_EN = {
     "rom": ("Romance languages", "Spanish, Portuguese, French, Italian, Romanian"),
@@ -391,7 +469,7 @@ SCRIPT_EN = {
     "jpan": "Kanji + kana", "hang": "Hangul", "grek": "Greek",
     "armn": "Armenian", "geor": "Georgian", "hebr": "Hebrew",
     "ethi": "Ge'ez", "thaa": "Thaana", "cans": "Canadian syllabics",
-    "tfng": "Tifinagh",
+    "tfng": "Tifinagh", "yiii": "Yi syllabary",
 }
 
 SGROUP_EN = {
@@ -403,7 +481,7 @@ SGROUP_EN = {
     "cjk": ("East Asia", "Han characters, Japanese kana, Korean hangul"),
     "alp": ("Other alphabets and abjads", "Greek, Armenian, Georgian, Hebrew"),
     "gez": ("Ge'ez", "Amharic and Tigrinya — Africa's own script"),
-    "oth": ("Other", "Thaana, Canadian syllabics, Tifinagh"),
+    "oth": ("Other", "Thaana, Canadian syllabics, Tifinagh, Yi"),
 }
 
 # iki yazılı diller — SCRIPT2 notlarının İngilizcesi

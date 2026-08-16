@@ -15,7 +15,7 @@ olarak okunmalı, ondalık hassasiyetle değil.
 | Göçmen/azınlık kuyruğu | `diaspora.py` | 56 ülke, 440 satır | %1'in altında kalan topluluklar, %0,05'e kadar |
 | İkinci dil | `lang_mix.py` (`L2`) | 189/234 | Ana dili olmadığı hâlde sohbet edecek düzeyde konuşulan diller |
 | Nüfus | `population.py` | 234/234 | BM 2024 tahmini, bin kişi |
-| Eyalet / il | `subdiv.py` | 313 bölge, 12 ülke | Bölge bazında dil dağılımı ve nüfus |
+| Eyalet / il | `subdiv.py` | 507 bölge, 18 ülke | Bölge bazında dil dağılımı ve nüfus |
 | Yazı sistemi | `layers.py` (`SCRIPT_FIX`, `SCRIPT2`) | 155/155 dil | Dilin hangi alfabeyle yazıldığı; iki yazılı dillerde ikincisi |
 | Resmî dil | `layers.py` (`OFFICIAL`, `DE_FACTO`) | 234/234 | Devletin hukuken resmî dilleri; ilan edilmemişse fiilî olan |
 
@@ -36,6 +36,20 @@ yuvarlandı.
 
 **İkinci dil** — Avrupa'da Eurobarometre 386 (2012), "bir sohbeti sürdürecek
 düzeyde" ölçütü. Diğer bölgelerde ulusal sayım ve tahminler.
+
+**Bölge dil verisi** ülkeye göre değişen kaynaklardan derlendi: Rusya 2021
+sayımı, Çin dil atlası (中国语言地图集) ve 2020 sayımının etnik dağılımı, Güney
+Afrika Census 2022, Almanya Zensus 2022 (hanede ağırlıklı konuşulan dil — bu
+soruyu ilk kez 2022'de sordu), Nijerya için Ethnologue ve etnik dağılım
+tahminleri (dil sorusu soran sayım yok), Fransa için INED/INSEE anketleri
+(sayım dil sormaz). Nijerya ve Fransa rakamları bu yüzden tahmindir.
+
+**Kapsam dışında bırakılanlar.** Brezilya'nın 27 eyaleti alınmadı: hepsinde
+Portekizce ~%98, yani 2389 noktalık geometrinin karşılığı tek renkli bir yüzey
+olurdu. Kırım, Sivastopol ve Paracel Adaları da alınmadı — Natural Earth
+admin-1 bunları Rusya'ya ve Çin'e bağlıyor, bu depo ise sınırlarda taraf
+tutmuyor. Böylece bölge kipine geçmek hiçbir yerin hangi ülkeye sayıldığını
+değiştirmiyor.
 
 **Yazı sistemi** elle yazılmadı: dilin kendi dilindeki adının (endonim) harfleri
 Unicode bloklarına göre sayılıyor, en çok geçen blok yazı sistemi kabul ediliyor.

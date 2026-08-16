@@ -10,6 +10,82 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.7.0 — 16 Ağustos 2026
+
+**Bölge verisi 12 ülkeden 18'e, 313 bölgeden 507'ye çıktı.** Haritanın en
+büyük boş lekeleri kapandı.
+
+**Rusya · 83 federal özne.** Federasyonda 30'dan fazla dil cumhuriyet
+düzeyinde resmî; harita bugüne kadar Rusya'yı tek renk çiziyordu. Artık
+Tataristan Tatarca, Çuvaşistan Çuvaşça, Saha Sahaca, Tuva Tuvaca ile Türk
+dilleri renginde; Çeçenistan, İnguşetya, Dağıstan ve Kabardey-Balkar kendi
+Kafkas dilleriyle ayrı duruyor. Kaynak 2021 sayımı. 32 yeni dil geldi:
+Tatarca, Başkurtça, Çuvaşça, Sahaca, Tuvaca, Çeçence, Avarca, Lezgice,
+Osetçe, Marice, Udmurtça, Buryatça, Kalmukça, Çukçice ve diğerleri.
+
+**Çin · 31 eyalet.** "Çince" tek bir dil değil: Mandarin, Kantonca, Wu, Min,
+Hakka, Xiang ve Gan karşılıklı anlaşılmaz. Harita bunları ilk kez ayırıyor —
+Şanghay ve Zhejiang Wu, Fujian ve Hainan Min, Jiangxi Gan, Hunan Xiang,
+Guangdong Kantonca. Sincan Uygurca, Tibet Tibetçe, İç Moğolistan Moğolca,
+Guangxi'de Zhuangca.
+
+**Nijerya · 37 eyalet.** Ülkenin çoğunluk dili yok; asıl dağılım eyalet
+düzeyinde. Kuzey Hausa, güneybatı Yorubaca, güneydoğu İgboca, Nijer Deltası
+ise Nijerya Pidgini kuşağı.
+
+**Güney Afrika · 9 il.** 12 resmî dilin hiçbiri ülke genelinde çoğunluk
+değil. Census 2022: KwaZulu-Natal'da Zuluca %78, Doğu Cape'te Xhosa %77,
+Batı Cape'te Afrikaanca %41, Limpopo'da Sepedi %52.
+
+**Fransa · 18 bölge** (Korsikaca, Bretonca, Oksitanca, denizaşırı kreoller)
+ve **Almanya · 16 eyalet** (Zensus 2022 hane dili; Berlin'de Türkçe %5,
+doğu eyaletlerinde %1'in altında).
+
+**Brezilya bilerek dışarıda:** 27 eyaletin hepsinde Portekizce ~%98, yani
+2389 nokta karşılığında tek renkli bir yüzey. Kırım, Sivastopol ve Paracel
+Adaları da alınmadı — Natural Earth bunları Rusya'ya ve Çin'e bağlıyor, bu
+depo ise sınırlarda taraf tutmuyor. Bölge kipine geçmek artık hiçbir
+yarımadanın hangi ülkeye sayıldığını değiştirmiyor.
+
+**Dil sayısı 155'ten 219'a çıktı**; 64'ü bu turda geldi. Aile etiketi 44'ten
+54'e: Nah-Dağıstan, Kuzeybatı Kafkas, Tunguz, Çukçi-Kamçatka, Hmong-Mien,
+Nil-Sahra ve Nijer-Kongo'nun dört yeni kolu.
+
+### Ve kasma geri gelmedi — tersine hızlandı
+
+Geometri %83 büyüdü (21.628 → 39.683 nokta). Ölçüm yapılmadan eklenseydi
+bölge kipi iki katı pahalıya gelecekti; ilk ölçüm Rusya'ya yakınlaşınca
+1956 → 3772 ms gösterdi. Katman katman ölçülünce iki ayrı sebep çıktı.
+
+**Birincisi `stroke-linejoin: round`.** Sınır ağlarında duruyordu ve tek
+başına maliyetin **%29**'unu tutuyordu: on beş bin köşenin her birinde
+yuvarlak birleşim geometrisi üretiliyor, 1,2 piksellik bir çizgide gözle
+ayırt edilemeyen bir fark için. Kaldırıldı. (Aynı turda 0.4.0 planında
+şüpheli olarak duran `vector-effect: non-scaling-stroke` da denendi;
+ölçüm 6 ms fark gösterdi, yani etkisiz — o madde kapandı.)
+
+**İkincisi budamanın çalışmaması.** Sınır ağı ülke başına *tek* bir yoldu:
+Rusya'nın 153 zincirlik dış çeperi, ekranda yüzde onu görünse bile
+bütünüyle konturlanıyordu. Zincirler artık kaba bir ızgarada kovalara
+dağıtılıyor (40 svg birimlik hücreler, toplam 260 kova) ve ekran dışında
+kalan kovalar eleniyor. Bu, yalnız yeni ülkelere değil Kanada'nın 5957
+noktalık çeperine de yarıyor.
+
+İkisi birlikte, %83 daha fazla geometriye rağmen:
+
+| durum | 0.6.1 | 0.7.0 |
+|---|---|---|
+| dünya · ülke kipi | 878 ms | 647 ms |
+| dünya · bölge kipi zorlanmış | 1951 ms | **1506 ms** |
+| Rusya yakın · bölge zorlanmış | 1845 ms | **1503 ms** |
+| Rusya yakın · varsayılan kip | 1608 ms | **1241 ms** |
+| Moskova çevresi · varsayılan | 1455 ms | **967 ms** |
+| Çin · varsayılan | 1153 ms | 1082 ms |
+
+Yani Rusya'nın 83 öznesi ve Çin'in 31 eyaleti çizilirken bile harita,
+bunları hiç çizmeyen 0.6.1'den hızlı. Sayfa 1442 KB'den 1931 KB'ye çıktı
+(sıkıştırılmış 585 → 735 KB).
+
 ## v0.6.1 — 15 Ağustos 2026
 
 **Ülke kartındaki boşluklar.** 0.6.0'da resmî dil bölümü kartın üç sütunlu

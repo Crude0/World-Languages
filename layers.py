@@ -57,6 +57,7 @@ SCRIPTS = {
     "thaa": ("Thaana", OTH),
     "cans": ("Kanada hece yazısı", OTH),
     "tfng": ("Tifinagh", OTH),
+    "yiii": ("Yi hece yazısı", OTH),
 }
 
 SCRIPT_GROUPS = {
@@ -68,7 +69,7 @@ SCRIPT_GROUPS = {
     CJK: ("Doğu Asya", "Han yazısı, Japon kana'sı, Kore hangıl'ı"),
     ALP: ("Diğer alfabe ve ebcedler", "Yunan, Ermeni, Gürcü, İbrani"),
     GEZ: ("Ge'ez", "Amharca ve Tigrinya — Afrika'nın kendi yazısı"),
-    OTH: ("Diğer", "Thaana, Kanada hece yazısı, Tifinagh"),
+    OTH: ("Diğer", "Thaana, Kanada hece yazısı, Tifinagh, Yi"),
 }
 
 # Endonimden çıkarım yanlış ya da eksik kalıyorsa buradan düzeltiliyor.

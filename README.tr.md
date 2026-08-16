@@ -22,9 +22,9 @@ Arayüz **Türkçe ve İngilizce**; tema **otomatik, açık veya koyu** seçileb
 | | |
 |---|---|
 | **234** | ülke ve bağımlı bölge |
-| **155** | dil (121'i bir ülkede çoğunluk, 21'i yalnızca bölge düzeyinde, 13'ü yalnız resmî) |
+| **219** | dil (121'i bir ülkede çoğunluk, 85'i yalnızca bölge düzeyinde, 13'ü yalnız resmî) |
 | **1.100+** | ülke × dil satırı — her ülkede evde konuşulan dillerin dağılımı |
-| **313** | eyalet / il / kanton (12 ülkede) |
+| **507** | eyalet / il / kanton (18 ülkede) |
 | **30** | yazı sistemi, dillerin kendi adlarından çıkarıldı |
 | **8,09 milyar** | kapsanan nüfus |
 
@@ -91,16 +91,40 @@ açıklanıyor.
 
 ### Eyalet / il düzeyi
 
-12 ülkede harita il, eyalet ya da kanton düzeyine iner: Kanada, ABD, İsviçre,
-Belçika, İspanya, Birleşik Krallık, İtalya, Hindistan, Türkiye, Ukrayna,
-Finlandiya, Bolivya. Uzaktayken ülke, yaklaşınca bölge görünür (Paradox
-oyunlarındaki gibi), ya da elle sabitlenebilir.
+18 ülkede harita il, eyalet ya da kanton düzeyine iner: Rusya, Çin, ABD,
+Kanada, Hindistan, Nijerya, Güney Afrika, Fransa, Almanya, İspanya, İtalya,
+Birleşik Krallık, Ukrayna, Türkiye, İsviçre, Belçika, Finlandiya, Bolivya.
+Brezilya bilerek dışarıda: 27 eyaletin hepsinde Portekizce ~%98, yani
+geometrisinin karşılığı tek renkli bir yüzey olurdu. Uzaktayken ülke,
+yaklaşınca bölge görünür (Paradox oyunlarındaki gibi), ya da elle sabitlenebilir.
 
 Québec'te Fransızca %78 ile British Columbia'da %1,1; Türkiye'nin güneydoğusunda
 Kürtçe %82 ile batısında %3; Ukrayna'nın doğusunda Rusça %70 ile batısında %1 —
 ülke ortalamasının sakladığı farklar.
 
+**Rusya'nın 83 federal öznesi** en büyük ekleme. Federasyonda 30'dan fazla dil
+cumhuriyet düzeyinde resmî ama harita bugüne kadar ülkeyi tek renk çiziyordu.
+Artık Tataristan Tatarca, Çuvaşistan Çuvaşça, Saha Sahaca, Tuva Tuvaca ile Türk
+dilleri renginde; Çeçenistan, İnguşetya, Dağıstan ve Kabardey-Balkar kendi
+Kafkas dilleriyle ayrı duruyor.
+
+**Çin'in 31 eyaleti** "Çince"yi gerçekte olduğu şeye ayırıyor: Mandarin,
+Kantonca, Wu, Min, Hakka, Xiang ve Gan karşılıklı anlaşılmaz. Şanghay ve
+Zhejiang Wu, Fujian ve Hainan Min, Jiangxi Gan, Hunan Xiang, Guangdong
+Kantonca; yanında Sincan'da Uygurca, Tibet'te Tibetçe, İç Moğolistan'da
+Moğolca, Guangxi'de Zhuangca.
+
+**Nijerya'nın 37 eyaleti** ülke ortalamasının gösteremediğini gösteriyor:
+ülkenin çoğunluk dili yok, asıl örüntü kuzeyde Hausa, güneybatıda Yorubaca,
+güneydoğuda İgboca ve Nijer Deltası'nda bir Nijerya Pidgini kuşağı.
+**Güney Afrika'nın 9 ili** Census 2022'den geliyor; 12 resmî dilin hiçbiri
+ülke genelinde çoğunluk değil. **Fransa** Korsikaca, Bretonca, Oksitanca ve
+denizaşırı kreolleri ekliyor; **Almanya'nın 16 eyaleti** ise hanede konuşulan
+dili ilk kez soran 2022 sayımından.
+
 ![Bölge düzeyi](docs/img/desktop-regions.png)
+
+![Rusya'nın federal özneleri](docs/img/desktop-russia.png)
 
 ### Renkler
 
@@ -119,7 +143,7 @@ bir ton olmak yerine fazladan bir bilgi taşıyor.
 ### İki dil, üç tema
 
 Arayüz dili Türkçe ve İngilizce arasında geçiş yapar — yalnızca menüler değil,
-155 dilin adı, 44 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
+219 dilin adı, 44 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
 notu, kıtalar ve sayı biçimi de çevrilir (1,2 milyar ↔ 1.2 billion). Tema
 sistemi izler ama elle açık/koyu da seçilebilir; seçim tarayıcıda saklanır.
 Bu depo da iki dilde: bu sayfanın İngilizcesi [README.md](README.md).
@@ -142,15 +166,15 @@ ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar,
 
 ## İndir
 
-En güncel sürüm **v0.6.1** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+En güncel sürüm **v0.7.0** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 513 KB | İnternet izni yok |
-| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 8,6 MB | Evrensel (Intel + Apple Silicon) |
-| macOS, disk imajsız | [`Dunya-Dilleri-Atlasi-mac.zip`](dist/Dunya-Dilleri-Atlasi-mac.zip) | 3,2 MB | Açıp uygulamayı sürükleyin |
-| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,4 MB | Tek dosya, kurulum yok |
-| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,4 MB | Tek dosya, çift tıkla aç |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 665 KB | İnternet izni yok |
+| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 8,7 MB | Evrensel (Intel + Apple Silicon) |
+| macOS, disk imajsız | [`Dunya-Dilleri-Atlasi-mac.zip`](dist/Dunya-Dilleri-Atlasi-mac.zip) | 3,5 MB | Açıp uygulamayı sürükleyin |
+| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,9 MB | Tek dosya, kurulum yok |
+| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,9 MB | Tek dosya, çift tıkla aç |
 
 Tarayıcı sürümü **kurulabilir**: Chrome ya da Safari'de açıp "Yükle" /
 "Ana ekrana ekle" dediğinizde uygulama gibi, çevrimdışı, adres çubuğu olmadan

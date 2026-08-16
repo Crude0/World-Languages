@@ -358,6 +358,62 @@ NAME = {
 # veri girilmemiş ABD eyaletleri ülke ortalamasına düşsün
 US_FALLBACK = US_DEFAULT
 
+
+# --- 0.7.0'da eklenen ülkelerin Türkçe adları. Natural Earth Rusya'yı
+# İngilizce transliterasyonla yazıyor ("Bashkortostan", "Yevrey"); Çin'de
+# de yerel değil pinyin adlar var ("Xizang" = Tibet).
+NAME.update({
+    # Rusya — cumhuriyetler ve özerk okruglar
+    "643-Bashkortostan": "Başkurdistan", "643-Tatarstan": "Tataristan",
+    "643-Chuvash": "Çuvaşistan", "643-Sakha (Yakutia)": "Saha (Yakutistan)",
+    "643-Tuva": "Tuva", "643-Gorno-Altay": "Altay Cumhuriyeti",
+    "643-Altay": "Altay Krayı", "643-Khakass": "Hakasya",
+    "643-Chechnya": "Çeçenistan", "643-Ingush": "İnguşetya",
+    "643-Dagestan": "Dağıstan", "643-North Ossetia": "Kuzey Osetya",
+    "643-Kabardin-Balkar": "Kabardey-Balkar", "643-Karachay-Cherkess": "Karaçay-Çerkes",
+    "643-Adygey": "Adigey", "643-Mariy-El": "Mari El", "643-Mordovia": "Mordovya",
+    "643-Udmurt": "Udmurtya", "643-Komi": "Komi", "643-Karelia": "Karelya",
+    "643-Buryat": "Buryatya", "643-Kalmyk": "Kalmukya",
+    "643-Chukchi Autonomous Okrug": "Çukotka", "643-Nenets": "Nenets ÖO",
+    "643-Yamal-Nenets": "Yamalo-Nenets", "643-Khanty-Mansiy": "Hantı-Mansi",
+    "643-Yevrey": "Yahudi Özerk Oblastı", "643-Chita": "Zabaykalye",
+    "643-Maga Buryatdan": "Magadan", "643-Primor'ye": "Primorye",
+    "643-Moskva": "Moskova", "643-Moskovskaya": "Moskova Oblastı",
+    "643-City of St. Petersburg": "Sankt-Peterburg",
+    "643-Arkhangel'sk": "Arhangelsk", "643-Astrakhan'": "Astrahan",
+    "643-Chelyabinsk": "Çelyabinsk", "643-Khabarovsk": "Habarovsk",
+    "643-Kamchatka": "Kamçatka", "643-Krasnoyarsk": "Krasnoyarsk",
+    "643-Nizhegorod": "Nijni Novgorod", "643-Perm'": "Perm",
+    "643-Ryazan'": "Ryazan", "643-Sakhalin": "Sahalin",
+    "643-Stavropol'": "Stavropol", "643-Tver'": "Tver",
+    "643-Tyumen'": "Tümen", "643-Ul'yanovsk": "Ulyanovsk",
+    "643-Voronezh": "Voronej", "643-Yaroslavl'": "Yaroslavl",
+    "643-Orel": "Oryol", "643-Irkutsk": "İrkutsk", "643-Ivanovo": "İvanovo",
+    # Çin
+    "156-Xizang": "Tibet", "156-Inner Mongol": "İç Moğolistan",
+    "156-Xinjiang": "Sincan (Doğu Türkistan)", "156-Beijing": "Pekin",
+    "156-Shanghai": "Şanghay", "156-Guangdong": "Guangdong",
+    "156-Heilongjiang": "Heilongjiang", "156-Shaanxi": "Şaanksi",
+    "156-Shanxi": "Şanksi", "156-Shandong": "Şandong", "156-Sichuan": "Siçuan",
+    "156-Chongqing": "Çongçing", "156-Zhejiang": "Zhejiang",
+    "156-Tianjin": "Tiencin", "156-Qinghai": "Çinghay",
+    # Güney Afrika
+    "710-Western Cape": "Batı Cape", "710-Eastern Cape": "Doğu Cape",
+    "710-Northern Cape": "Kuzey Cape", "710-Free State": "Özgür Devlet",
+    "710-North West": "Kuzey Batı", "710-KwaZulu-Natal": "KwaZulu-Natal",
+    # Fransa
+    "250-Guyane française": "Fransız Guyanası", "250-Corse": "Korsika",
+    "250-Bretagne": "Bretanya", "250-Normandie": "Normandiya",
+    "250-Réunion": "Réunion", "250-Île-de-France": "Île-de-France",
+    # Almanya
+    "276-Bayern": "Bavyera", "276-Sachsen": "Saksonya",
+    "276-Sachsen-Anhalt": "Saksonya-Anhalt", "276-Niedersachsen": "Aşağı Saksonya",
+    "276-Nordrhein-Westfalen": "Kuzey Ren-Vestfalya", "276-Hessen": "Hessen",
+    "276-Thüringen": "Türingiya", "276-Rheinland-Pfalz": "Renanya-Pfalz",
+    "276-Mecklenburg-Vorpommern": "Mecklenburg-Ön Pomeranya",
+    "276-Baden-Württemberg": "Baden-Württemberg",
+})
+
 # ------------------------------------------------- bölge nüfusları (bin kişi)
 SUBPOP = {}
 
@@ -485,3 +541,302 @@ SUBPOP.update({f"792-{k}": v for k, v in {
     "Çankiri": 200, "Bartın": 200, "Artvin": 170, "Kilis": 150,
     "Gümüshane": 150, "Ardahan": 92, "Bayburt": 85, "Tunceli": 84,
 }.items()})
+
+
+# ================================================================== Rusya
+# Kaynak: 2021 Rusya nüfus sayımı (Всероссийская перепись населения 2021),
+# "ana dil" ve "evde konuşulan dil" soruları. Sayımın dil bölümü 2010'a göre
+# daha çok cevapsız içeriyor; oranlar cevap verenlere göre normalleştirildi.
+# Rusya'da 30'dan fazla dil cumhuriyet düzeyinde resmî statülüdür; harita
+# bunu ilk kez gösteriyor.
+#
+# Kırım ve Sivastopol bilerek yok: Natural Earth bu iki birimi Rusya'ya
+# bağlıyor, depo ise sınırlarda taraf tutmuyor (bkz. build_subs.py SKIP).
+
+RU = "Rusça"
+
+# çoğunluğu Rusça olan oblast/kray'lar — tek satırlık kısayol
+for _n, _p in {
+    "Altay": 97, "Amur": 98, "Arkhangel'sk": 98, "Belgorod": 97, "Bryansk": 97,
+    "City of St. Petersburg": 98, "Ivanovo": 98, "Kaliningrad": 96, "Kaluga": 97,
+    "Kamchatka": 96, "Kemerovo": 97, "Khabarovsk": 97, "Kostroma": 98,
+    "Krasnoyarsk": 97, "Kursk": 97, "Leningrad": 97, "Lipetsk": 98,
+    "Maga Buryatdan": 97, "Moskovskaya": 96, "Moskva": 95, "Murmansk": 97,
+    "Novgorod": 98, "Novosibirsk": 97, "Orel": 98, "Primor'ye": 98,
+    "Pskov": 98, "Ryazan'": 98, "Smolensk": 98, "Tambov": 98, "Tomsk": 96,
+    "Tula": 98, "Vladimir": 98, "Vologda": 98, "Voronezh": 98,
+    "Yaroslavl'": 98, "Yevrey": 99, "Irkutsk": 97,
+}.items():
+    put("643", [(RU, _p)], _n)
+
+# Türk dilli cumhuriyetler
+put("643", [("Tatarca", 52), (RU, 44), ("Çuvaşça", 3)], "Tatarstan")
+put("643", [("Tatarca", 30), ("Başkurtça", 26), (RU, 40)], "Bashkortostan")
+put("643", [("Çuvaşça", 52), (RU, 45), ("Tatarca", 2)], "Chuvash")
+put("643", [("Sahaca", 49), (RU, 45), ("Evenkice", 1)], "Sakha (Yakutia)")
+put("643", [("Tuvaca", 82), (RU, 16)], "Tuva")
+put("643", [("Altayca", 34), (RU, 63)], "Gorno-Altay")
+put("643", [("Hakasça", 11), (RU, 87)], "Khakass")
+
+# Kafkasya
+put("643", [("Çeçence", 95), (RU, 4)], "Chechnya")
+put("643", [("İnguşça", 94), ("Çeçence", 4), (RU, 2)], "Ingush")
+put("643", [("Avarca", 29), ("Dargice", 17), ("Kumukça", 15), ("Lezgice", 13),
+            ("Lakça", 5), ("Tabasaranca", 4), ("Azerbaycanca", 4),
+            ("Çeçence", 3), (RU, 4)], "Dagestan")
+put("643", [("Osetçe", 62), (RU, 29), ("İnguşça", 3)], "North Ossetia")
+put("643", [("Kabardeyce", 53), (RU, 32), ("Karaçay-Balkarca", 11)], "Kabardin-Balkar")
+put("643", [("Karaçay-Balkarca", 39), (RU, 32), ("Kabardeyce", 11), ("Abazaca", 7),
+            ("Nogayca", 3)], "Karachay-Cherkess")
+put("643", [("Adigece", 24), (RU, 74)], "Adygey")
+
+# Ural ve Moğol dilli cumhuriyetler
+put("643", [("Marice", 42), (RU, 53), ("Tatarca", 4)], "Mariy-El")
+put("643", [("Mordvaca", 33), (RU, 62), ("Tatarca", 5)], "Mordovia")
+put("643", [("Udmurtça", 24), (RU, 72), ("Tatarca", 7)], "Udmurt")
+put("643", [("Komice", 19), (RU, 78)], "Komi")
+put("643", [("Karelce", 2), (RU, 93), ("Fince", 1)], "Karelia")
+put("643", [("Buryatça", 29), (RU, 68)], "Buryat")
+put("643", [("Kalmukça", 40), (RU, 55)], "Kalmyk")
+put("643", [("Buryatça", 5), (RU, 94)], "Chita")
+
+# Kuzey: yerli diller küçük ama bölgenin adını veriyor
+put("643", [("Nenetsçe", 13), (RU, 85)], "Nenets")
+put("643", [("Nenetsçe", 6), ("Hantıca", 2), ("Tatarca", 3), (RU, 86)], "Yamal-Nenets")
+put("643", [("Tatarca", 3), ("Başkurtça", 2), (RU, 90)], "Khanty-Mansiy")
+put("643", [("Çukçice", 7), (RU, 89)], "Chukchi Autonomous Okrug")
+
+# İdil-Ural ve güney: Rusça çoğunlukta ama azınlık dilleri kayda değer
+put("643", [(RU, 88), ("Tatarca", 6), ("Kazakça", 3), ("Başkurtça", 2.5)], "Orenburg")
+put("643", [(RU, 89), ("Tatarca", 6), ("Çuvaşça", 6)], "Ul'yanovsk")
+put("643", [(RU, 89), ("Tatarca", 4), ("Çuvaşça", 3), ("Mordvaca", 2)], "Samara")
+put("643", [(RU, 91), ("Tatarca", 5), ("Mordvaca", 3)], "Penza")
+put("643", [(RU, 92), ("Tatarca", 4.5), ("Komice", 2), ("Başkurtça", 1.5)], "Perm'")
+put("643", [(RU, 92), ("Tatarca", 4), ("Çuvaşça", 1)], "Tyumen'")
+put("643", [(RU, 93), ("Tatarca", 3.5), ("Başkurtça", 1)], "Sverdlovsk")
+put("643", [(RU, 92), ("Tatarca", 4), ("Başkurtça", 2)], "Chelyabinsk")
+put("643", [(RU, 96), ("Başkurtça", 2), ("Tatarca", 2)], "Kurgan")
+put("643", [(RU, 96), ("Tatarca", 1.5), ("Mordvaca", 1)], "Nizhegorod")
+put("643", [(RU, 96), ("Marice", 2), ("Tatarca", 2)], "Kirov")
+put("643", [(RU, 93), ("Kazakça", 3), ("Tatarca", 2)], "Saratov")
+put("643", [(RU, 94), ("Kazakça", 1.5)], "Volgograd")
+put("643", [(RU, 88), ("Kazakça", 7), ("Tatarca", 4)], "Astrakhan'")
+put("643", [(RU, 95), ("Kazakça", 2), ("Almanca", 1.5)], "Omsk")
+put("643", [(RU, 94), ("Ermenice", 5)], "Krasnodar")
+put("643", [(RU, 95), ("Ermenice", 2.5)], "Rostov")
+put("643", [(RU, 88), ("Ermenice", 5), ("Dargice", 2)], "Stavropol'")
+put("643", [(RU, 96), ("Korece", 5)], "Sakhalin")
+put("643", [(RU, 97), ("Karelce", 0.5)], "Tver'")
+
+
+# =========================================================== Güney Afrika
+# Kaynak: Census 2022, "evde en çok konuşulan dil". Ülkenin 12 resmî dili
+# var ve hiçbiri ülke genelinde çoğunluk değil; asıl dağılım il düzeyinde.
+put("710", [("Afrikaanca", 41), ("Xhosa", 32), ("İngilizce", 21)], "Western Cape")
+put("710", [("Xhosa", 77), ("Afrikaanca", 10), ("İngilizce", 6)], "Eastern Cape")
+put("710", [("Afrikaanca", 66), ("Setsvana", 21), ("Xhosa", 6)], "Northern Cape")
+put("710", [("Sesotho", 62), ("Afrikaanca", 11), ("Xhosa", 8), ("Setsvana", 5)], "Free State")
+put("710", [("Zuluca", 78), ("İngilizce", 12), ("Xhosa", 5)], "KwaZulu-Natal")
+put("710", [("Setsvana", 60), ("Afrikaanca", 8), ("Sesotho", 6), ("Xhosa", 5)], "North West")
+put("710", [("Zuluca", 20), ("İngilizce", 15), ("Sesotho", 12), ("Afrikaanca", 11),
+            ("Sepedi", 10), ("Setsvana", 9), ("Tsonga", 7), ("Xhosa", 6)], "Gauteng")
+put("710", [("Sisvati", 27), ("Zuluca", 24), ("Tsonga", 10), ("Ndebele", 10),
+            ("Sepedi", 9)], "Mpumalanga")
+put("710", [("Sepedi", 52), ("Tsonga", 17), ("Venda", 17)], "Limpopo")
+
+# ================================================================ Nijerya
+# Kaynak: Ethnologue ve ulusal etnik dağılım tahminleri; Nijerya'da dil
+# sorusu soran bir sayım yok. Nijerya Pidgini her yerde ortak dil olarak
+# konuşuluyor, güneyde ana dile en yakın konumda.
+put("566", [("Hausa", 92), ("Fulaca", 6)], "Kano", "Katsina", "Jigawa", "Zamfara")
+put("566", [("Hausa", 85), ("Fulaca", 10)], "Kebbi", "Sokoto")
+put("566", [("Hausa", 68), ("Fulaca", 12), ("Nijerya Pidgini", 25)], "Kaduna")
+put("566", [("Hausa", 75), ("Fulaca", 15), ("Nijerya Pidgini", 20)], "Bauchi", "Gombe")
+put("566", [("Kanuri", 55), ("Hausa", 30), ("Fulaca", 8)], "Borno", "Yobe")
+put("566", [("Fulaca", 35), ("Hausa", 25), ("Nijerya Pidgini", 30)], "Adamawa", "Taraba")
+put("566", [("Hausa", 45), ("Nupe", 20), ("Nijerya Pidgini", 35)], "Niger")
+put("566", [("Yorubaca", 75), ("Hausa", 10), ("Nijerya Pidgini", 25)], "Kwara")
+put("566", [("İgboca", 30), ("Yorubaca", 20), ("Hausa", 15),
+            ("Nijerya Pidgini", 45)], "Kogi")
+put("566", [("Tiv", 60), ("İgboca", 10), ("Nijerya Pidgini", 40)], "Benue")
+put("566", [("Hausa", 30), ("Nijerya Pidgini", 55)], "Plateau", "Nassarawa")
+put("566", [("Hausa", 25), ("Yorubaca", 15), ("İgboca", 12),
+            ("Nijerya Pidgini", 60)], "Federal Capital Territory")
+put("566", [("Yorubaca", 90), ("Nijerya Pidgini", 30)], "Ogun", "Oyo", "Osun",
+    "Ondo", "Ekiti")
+put("566", [("Yorubaca", 70), ("İgboca", 8), ("Nijerya Pidgini", 55),
+            ("İngilizce", 10)], "Lagos")
+put("566", [("İgboca", 92), ("Nijerya Pidgini", 45)], "Abia", "Anambra",
+    "Ebonyi", "Enugu", "Imo")
+put("566", [("Edo", 55), ("İgboca", 12), ("Nijerya Pidgini", 75)], "Edo")
+put("566", [("Urhobo", 30), ("İgboca", 20), ("İjo dilleri", 12),
+            ("Nijerya Pidgini", 80)], "Delta")
+put("566", [("İjo dilleri", 70), ("Nijerya Pidgini", 85)], "Bayelsa")
+put("566", [("İjo dilleri", 25), ("İgboca", 25), ("Nijerya Pidgini", 85)], "Rivers")
+put("566", [("İbibioca", 75), ("Nijerya Pidgini", 70)], "Akwa Ibom")
+put("566", [("Efikçe", 40), ("İbibioca", 20), ("Nijerya Pidgini", 75)], "Cross River")
+
+
+# =================================================================== Çin
+# Kaynak: Çin dil atlası (中国语言地图集) lehçe/dil bölgeleri ve 2020 nüfus
+# sayımının etnik dağılımı. "Çince" tek bir dil değil: Mandarin, Kantonca,
+# Wu, Min, Hakka, Xiang ve Gan karşılıklı anlaşılmaz; harita bunları ayırıyor.
+# Mandarin her yerde okul ve devlet dili olduğu için oranlar %100'ü aşar.
+MAN = "Mandarin Çincesi"
+for _n in ("Beijing", "Tianjin", "Hebei", "Shanxi", "Shandong", "Henan",
+           "Shaanxi", "Gansu", "Ningxia", "Jilin", "Liaoning", "Heilongjiang"):
+    put("156", [(MAN, 97)], _n)
+put("156", [(MAN, 82), ("Moğolca", 17)], "Inner Mongol")
+put("156", [("Uygurca", 45), (MAN, 42), ("Kazakça", 7), ("Kırgızca", 1)], "Xinjiang")
+put("156", [("Tibetçe", 90), (MAN, 9)], "Xizang")
+put("156", [(MAN, 74), ("Tibetçe", 22)], "Qinghai")
+put("156", [(MAN, 95), ("Yice", 3)], "Sichuan")
+put("156", [(MAN, 97)], "Chongqing")
+put("156", [(MAN, 85), ("Miao dilleri", 8), ("Buyice", 5)], "Guizhou")
+put("156", [(MAN, 70), ("Yice", 11), ("Miao dilleri", 3), ("Tayca", 3)], "Yunnan")
+put("156", [("Kantonca", 60), (MAN, 22), ("Hakka", 9), ("Min Çincesi", 9)], "Guangdong")
+put("156", [(MAN, 40), ("Zhuangca", 30), ("Kantonca", 25)], "Guangxi")
+put("156", [("Min Çincesi", 65), (MAN, 30)], "Hainan")
+put("156", [("Min Çincesi", 70), (MAN, 22), ("Hakka", 6)], "Fujian")
+put("156", [("Wu Çincesi", 78), (MAN, 20)], "Zhejiang")
+put("156", [("Wu Çincesi", 70), (MAN, 28)], "Shanghai")
+put("156", [(MAN, 55), ("Wu Çincesi", 42)], "Jiangsu")
+put("156", [(MAN, 75), ("Wu Çincesi", 12), ("Gan Çincesi", 5)], "Anhui")
+put("156", [("Gan Çincesi", 65), (MAN, 18), ("Hakka", 15)], "Jiangxi")
+put("156", [("Xiang Çincesi", 65), (MAN, 20), ("Gan Çincesi", 5),
+            ("Miao dilleri", 3)], "Hunan")
+put("156", [(MAN, 92), ("Gan Çincesi", 5)], "Hubei")
+
+# ================================================================ Fransa
+# Ölçüt evde konuşulan dil. Denizaşırı bölgelerde Fransızcayı
+# *konuşabilenler* çok daha yüksek (Réunion'da ~%90) ama evin dili
+# kreol. Fransa'da sayım dil sormaz. Bölgesel diller için kaynak: INED/INSEE
+# "Étude de l'histoire familiale" (1999) ve DGLFLF raporları; göçmen
+# dilleri için "Trajectoires et Origines" (2019-20). Hepsi tahmindir.
+FR = "Fransızca"
+put("250", [(FR, 96), ("Korsikaca", 45)], "Corse")
+put("250", [(FR, 99), ("Bretonca", 5)], "Bretagne")
+put("250", [(FR, 98), ("Almanca", 12), ("Arapça", 3), ("Türkçe", 2)], "Grand Est")
+put("250", [(FR, 99), ("Oksitanca", 4), ("Arapça", 3), ("Katalanca", 1)], "Occitanie")
+put("250", [(FR, 99), ("Oksitanca", 3), ("Baskça", 2), ("Portekizce", 1)], "Nouvelle-Aquitaine")
+put("250", [(FR, 96), ("Arapça", 5), ("Portekizce", 2), ("Türkçe", 1),
+            ("Mandarin Çincesi", 1)], "Île-de-France")
+put("250", [(FR, 98), ("Oksitanca", 2), ("Arapça", 4), ("İtalyanca", 1)],
+    "Provence-Alpes-Côte-d'Azur")
+put("250", [(FR, 98), ("Oksitanca", 2), ("Arapça", 3), ("Portekizce", 1)],
+    "Auvergne-Rhône-Alpes")
+put("250", [(FR, 99), ("Arapça", 2), ("Portekizce", 1)], "Hauts-de-France",
+    "Normandie", "Centre-Val de Loire", "Pays de la Loire", "Bourgogne-Franche-Comté")
+put("250", [("Antil Kreolcesi", 85), (FR, 45)], "Guadeloupe", "Martinique")
+put("250", [("Guyana Kreolcesi", 40), (FR, 35), ("Portekizce", 10)], "Guyane française")
+put("250", [("Réunion Kreolcesi", 85), (FR, 40)], "Réunion")
+put("250", [("Komorca", 60), ("Kibushi", 25), (FR, 40)], "Mayotte")
+
+# =============================================================== Almanya
+# Kaynak: Zensus 2022, hanede ağırlıklı olarak konuşulan dil. Almanya'da
+# uzun süre dil sorusu sorulmamıştı; 2022 sayımı ilk kez sordu.
+DE = "Almanca"
+put("276", [(DE, 78), ("Türkçe", 5), ("Rusça", 3.5), ("Arapça", 3),
+            ("Lehçe", 2), ("İngilizce", 2)], "Berlin")
+put("276", [(DE, 85), ("Türkçe", 4), ("Arapça", 2), ("Lehçe", 2),
+            ("Rusça", 1.5)], "Nordrhein-Westfalen")
+put("276", [(DE, 87), ("Türkçe", 2), ("Romence", 1.5), ("Rusça", 1.5),
+            ("Arapça", 1)], "Bayern")
+put("276", [(DE, 85), ("Türkçe", 3), ("Romence", 1.5), ("İtalyanca", 1.5),
+            ("Rusça", 1.5)], "Baden-Württemberg")
+put("276", [(DE, 84), ("Türkçe", 3.5), ("Arapça", 2), ("Lehçe", 1.5)], "Hessen")
+put("276", [(DE, 82), ("Türkçe", 3.5), ("Arapça", 2), ("Lehçe", 2),
+            ("Rusça", 2)], "Hamburg")
+put("276", [(DE, 81), ("Türkçe", 5), ("Arapça", 3), ("Lehçe", 2)], "Bremen")
+put("276", [(DE, 89), ("Türkçe", 2.5), ("Arapça", 1.5), ("Lehçe", 1.5),
+            ("Rusça", 1.5)], "Niedersachsen")
+put("276", [(DE, 88), ("Türkçe", 2), ("Arapça", 1.5), ("Lehçe", 1.5)], "Rheinland-Pfalz")
+put("276", [(DE, 89), ("Türkçe", 2), ("Arapça", 2), ("İtalyanca", 1.5)], "Saarland")
+put("276", [(DE, 92), ("Türkçe", 1.5), ("Danca", 1), ("Arapça", 1)], "Schleswig-Holstein")
+put("276", [(DE, 95), ("Rusça", 1.5), ("Ukraynaca", 1), ("Sorbca", 0.3)], "Sachsen")
+put("276", [(DE, 95), ("Rusça", 1.5), ("Ukraynaca", 1), ("Sorbca", 0.1)], "Brandenburg")
+put("276", [(DE, 96), ("Rusça", 1.5), ("Ukraynaca", 1)], "Sachsen-Anhalt",
+    "Thüringen", "Mecklenburg-Vorpommern")
+
+# --- 0.7.0'da eklenen bölgelerin nüfusları (bin kişi)
+# Rusya: Rosstat 2024 tahmini · Çin: 2020 sayımı · Nijerya: 2022 tahmini
+# Güney Afrika: Census 2022 · Fransa: INSEE 2023 · Almanya: Destatis 2023
+SUBPOP.update({
+    # Rusya
+    "643-Moskva": 13100, "643-Moskovskaya": 8600, "643-Krasnodar": 5900,
+    "643-City of St. Petersburg": 5600, "643-Sverdlovsk": 4200,
+    "643-Rostov": 4150, "643-Bashkortostan": 4050, "643-Tatarstan": 4000,
+    "643-Chelyabinsk": 3400, "643-Nizhegorod": 3100, "643-Samara": 3100,
+    "643-Dagestan": 3200, "643-Krasnoyarsk": 2850, "643-Novosibirsk": 2800,
+    "643-Kemerovo": 2560, "643-Perm'": 2500, "643-Stavropol'": 2900,
+    "643-Saratov": 2350, "643-Voronezh": 2270, "643-Volgograd": 2450,
+    "643-Tyumen'": 3900, "643-Irkutsk": 2350, "643-Altay": 2100,
+    "643-Omsk": 1830, "643-Leningrad": 2000, "643-Belgorod": 1500,
+    "643-Primor'ye": 1830, "643-Khabarovsk": 1280, "643-Vladimir": 1320,
+    "643-Tula": 1450, "643-Yaroslavl'": 1200, "643-Ul'yanovsk": 1200,
+    "643-Udmurt": 1450, "643-Chuvash": 1180, "643-Penza": 1230,
+    "643-Kirov": 1130, "643-Bryansk": 1150, "643-Ryazan'": 1080,
+    "643-Lipetsk": 1120, "643-Tver'": 1230, "643-Khanty-Mansiy": 1730,
+    "643-Chechnya": 1550, "643-Kursk": 1080, "643-Kaliningrad": 1030,
+    "643-Kaluga": 1070, "643-Tambov": 950, "643-Arkhangel'sk": 1000,
+    "643-Vologda": 1130, "643-Smolensk": 900, "643-Astrakhan'": 950,
+    "643-Kurgan": 800, "643-Orenburg": 1900, "643-Mordovia": 780,
+    "643-Ivanovo": 970, "643-Mariy-El": 670, "643-Sakha (Yakutia)": 1000,
+    "643-Buryat": 980, "643-Komi": 720, "643-Kabardin-Balkar": 900,
+    "643-North Ossetia": 690, "643-Karelia": 520, "643-Novgorod": 580,
+    "643-Pskov": 590, "643-Orel": 700, "643-Kostroma": 570,
+    "643-Murmansk": 660, "643-Yamal-Nenets": 510, "643-Ingush": 520,
+    "643-Karachay-Cherkess": 460, "643-Adygey": 500, "643-Tomsk": 1050,
+    "643-Amur": 750, "643-Zabaykalye": 990, "643-Chita": 990,
+    "643-Khakass": 530, "643-Sakhalin": 460, "643-Kalmyk": 260,
+    "643-Kamchatka": 290, "643-Maga Buryatdan": 135, "643-Gorno-Altay": 210,
+    "643-Tuva": 340, "643-Yevrey": 145, "643-Nenets": 41,
+    "643-Chukchi Autonomous Okrug": 48,
+    # Çin
+    "156-Guangdong": 126000, "156-Shandong": 101500, "156-Henan": 99400,
+    "156-Jiangsu": 84700, "156-Sichuan": 83700, "156-Hebei": 74600,
+    "156-Hunan": 66400, "156-Zhejiang": 64600, "156-Anhui": 61000,
+    "156-Hubei": 57800, "156-Guangxi": 50100, "156-Yunnan": 47200,
+    "156-Jiangxi": 45200, "156-Liaoning": 42600, "156-Fujian": 41500,
+    "156-Shaanxi": 39500, "156-Heilongjiang": 31900, "156-Shanxi": 34900,
+    "156-Guizhou": 38600, "156-Chongqing": 32100, "156-Jilin": 24100,
+    "156-Gansu": 25000, "156-Inner Mongol": 24000, "156-Shanghai": 24900,
+    "156-Xinjiang": 25900, "156-Beijing": 21900, "156-Tianjin": 13900,
+    "156-Hainan": 10100, "156-Ningxia": 7200, "156-Qinghai": 5900,
+    "156-Xizang": 3650,
+    # Nijerya
+    "566-Lagos": 13500, "566-Kano": 15100, "566-Kaduna": 8900,
+    "566-Katsina": 9300, "566-Oyo": 7900, "566-Rivers": 7300,
+    "566-Bauchi": 6900, "566-Jigawa": 6100, "566-Benue": 6100,
+    "566-Anambra": 5900, "566-Borno": 5900, "566-Delta": 5600,
+    "566-Imo": 5400, "566-Niger": 6100, "566-Akwa Ibom": 5500,
+    "566-Ogun": 5900, "566-Sokoto": 5700, "566-Ondo": 4900,
+    "566-Osun": 4700, "566-Kogi": 4500, "566-Zamfara": 5300,
+    "566-Enugu": 4400, "566-Kebbi": 4900, "566-Edo": 4500,
+    "566-Plateau": 4400, "566-Adamawa": 4500, "566-Cross River": 4200,
+    "566-Abia": 4000, "566-Ekiti": 3400, "566-Kwara": 3400,
+    "566-Gombe": 3600, "566-Yobe": 3600, "566-Taraba": 3300,
+    "566-Ebonyi": 3000, "566-Nassarawa": 2700, "566-Bayelsa": 2400,
+    "566-Federal Capital Territory": 3800,
+    # Güney Afrika
+    "710-Gauteng": 15100, "710-KwaZulu-Natal": 12400, "710-Western Cape": 7400,
+    "710-Eastern Cape": 7200, "710-Limpopo": 6600, "710-Mpumalanga": 5100,
+    "710-North West": 4100, "710-Free State": 2900, "710-Northern Cape": 1350,
+    # Fransa
+    "250-Île-de-France": 12300, "250-Auvergne-Rhône-Alpes": 8200,
+    "250-Nouvelle-Aquitaine": 6100, "250-Occitanie": 6100,
+    "250-Hauts-de-France": 6000, "250-Grand Est": 5550,
+    "250-Provence-Alpes-Côte-d'Azur": 5150, "250-Pays de la Loire": 3900,
+    "250-Normandie": 3300, "250-Bretagne": 3450, "250-Bourgogne-Franche-Comté": 2800,
+    "250-Centre-Val de Loire": 2570, "250-Réunion": 880, "250-Guadeloupe": 380,
+    "250-Martinique": 350, "250-Guyane française": 290, "250-Mayotte": 320,
+    "250-Corse": 350,
+    # Almanya
+    "276-Nordrhein-Westfalen": 18100, "276-Bayern": 13400,
+    "276-Baden-Württemberg": 11300, "276-Niedersachsen": 8100,
+    "276-Hessen": 6400, "276-Rheinland-Pfalz": 4200, "276-Sachsen": 4050,
+    "276-Berlin": 3800, "276-Schleswig-Holstein": 2950,
+    "276-Brandenburg": 2570, "276-Sachsen-Anhalt": 2160, "276-Thüringen": 2110,
+    "276-Hamburg": 1900, "276-Mecklenburg-Vorpommern": 1630,
+    "276-Saarland": 995, "276-Bremen": 690,
+})

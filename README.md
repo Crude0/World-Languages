@@ -23,9 +23,9 @@ system or can be set to **light or dark** by hand.
 | | |
 |---|---|
 | **234** | countries and dependent territories |
-| **155** | languages (121 are a majority somewhere, 21 only at region level, 13 official only) |
+| **219** | languages (121 are a majority somewhere, 85 only at region level, 13 official only) |
 | **1,100+** | country × language rows — the home-language breakdown of every country |
-| **313** | states / provinces / cantons (in 12 countries) |
+| **507** | states / provinces / cantons (in 18 countries) |
 | **30** | writing systems, derived from the languages' own names for themselves |
 | **8.09 billion** | people covered |
 
@@ -94,16 +94,40 @@ countries that have declared no official language in law are marked as such, and
 
 ### State and province level
 
-In 12 countries the map descends to province, state or canton level: Canada, the
-US, Switzerland, Belgium, Spain, the UK, Italy, India, Türkiye, Ukraine, Finland
-and Bolivia. Countries when zoomed out, regions when you zoom in (the way the
-recent Paradox games do it), or pinned by hand.
+In 18 countries the map descends to province, state or canton level: Russia,
+China, the US, Canada, India, Nigeria, South Africa, France, Germany, Spain,
+Italy, the UK, Ukraine, Türkiye, Switzerland, Belgium, Finland and Bolivia.
+Brazil is deliberately left out: Portuguese is around 98% in all 27 states, so
+its geometry would buy a single flat colour. Countries when zoomed out, regions
+when you zoom in (the way the recent Paradox games do it), or pinned by hand.
 
 French is 78% in Québec and 1.1% in British Columbia; Kurdish is 82% in
 south-eastern Türkiye and 3% in the west; Russian is 70% in eastern Ukraine and
 1% in the west — differences a national average hides.
 
+**Russia's 83 federal subjects** are the largest addition. More than 30 languages
+are official at republic level there, and the map used to draw the whole country
+in one colour. Tatarstan now reads Tatar, Chuvashia Chuvash, Sakha Yakut and Tuva
+Tuvan in the Turkic colour, while Chechnya, Ingushetia, Dagestan and
+Kabardino-Balkaria stand apart in their own Caucasian languages.
+
+**China's 31 provinces** split "Chinese" into the languages it actually is:
+Mandarin, Cantonese, Wu, Min, Hakka, Xiang and Gan are not mutually intelligible.
+Shanghai and Zhejiang read Wu, Fujian and Hainan Min, Jiangxi Gan, Hunan Xiang,
+Guangdong Cantonese — alongside Uyghur in Xinjiang, Tibetan in Tibet, Mongolian
+in Inner Mongolia and Zhuang in Guangxi.
+
+**Nigeria's 37 states** show what a national average cannot: the country has no
+majority language, and the real pattern is Hausa in the north, Yoruba in the
+south-west, Igbo in the south-east and a Nigerian Pidgin belt across the Niger
+Delta. **South Africa's 9 provinces** come from Census 2022, where none of the 12
+official languages is a national majority. **France** adds Corsican, Breton and
+Occitan plus the overseas creoles, and **Germany's 16 Länder** come from the 2022
+census, the first to ask which language a household speaks.
+
 ![Region level](docs/img/desktop-regions.png)
+
+![Russia's federal subjects](docs/img/desktop-russia.png)
 
 ### Colours
 
@@ -137,17 +161,17 @@ three-detent bottom sheet, touch gestures and the system typeface.
 
 ## Downloads
 
-Latest release **v0.6.1** — get it from the
+Latest release **v0.7.0** — get it from the
 [Releases page](https://github.com/Crude0/World-Languages/releases/latest);
 changes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Platform | File | Size | Note |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 513 KB | No internet permission |
-| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 8.6 MB | Universal (Intel + Apple Silicon) |
-| macOS, no disk image | [`Dunya-Dilleri-Atlasi-mac.zip`](dist/Dunya-Dilleri-Atlasi-mac.zip) | 3.2 MB | Unzip and drag the app across |
-| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4.4 MB | Single file, no installer |
-| Browser | [`docs/index.html`](docs/index.html) | 1.4 MB | One file, just open it |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 665 KB | No internet permission |
+| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 8.7 MB | Universal (Intel + Apple Silicon) |
+| macOS, no disk image | [`Dunya-Dilleri-Atlasi-mac.zip`](dist/Dunya-Dilleri-Atlasi-mac.zip) | 3.5 MB | Unzip and drag the app across |
+| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4.9 MB | Single file, no installer |
+| Browser | [`docs/index.html`](docs/index.html) | 1.9 MB | One file, just open it |
 
 The browser version is **installable**: open it in Chrome or Safari and pick
 "Install" / "Add to Home Screen" and it runs like an app, offline, with no

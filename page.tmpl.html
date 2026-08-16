@@ -266,9 +266,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    kalınlığı bu özellik üzerinden CSS pikseline sabitliyor. */
 .sub { stroke: none; vector-effect: non-scaling-stroke; }
 .sub:hover { stroke: var(--ring); stroke-width: 1.2; }
-.outer { fill: none; stroke: var(--border); stroke-width: 1.2; stroke-linejoin: round;
+.outer { fill: none; stroke: var(--border); stroke-width: 1.2;
          vector-effect: non-scaling-stroke; pointer-events: none; }
-.inner { fill: none; stroke: var(--sub-line); stroke-width: 1; stroke-linejoin: round;
+.inner { fill: none; stroke: var(--sub-line); stroke-width: 1;
          vector-effect: non-scaling-stroke; pointer-events: none; }
 /* Bölge kipinde alt bölgeli ülkelerin ülke konturu gereksiz: aynı sınırı
    .outer zaten çiziyor ve ülke yolu bölge dolgularının altında kalıyor.
@@ -975,14 +975,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     }).join("") + `</g>` +
     // Ülkenin dış çeperi: bölge dolgularının üstünde, ülke kipindeki .cty ile
     // aynı kalınlıkta. Böylece ülke sınırı iki kipte de aynı görünüyor.
-    `<g class="outer-g">` + Object.keys(D.outer || {}).map((cid) =>
-      `<path class="outer" d="${D.outer[cid]}"></path>`).join("") + `</g>` +
+    `<g class="outer-g">` + Object.values(D.outer || {}).flat().map((d) =>
+      `<path class="outer" d="${d}"></path>`).join("") + `</g>` +
     `<g class="dots">` + sorted.filter((id) => C[id].a < DOT_AT).map((id) => {
       const c = C[id];
       return `<circle class="dot ${paintCls(c, id)}" data-id="${id}" cx="${c.c[0]}" cy="${c.c[1]}" r="3"></circle>`;
     }).join("") + `</g>` +
-    `<g class="inner-g">` + Object.keys(D.inner || {}).map((cid) =>
-      `<path class="inner" d="${D.inner[cid]}"></path>`).join("") + `</g>` +
+    `<g class="inner-g">` + Object.values(D.inner || {}).flat().map((d) =>
+      `<path class="inner" d="${d}"></path>`).join("") + `</g>` +
     `<g class="marks"></g>`;
   const subG = svg.querySelector(".subs");
   const innerG = svg.querySelector(".inner-g");
