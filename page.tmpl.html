@@ -316,6 +316,10 @@ body.busy .hud-panels > .minor {
 .opts.wide button { flex: 1 1 auto; text-align: center; }
 
 /* --- "Dillerim" yaprağı ------------------------------------------------ */
+/* Paylaş metin değil simge: çubuktaki tek eylem düğmesi ve simgesi evrensel. */
+.gbtn.icon svg { width: 15px; height: 15px; display: block; }
+.gbtn.icon svg * { fill: none; stroke: currentColor; stroke-width: 1.9;
+  stroke-linecap: round; stroke-linejoin: round; }
 .spk-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 2px 12px; margin: 10px 0 2px; }
 .spk-figs > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -792,10 +796,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
             <p class="hud-cap glass" id="hudCap" hidden></p>
             <div class="glass bar" role="toolbar" aria-label="Harita denetimleri">
               <button class="gbtn" id="btnModes" aria-expanded="false" aria-controls="modes">Görünüm</button>
-              <button class="gbtn" id="btnSpeak" hidden aria-expanded="false" aria-controls="speakSheet">Dillerim</button>
+              <!-- "Bildiğim diller" artık Görünüm yaprağının içinde gömülü
+                   değil: kendi düğmesi var ve tek tıkla hem katmanı açıyor hem
+                   dil seçimini getiriyor. Uygulamanın en anlatılası özelliği,
+                   ek bir seçenek gibi durmamalı. -->
+              <button class="gbtn" id="btnSpeak" aria-pressed="false" aria-expanded="false" aria-controls="speakSheet">Bildiğim</button>
               <button class="gbtn" id="btnReset" hidden>Süzgeci kaldır</button>
               <button class="gbtn" id="btnTable" aria-pressed="false">Tablo</button>
-              <button class="gbtn" id="btnShare" aria-expanded="false" aria-controls="shareMenu">Paylaş</button>
+              <button class="gbtn icon" id="btnShare" aria-expanded="false" aria-controls="shareMenu" aria-label="Paylaş"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5V3.8"/><path d="M8.2 7.4 12 3.6l3.8 3.8"/><path d="M7 11H5.2v9.2h13.6V11H17"/></svg></button>
             </div>
 
             <div class="glass sheet" id="modes" hidden aria-labelledby="modesTitle">
@@ -1620,6 +1628,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       if (s) reclass(n, s, s.p);
     });
   }
+  // Bildiğim katmanından çıkınca dönülecek katman.
+  let lastNonKnow = "home";
   function setLayer(v) {
     if (v === layer) return;
     layer = v;
@@ -1636,8 +1646,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     // Dil seçimi eskiden yalnız sol paneldeki dizindeydi; tam ekranda o panel
     // yok. Katmana geçince yaprak da elin altına gelsin, hiç dil seçilmemişse
     // kendiliğinden açılsın — yapılacak tek iş o.
-    const spk = $("#btnSpeak");
-    spk.hidden = v !== "know";
+    if (v !== "know") lastNonKnow = v;
+    $("#btnSpeak").setAttribute("aria-pressed", String(v === "know"));
     if (v === "know") { if (!known.size) openSheet("speakSheet"); else renderSpeak(); }
     else if (!$("#speakSheet").hidden) closeSheets();
     renderKey();
@@ -1910,6 +1920,15 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   SHEETS.forEach((s) => {
     $("#" + opener[s]).onclick = () => openSheet($("#" + s).hidden ? s : null);
   });
+  // Bildiğim düğmesi tek tıkla katmanı açıp dil seçimini getiriyor; ikinci
+  // tıkta yaprağı kapatıp önceki katmana dönüyor. Genel bağlamanın üzerine
+  // yazılıyor, çünkü bu düğme yalnız bir yaprak açmıyor.
+  $("#btnSpeak").onclick = () => {
+    if (layer !== "know") { setLayer("know"); openSheet("speakSheet"); return; }
+    if ($("#speakSheet").hidden) { openSheet("speakSheet"); return; }
+    closeSheets();
+    setLayer(lastNonKnow);
+  };
   document.querySelectorAll(".sheet-x").forEach((b) => { b.onclick = closeSheets; });
   // dışarı tıklayınca kapansın; yaprağın kendi içindeki tıklamalar sayılmaz
   addEventListener("pointerdown", (e) => {
@@ -3207,8 +3226,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     set("#rankSpk", t().rankSpk); set("#rankAll", t().rankAll); set("#rankCnt", t().rankCnt);
     set("#btnReset", t().reset); set("#btnTable", t().table); set("#btnLink", t().link);
     set("#btnModes", t().view); set("#modesTitle", t().view);
-    set("#btnShare", t().share); set("#shareTitle", t().share);
-    set("#btnSpeak", t().speakT); set("#speakTitle", t().speakT);
+    set("#shareTitle", t().share);
+    $("#btnShare").setAttribute("aria-label", t().share);
+    $("#btnShare").title = t().share;
+    // Düğme haritanın katmanının adını taşıyor; yaprak da aynı adı.
+    set("#btnSpeak", t().lKnow); set("#speakTitle", t().lKnow);
     $("#spkQ").placeholder = t().spkSearch;
     $("#spkQ").setAttribute("aria-label", t().spkSearch);
     $("#spkMode").querySelector('[data-km="share"]').textContent = t().kmShare;

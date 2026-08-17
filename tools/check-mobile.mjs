@@ -39,7 +39,24 @@ for (const [tab, ad] of [["map", "harita"], ["langs", "diller"], ["know", "bildi
 }
 await p.screenshot({ path: "m5-tabs.png" });
 
-// ayarlar sekmesinden yoğunluk boyaması
+// Paylaş simgesi her sekmede erişilebilir mi ve dışa aktarma o an ekranda ne
+// varsa onu mu çekiyor: Ayarlar'a geçmek katmanı bozuyordu.
+for (const tab of ["know", "langs", "settings"]) {
+  await p.tap(`#tabs [data-tab="${tab}"]`); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const q = document.querySelector("#btnShare").getBoundingClientRect();
+    const el = document.elementFromPoint(q.x + q.width / 2, q.y + q.height / 2);
+    return { hit: !!(el && el.closest("#btnShare")),
+             boyalı: [...document.querySelectorAll("#map .cty")].filter((n) => n.style.fill).length };
+  });
+  console.log(`  ${tab.padEnd(9)} paylaş ${r.hit ? "dokunulabilir" : "ERİŞİLEMİYOR"} · boyalı ülke ${r.boyalı}`);
+}
+
+// Ayarlar sekmesinden yoğunluk boyaması. Önce Harita sekmesine dönülüyor:
+// katman artık Ayarlar'a geçerken sıfırlanmıyor (geçerken sıfırlanması dışa
+// aktarmanın yanlış haritayı çekmesine yol açıyordu) ve yoğunluk yalnız ana
+// dil katmanında geçerli.
+await p.tap('#tabs [data-tab="map"]'); await p.waitForTimeout(400);
 await p.tap('#tabs [data-tab="settings"]'); await p.waitForTimeout(400);
 await p.tap('#body [data-paint="pct"]'); await p.waitForTimeout(400);
 console.log("yoğunluk modunda ilk ülke dolgusu:", await p.$eval('#map [data-id="792"]', (e) => e.style.fill));

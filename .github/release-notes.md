@@ -1,25 +1,25 @@
-<!-- title: The card answers the question you asked -->
-**The biggest type on a place card now answers the question you are actually
-asking.** The card opened the same way whichever layer you were on: the home
-language's share as three large figures, everything else in small lines. So on
-the "I speak" layer, looking at Bulgaria, the largest thing on screen was *85%
-Bulgarian*, while the figure you came for — *34% of the population you could
-talk to* — sat in a footnote. The same inversion existed on two more layers, and
-on both platforms.
+<!-- title: Share where you can reach it -->
+**Export on the phone captured the wrong map.** PNG/SVG lived only on the
+Settings tab, and going to Settings also undid the layer: looking at your "I
+speak" map and stepping over to Settings to export it turned the map back to
+home languages, and that is what got captured.
 
-The top of the card now carries whatever the active layer is about:
+Fixed at the root: **the layer now follows the tab in two directions only** —
+"I speak" when you enter that tab, and whatever is chosen on Map when you enter
+Map. Languages and Settings no longer touch the map at all.
 
-- **I speak** — the share you could talk to, how many people that is, and the
-  population, as three large figures; underneath, the languages making up that
-  share with their own coloured tags (in Bulgaria: English 25% · Turkish 9%).
-  The country's own home language moves down under a heading of its own, figures
-  and all.
-- **Script** — the writing system is the largest line, with the language it
-  belongs to beneath it. "Writing system · Cyrillic" used to be one of the
-  smallest lines on the card.
-- **Official** — the state's language leads, together with whether it is
-  official in law or merely de facto; the home-language block moves below. The
-  official language is no longer repeated further down.
-- **Home** — unchanged; it was already right there.
+On top of that, export moved to a **share icon in the top bar**: same place on
+every tab, opening a two-row menu (PNG · SVG). The "Export" group in Settings is
+gone — the same thing should not sit in two places.
 
-All four cases were measured on both platforms.
+**"I speak" was buried on the desktop.** You had to open the View sheet and pick
+it from the layer row; the most interesting thing the app does looked like an
+extra option. It now has its own button on the bar over the map: one click opens
+the layer and brings up the language picker, a second click closes the sheet and
+returns to the previous layer.
+
+**"Share" is an icon rather than a word on the desktop.** It is the only action
+button on that bar and the icon is universal — and it buys back some room.
+
+The top bar no longer retracts when the sheet is fully open: it now carries the
+share button, so hiding it would have taken a function away.

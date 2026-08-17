@@ -1,6 +1,6 @@
 // Dünya Dilleri Atlası — çevrimdışı önbellek.
 // Sayfalar tek dosya (veri, fontlar, betik hepsi içinde), o yüzden liste kısa.
-const CACHE = "wl-0.13.0";
+const CACHE = "wl-0.14.0";
 const FILES = [
   "./", "./index.html", "./mobile.html",
   "./manifest.webmanifest", "./manifest-mobile.webmanifest",

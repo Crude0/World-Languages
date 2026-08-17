@@ -10,6 +10,33 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.14.0 — 17 Ağustos 2026
+
+**Telefonda dışa aktarma yanlış haritanın resmini çekiyordu.** PNG/SVG yalnız
+Ayarlar sekmesindeydi ve Ayarlar'a basmak katmanı da geri alıyordu: "Bildiğim
+diller" haritasına bakarken dışa aktarmak için Ayarlar'a geçtiğinde harita ana
+dile dönüyor, çekilen resim de o oluyordu.
+
+Kökünden düzeltildi: **katman artık yalnız iki yönde sekmeyi izliyor** —
+Bildiğim'e girince "bildiğim", Harita'ya girince oradaki seçim. Diller ve
+Ayarlar haritaya hiç dokunmuyor.
+
+Üstüne, dışa aktarma **üst çubuktaki bir paylaş simgesine** taşındı: her
+sekmede aynı yerde, iki satırlık küçük bir menü (PNG · SVG) açıyor. Ayarlar'daki
+"Dışa aktar" kümesi kaldırıldı — aynı şey iki yerde durmasın.
+
+**Masaüstünde "Bildiğim diller" fazla gömülüydü.** Görünüm yaprağını açıp
+katman satırından seçmek gerekiyordu; uygulamanın en anlatılası özelliği ek bir
+seçenek gibi duruyordu. Artık haritanın üstündeki çubukta kendi düğmesi var:
+tek tıkla hem katmanı açıyor hem dil seçimini getiriyor, ikinci tıkta yaprağı
+kapatıp önceki katmana dönüyor.
+
+**Masaüstünde "Paylaş" metin yerine simge.** Çubuktaki tek eylem düğmesi ve
+simgesi evrensel; yer de açıyor.
+
+Panel tam açıkken üst çubuğun çekilmesi geri alındı: üst çubuk artık paylaş
+düğmesini taşıyor, gizlemek bir işlevi elden almak olurdu.
+
 ## v0.13.0 — 17 Ağustos 2026
 
 **Kartın en büyük yazısı artık sorduğun soruya cevap veriyor.** Yer kartı hangi
