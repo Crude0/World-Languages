@@ -1101,7 +1101,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       tipKnow: (p) => `halkın ${p}’i ile anlaşabilirsiniz`,
       tipKnowNone: "bildiğiniz diller burada kayda değer değil",
       kmShare: "Pay", kmHome: "Ana dil",
-      speakT: "Dillerim", spkSearch: "Dil ara", savedTo: "İndirilenler'e kaydedildi",
+      speakT: "Dillerim", spkSearch: "Dil ara", savedTo: "İndirilenler'e kaydedildi", saveNoShell: "Bu sürüm kaydedemiyor",
       speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
       spkNoHit: "eşleşen dil yok",
       kStatLangs: "seçili dil", kStatPeople: "kişiye ulaşırsınız",
@@ -1205,7 +1205,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       tipKnow: (p) => `you could talk to ${p} of the population`,
       tipKnowNone: "none of your languages registers here",
       kmShare: "Share", kmHome: "Home language",
-      speakT: "My languages", spkSearch: "Search a language", savedTo: "Saved to Downloads",
+      speakT: "My languages", spkSearch: "Search a language", savedTo: "Saved to Downloads", saveNoShell: "This build cannot save",
       speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
       spkNoHit: "no matching language",
       kStatLangs: "languages picked", kStatPeople: "people reachable",
@@ -3023,6 +3023,17 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     try { if (typeof window.atlasSaveFile === "function") return "win"; } catch (e) {}
     return null;
   })();
+  // Bir uygulama kabuğunun içindeyiz ama köprü yok: <a download> burada
+  // hiçbir şey yapmaz. Bu durumda "İndirildi" yazmak yalan olur — hatayı
+  // söylemesi gerekiyor, yoksa hata sessizce geri gelir (bir kez geldi).
+  const shellNoBridge = !bridge && (() => {
+    try {
+      if (window.webkit && window.webkit.messageHandlers) return true;   // WKWebView
+      if (window.chrome && window.chrome.webview) return true;           // WebView2
+      if (/;\s*wv\)/.test(navigator.userAgent)) return true;             // Android WebView
+    } catch (e) {}
+    return false;
+  })();
   // btoa tek seferde büyük diziyi kaldırmıyor (argüman sayısı sınırı): 32 KB'lık
   // parçalara bölünüyor.
   function toB64(u8) {
@@ -3039,6 +3050,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   };
   // done(ok) her yolda tam bir kez çağrılır; buton yazısı gerçeği söylesin.
   function save(blob, name, done) {
+    if (shellNoBridge) { done(false, true); return; }
     if (!bridge) {
       try {
         const url = URL.createObjectURL(blob);
@@ -3067,8 +3079,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     btn.textContent = msg; live(msg);
     setTimeout(() => { btn.textContent = label; }, 1800);
   }
-  const flashSave = (btn, label) => (ok) =>
-    flash(btn, ok ? (bridge ? t().savedTo : t().saved) : t().saveFail, label);
+  const flashSave = (btn, label) => (ok, noShell) =>
+    flash(btn, ok ? (bridge ? t().savedTo : t().saved)
+                  : noShell ? t().saveNoShell : t().saveFail, label);
 
   $("#btnSvg").onclick = () => {
     try {

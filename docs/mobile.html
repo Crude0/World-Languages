@@ -654,7 +654,7 @@ body.zoomed .orn { opacity: 0; }
       paint: "Renk ölçütü", pFam: "Aile", pPct: "Yoğunluk", pPpl: "Kişi",
       layerT: "Katman", lHome: "Ana dil", lScr: "Yazı", lOff: "Resmî dil",
       lKnow: "Bildiğim", saved: "İndirildi", saveFail: "Kaydedilemedi",
-      savedTo: "İndirilenler'e kaydedildi",
+      savedTo: "İndirilenler'e kaydedildi", saveNoShell: "Bu sürüm kaydedemiyor",
       kmShare: "Pay", kmHome: "Ana dil",
       noteHome: "Yalnız seçtiğiniz dillerin evde konuşulan çoğunluk dili olduğu ülkeler yanıyor; öbürleri sönük.",
       noteKnow: "Renk, seçtiğiniz dillerden en az birini konuşan nüfusun payı. Paylar toplandığı için bu bir üst sınır.",
@@ -709,7 +709,7 @@ body.zoomed .orn { opacity: 0; }
       paint: "Colour by", pFam: "Family", pPct: "Density", pPpl: "People",
       layerT: "Layer", lHome: "Home", lScr: "Script", lOff: "Official",
       lKnow: "I speak", saved: "Saved", saveFail: "Save failed",
-      savedTo: "Saved to Downloads",
+      savedTo: "Saved to Downloads", saveNoShell: "This build cannot save",
       kmShare: "Share", kmHome: "Home language",
       noteHome: "Only countries where one of your languages is the majority language spoken at home are lit; the rest are dimmed.",
       noteKnow: "Colour shows the share of the population that speaks at least one of your languages. Shares are added, so read it as an upper bound.",
@@ -1799,6 +1799,15 @@ body.zoomed .orn { opacity: 0; }
     } catch (e) {}
     return null;
   })();
+  // Uygulama kabuğunun içindeyiz ama köprü yok: <a download> burada hiçbir şey
+  // yapmaz, "İndirildi" yazmak yalan olur.
+  const shellNoBridge = !bridge && (() => {
+    try {
+      if (window.webkit && window.webkit.messageHandlers) return true;
+      if (/;\s*wv\)/.test(navigator.userAgent)) return true;
+    } catch (e) {}
+    return false;
+  })();
   // btoa tek seferde büyük diziyi kaldırmıyor: 32 KB'lık parçalara bölünüyor.
   function toB64(u8) {
     let out = "";
@@ -1811,6 +1820,7 @@ body.zoomed .orn { opacity: 0; }
   window.__atlasSaved = (ok) => { const f = macPending; macPending = null; if (f) f(!!ok); };
   // done(ok) her yolda tam bir kez çağrılır; buton yazısı gerçeği söylesin.
   function saveBlob(blob, name, done) {
+    if (shellNoBridge) { done(false, true); return; }
     if (!bridge) {
       try {
         const url = URL.createObjectURL(blob);
@@ -1832,8 +1842,9 @@ body.zoomed .orn { opacity: 0; }
   }
   function exportMap(kind, btn) {
     const label = btn.textContent;
-    const done = (ok) => {
-      btn.textContent = ok ? (bridge ? t().savedTo : t().saved) : t().saveFail;
+    const done = (ok, noShell) => {
+      btn.textContent = ok ? (bridge ? t().savedTo : t().saved)
+                           : noShell ? t().saveNoShell : t().saveFail;
       setTimeout(() => { btn.textContent = label; }, 1800);
     };
     let svgText;
