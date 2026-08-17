@@ -322,16 +322,6 @@ body.busy .hud-panels > .minor {
 .spk-figs dt { font: 400 1.375rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; }
 .spk-figs dd { margin: 0; font-size: .625rem; letter-spacing: .05em; text-transform: uppercase;
                color: var(--ink-3); line-height: 1.2; }
-.spk-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 9px; }
-.spk-chips:empty { display: none; }
-.spk-chips button {
-  display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px;
-  border: 1px solid var(--rule-2); border-radius: 2px; background: none;
-  color: var(--ink); font: inherit; font-size: .75rem; cursor: pointer;
-}
-.spk-chips button:hover { border-color: var(--ink-3); }
-.spk-chips i { width: 8px; height: 8px; border-radius: 1px; background: var(--c); flex: none; }
-.spk-chips b { color: var(--ink-3); font-weight: 400; }
 .spk-q {
   width: 100%; margin-top: 10px; padding: 6px 9px; font: inherit; font-size: .8125rem;
   background: var(--panel-2); color: var(--ink);
@@ -858,7 +848,6 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
                 <button data-km="home" aria-pressed="false">Ana dil</button>
               </div>
               <div id="spkStats"></div>
-              <div id="spkChips" class="spk-chips"></div>
               <input id="spkQ" type="search" class="spk-q" autocomplete="off" spellcheck="false"
                      placeholder="Dil ara" aria-label="Dil ara">
               <div id="spkList" class="spk-list"></div>
@@ -2428,14 +2417,17 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     $("#spkMode").querySelectorAll("[data-km]").forEach((b) =>
       b.setAttribute("aria-pressed", String(b.dataset.km === knowMode)));
     $("#spkStats").innerHTML = spkFigsHTML();
-    $("#spkChips").innerHTML = [...known].filter((k) => LG[k]).map((k) =>
-      `<button data-unknow="${k}" style="--c:${col(LG[k].g)}"><i></i>${
-        esc(ln(LG[k]))}<b>✕</b></button>`).join("");
     const q = norm(spkQ.value.trim());
-    const hits = langIds
-      .filter((s) => !q || norm(LG[s].n).includes(q) || norm(LG[s].e).includes(q)
-                  || norm(LG[s].ne || "").includes(q))
-      .sort((a, b) => (known.has(b) ? 1 : 0) - (known.has(a) ? 1 : 0) || LG[b].s - LG[a].s);
+    // Seçtiğin diller her zaman en üstte, arama süzgecinden bağımsız: bir dil
+    // arayınca seçimlerin listeden düşüp ulaşılmaz olmasın. Ayrı bir rozet
+    // satırı vardı ama listedeki işaretli satırla aynı şeyi iki kez
+    // anlatıyordu.
+    const picked = langIds.filter((k) => known.has(k));
+    const hits = picked.concat(langIds
+      .filter((k) => !known.has(k))
+      .filter((k) => !q || norm(LG[k].n).includes(q) || norm(LG[k].e).includes(q)
+                  || norm(LG[k].ne || "").includes(q))
+      .sort((a, b) => LG[b].s - LG[a].s));
     $("#spkList").innerHTML = hits.length
       ? hits.slice(0, 120).map((s) => {
           const l = LG[s];

@@ -319,6 +319,11 @@ body.zoomed .orn { opacity: 0; }
   font-size: 1rem; outline: none; padding: 0;
 }
 .searchbar .ic { color: var(--ink-3); font-size: .95rem; flex: none; }
+/* type="search" tarayıcının kendi temizleme düğmesini çiziyor; bizimkiyle
+   birlikte iki ✕ yan yana duruyordu. Bizimki kalıyor: dokunma alanı ölçüsünde
+   ve süzgeci de sıfırlıyor. */
+.searchbar input::-webkit-search-cancel-button,
+.searchbar input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
 .searchbar button { color: var(--ink-3); padding: 4px; font-size: .9rem; }
 /* Güvenli alan payı artık sekme çubuğunda; panel onun üstünde bitiyor. */
 .sheet-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -612,6 +617,15 @@ body.zoomed .orn { opacity: 0; }
     if (n >= 1e3) return Math.round(n / 1e3).toLocaleString(L) + t().tho;
     return Math.round(n).toLocaleString(L);
   };
+  // Dar sütunlar için kısa biçim: "1,7 milyar" üç kutuluk satıra sığmayıp
+  // iki satıra sarıyordu.
+  const fmtS = (k) => {
+    const n = k * 1000;
+    if (n >= 1e9) return dec(n / 1e9, 1) + t().sBil;
+    if (n >= 1e6) return dec(n / 1e6, n >= 1e7 ? 0 : 1) + t().sMil;
+    if (n >= 1e3) return Math.round(n / 1e3) + t().sTho;
+    return String(Math.round(n));
+  };
   const subsOf = {};
   subIds.forEach((sid) => (subsOf[SB[sid].p] = subsOf[SB[sid].p] || []).push(sid));
 
@@ -677,6 +691,7 @@ body.zoomed .orn { opacity: 0; }
       speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
       mapHint: "Haritada bir ülkeye dokunun; ayrıntısı burada açılır.",
       bil: " milyar", mil: " milyon", tho: " bin",
+      sBil: " mlr", sMil: " mn", sTho: " bin",
     },
     en: {
       title: "World languages", sub: (n) => `${n} countries · majority language`,
@@ -732,6 +747,7 @@ body.zoomed .orn { opacity: 0; }
       speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
       mapHint: "Tap a country on the map to see its details here.",
       bil: " billion", mil: " million", tho: "k",
+      sBil: "B", sMil: "M", sTho: "k",
     },
   };
   let ui = localStorage.getItem("wl-ui")
@@ -1621,18 +1637,17 @@ body.zoomed .orn { opacity: 0; }
     const cty = knowMode === "home"
       ? ids.filter((i) => speaksHome(C[i])).length
       : ids.filter((i) => reach(i) >= 50).length;
-    const hits = langIds.filter(matches)
-      .sort((a, b) => (known.has(b) ? 1 : 0) - (known.has(a) ? 1 : 0)
-                   || spk(b) - spk(a) || trc(ln(LG[a]), ln(LG[b])));
+    // Seçtiğin diller her zaman en üstte, arama süzgecinden bağımsız: bir
+    // dil arayınca seçimlerin listeden düşüp ulaşılmaz olmasın.
+    const rest = langIds.filter((k) => !known.has(k)).filter(matches)
+      .sort((a, b) => spk(b) - spk(a) || trc(ln(LG[a]), ln(LG[b])));
+    const hits = list.concat(rest);
     return `<div class="stat">
         <div><b class="num">${list.length}</b><span>${t().kStatLangs}</span></div>
-        <div><b class="num">${list.length ? fmtK(ppl) : "—"}</b><span>${t().kStatPeople}</span></div>
+        <div><b class="num">${list.length ? fmtS(ppl) : "—"}</b><span>${t().kStatPeople}</span></div>
         <div><b class="num">${cty}</b><span>${
           knowMode === "home" ? t().kStatCtyHome : t().kStatCty}</span></div>
       </div>` +
-      (list.length ? `<div class="chips">` + list.map((k) =>
-        `<button class="chip" data-unknow="${k}" style="--c:${col(LG[k].g)}">${
-          esc(ln(LG[k]))} ✕</button>`).join("") + `</div>` : "") +
       `<p class="note">${!list.length ? t().noteKnowEmpty
         : knowMode === "home" ? t().noteHome : t().noteKnow}</p>` +
       (list.length && knowMode === "share" ? knowScale() : "") +
@@ -1643,7 +1658,7 @@ body.zoomed .orn { opacity: 0; }
         return `<button class="row" data-l="${s}" aria-pressed="${on}" style="--c:${col(l.g)}">
           <span class="dot-c ${l.g === "oth" ? "oth" : ""}"></span>
           <span><span class="row-t">${esc(ln(l))}</span><br><span class="sub-t">${esc(l.e)}</span></span>
-          <span class="val num">${on ? "✓" : fmtK(l.s)}</span></button>`;
+          <span class="val num">${on ? "✓" : fmtS(l.s)}</span></button>`;
       }).join("") + `</div>` : `<p class="empty">${esc(t().noHit(state.q))}</p>`) +
       `</div>`;
   }

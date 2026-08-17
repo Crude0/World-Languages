@@ -10,6 +10,27 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.12.2 — 17 Ağustos 2026
+
+**"Bildiğim diller" aynı şeyi iki kez gösteriyordu.** Seçtiğin diller hem
+kaldırılabilir rozetler halinde bir satırda, hem de aşağıdaki listede mavi ve
+✓'li satırlar olarak duruyordu — iki gösterim, tek durum, boşa giden yer.
+Rozet satırı kalktı; listedeki işaretli satır zaten hem gösteriyor hem
+dokununca kaldırıyor.
+
+Bunu yaparken seçimlerin ulaşılmaz kalabileceği bir durum vardı: bir dil
+arayınca seçtiklerin süzgeçten düşüyordu. Artık seçtiğin diller aramadan
+bağımsız olarak listenin en başına sabitleniyor. Aynı çifte gösterim
+masaüstündeki "Dillerim" yaprağında da vardı, orada da kaldırıldı.
+
+Yanında iki küçük düzeltme:
+
+- Telefondaki üç rakam kısa biçim kullanıyor. "1,7 milyar" üç kutuluk satıra
+  sığmayıp iki satıra sarıyordu; artık "1,7 mlr".
+- Arama kutusunda **iki temizleme düğmesi** yan yana duruyordu: biri bizim,
+  biri tarayıcının `type="search"` için kendiliğinden çizdiği. Tarayıcınınki
+  gizlendi — bizimki dokunma alanı ölçüsünde ve süzgeci de sıfırlıyor.
+
 ## v0.12.1 — 17 Ağustos 2026
 
 **macOS uygulamasında PNG ve SVG halen kaydetmiyordu.** 0.12.0'ın köprüsü
