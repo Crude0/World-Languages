@@ -10,6 +10,30 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.13.0 — 17 Ağustos 2026
+
+**Kartın en büyük yazısı artık sorduğun soruya cevap veriyor.** Yer kartı hangi
+katmanda olursan ol aynı şeyle açılıyordu: ana dilin payı üç büyük rakam, geri
+kalan her şey küçük satırlar. Yani "Bildiğim diller" katmanındayken
+Bulgaristan'a bakarken en büyük yazı *%85 Bulgarca* oluyor, aradığın *%34 ile
+anlaşabilirsiniz* küçük bir dipnotta kalıyordu. Aynı ters hiyerarşi iki katmanda
+daha vardı ve iki platformda da aynıydı.
+
+Artık kartın tepesinde katmanın sorduğu soruya cevap veren şey duruyor:
+
+- **Bildiğim diller** — anlaşabildiğin pay, kaç kişi ettiği ve nüfus üç büyük
+  rakam olarak; altında payı oluşturan diller kendi renkli rozetleriyle
+  (Bulgaristan'da İngilizce %25 · Türkçe %9). Ülkenin ana dili "Ülkenin ana
+  dili" başlığı altına, kendi rakamlarıyla iniyor.
+- **Yazı** — yazı sistemi en büyük satır, altında hangi dile ait olduğu. Eskiden
+  "Yazı sistemi · Kiril" kartın en küçük yazılarından biriydi.
+- **Resmî dil** — devletin dili en büyük satır, hukuken mi fiilî mi olduğuyla
+  birlikte; ana dil bloğu altına iniyor. Resmî dil ayrıca aşağıda tekrar
+  edilmiyor.
+- **Ana dil** — olduğu gibi kalıyor; orada zaten doğruydu.
+
+Bu dört durum iki platformda da ölçüldü.
+
 ## v0.12.3 — 17 Ağustos 2026
 
 **macOS uygulaması PNG'ye basınca çöküyordu.** Köprü 0.12.1'de ilk kez

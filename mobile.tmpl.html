@@ -568,6 +568,31 @@ body.zoomed .orn { opacity: 0; }
     if (!row || Math.abs(c.p - row[1]) < 1.5) return "";
     return `<p class="note">${esc(t().speaksNote(pc(row[1])))}</p>`;
   }
+  // Bildiğim sekmesinin kart rakamları: pay, kişi, nüfus. Aynı üçlü kalıp
+  // ama ölçtüğü şey senin dillerin.
+  function reachFigs(cid, c) {
+    const v = reach(cid);
+    return `<div class="stat">
+        <div><b class="num">${pc(Math.round(v * 10) / 10)}</b><span>${t().kReach}</span></div>
+        <div><b class="num">${c.pop ? fmtK(c.pop * v / 100) : "—"}</b><span>${t().kReachPpl}</span></div>
+        <div><b class="num">${c.pop ? fmtK(c.pop) : "—"}</b><span>${t().pop}</span></div>
+      </div>`;
+  }
+  // Paya katkı veren diller, payı büyükten küçüğe. Eskiden bu satır kartın
+  // en küçük yazısıydı.
+  function reachLangs(cid, c) {
+    const m = new Map((c.mix || []).map(([n, q]) => [n, q]));
+    const s2 = new Map((c.l2 || []).map(([n, q]) => [n, q]));
+    const rows = [...known].filter((k) => LG[k])
+      .map((k) => [LG[k], Math.max(m.get(LG[k].n) || 0, s2.get(LG[k].n) || 0)])
+      .filter(([, q]) => q > 0).sort((x, y) => y[1] - x[1]);
+    if (!rows.length) return `<p class="note">${t().kNoneHere}</p>`;
+    return `<p class="d-fam" style="margin-top:12px">${t().kWith}</p>` +
+      `<div class="chips">` + rows.map(([lg, q]) =>
+        `<span class="chip" style="box-shadow:inset 3px 0 0 ${col(lg.g)};padding-left:13px">${
+          esc(ln(lg))} <b class="num">${pc(q)}</b></span>`).join("") + `</div>` +
+      `<p class="note">${t().noteKnow}</p>`;
+  }
   function reach(cid) {
     const c = C[cid];
     if (!c || !known.size) return 0;
@@ -690,6 +715,9 @@ body.zoomed .orn { opacity: 0; }
       uiLang: "Dil · Language", credit: "© 2026 Crude · Açık veri · Natural Earth sınırları",
       speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
       mapHint: "Haritada bir ülkeye dokunun; ayrıntısı burada açılır.",
+      kReach: "anlaşabildiğiniz pay", kReachPpl: "anlaşabildiğiniz kişi",
+      kWith: "Buradaki payı oluşturan diller", kNoneHere: "Bildiğiniz diller burada kayda değer değil.",
+      kHomeLang: "Ülkenin ana dili",
       bil: " milyar", mil: " milyon", tho: " bin",
       sBil: " mlr", sMil: " mn", sTho: " bin",
     },
@@ -746,6 +774,9 @@ body.zoomed .orn { opacity: 0; }
       uiLang: "Dil · Language", credit: "© 2026 Crude · Open data · Natural Earth borders",
       speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
       mapHint: "Tap a country on the map to see its details here.",
+      kReach: "share you could talk to", kReachPpl: "people you could talk to",
+      kWith: "Your languages here", kNoneHere: "None of your languages registers here.",
+      kHomeLang: "The country's home language",
       bil: " billion", mil: " million", tho: "k",
       sBil: "B", sMil: "M", sTho: "k",
     },
@@ -1965,24 +1996,68 @@ body.zoomed .orn { opacity: 0; }
           note: noteOf(C[id]), m: C[id].m };
     const l = LG[c.l] || LG[C[id].l];
     const minor = LG[c.l] ? (LG[c.l].in || []).filter(([i]) => C[i].l !== c.l) : [];
-    return (
-      `<div class="d-top"><div class="grow" style="flex:1;min-width:0">
-         <h2>${esc(c.n)}</h2><p>${esc(c.r)}</p></div></div>` +
-      `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
+    // Bildiğim sekmesinde büyük rakamlar senin dillerini anlatıyor, ülkenin
+    // ana dilini değil: sekmenin sorusu o. Eskiden tam tersiydi — Bulgaristan'a
+    // bakarken en büyük yazı "%85 Bulgarca" oluyor, aradığın "%34 ile
+    // anlaşabilirsiniz" küçük bir dipnotta kalıyordu.
+    const reachFirst = state.tab === "know" && known.size && knowMode === "share";
+    const homeBlock =
+      `<p class="d-lang" style="--c:${col(l.g)}"><i class="${
+        l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
       `<p class="d-fam">${esc(lf(l))}</p>` +
       `<p class="d-fam">${t().script} · ${esc(scName(l.sc))}${
         l.sc2 ? " + " + esc(scName(l.sc2)) : ""}</p>` +
-      (l.sc2 ? `<p class="note">${esc(sc2Note(l))}</p>` : "") +
+      (l.sc2 ? `<p class="note">${esc(sc2Note(l))}</p>` : "");
+    const homeFigs =
       `<div class="stat">
          <div><b class="num">${pc(c.p)}</b><span>${t().speaks}</span></div>
          <div><b class="num">${c.pop ? fmtK(c.pop * c.p / 100) : "—"}</b><span>${t().people}</span></div>
          <div><b class="num">${c.pop ? fmtK(c.pop) : "—"}</b><span>${t().pop}</span></div>
-       </div>` +
+       </div>`;
+    // Kartın en üstünde, katmanın sorduğu soruya cevap veren şey durur.
+    // Yazı katmanında yazı, resmî dil katmanında devletin dili, Bildiğim'de
+    // senin payın. Üçünde de eskiden ana dilin payı en büyük yazıydı ve
+    // aradığın bilgi küçük bir satıra düşüyordu.
+    const scrLead = () => {
+      const g = SCR[l.sc] && SCR[l.sc].g;
+      return `<p class="d-lang" style="--c:${col(g ? SGCOL[g] : "oth")}"><i></i>${
+          esc(scName(l.sc))}${l.sc2 ? " + " + esc(scName(l.sc2)) : ""}</p>` +
+        `<p class="d-fam">${esc(ln(l))} · ${esc(lf(l))}</p>` +
+        (l.sc2 ? `<p class="note">${esc(sc2Note(l))}</p>` : "") +
+        `<p class="note">${t().noteScr}</p>`;
+    };
+    const offLead = () => {
+      const o = C[id], list = (o && o.o) || [];
+      if (!list.length) return homeBlock;
+      const g = LG[list[0]] ? LG[list[0]].g : "oth";
+      return `<p class="d-lang" style="--c:${col(g)}"><i class="${
+          g === "oth" ? "oth" : ""}"></i>${list.map((k) =>
+          esc(LG[k] ? ln(LG[k]) : k)).join(" · ")}</p>` +
+        `<p class="d-fam">${o.oj ? t().official : t().officialDe}</p>` +
+        (o.od ? `<p class="note">${t().officialDe}: ` +
+          o.od.map((k) => esc(LG[k] ? ln(LG[k]) : k)).join(", ") + `</p>` : "") +
+        (o.oj ? "" : `<p class="note">${t().offNoneChip}</p>`) +
+        (o.om ? `<p class="note">${t().offMismatch}</p>` : "") +
+        (offNote(o) ? `<p class="note">${esc(offNote(o))}</p>` : "");
+    };
+    const sec = (h, inner) =>
+      `<div class="sec"><div class="sec-h"><h2>${h}</h2></div>${inner}</div>`;
+    const scrFirst = !reachFirst && state.layer === "scr";
+    const offFirst = !reachFirst && state.layer === "off" && ((C[id] && C[id].o) || []).length;
+    return (
+      `<div class="d-top"><div class="grow" style="flex:1;min-width:0">
+         <h2>${esc(c.n)}</h2><p>${esc(c.r)}</p></div></div>` +
+      (reachFirst
+        ? reachFigs(id, c) + reachLangs(id, c) +
+          sec(t().kHomeLang, homeBlock + homeFigs)
+        : scrFirst ? scrLead() + homeFigs
+        : offFirst ? offLead() + sec(t().kHomeLang, homeBlock + homeFigs)
+        : homeBlock + homeFigs) +
       homeGap(c) +
-      knowLine(id, c) +
+      (reachFirst ? "" : knowLine(id, c)) +
       (c.m === 0 ? `<p class="note">${t().noMajority}</p>` : "") +
       (c.note ? `<p class="note">${esc(c.note)}</p>` : "") +
-      offSection(id) +
+      (offFirst ? "" : offSection(id)) +
       (c.mix ? `<div class="sec"><div class="sec-h"><h2>${t().home}</h2></div>
          ${bars(c.mix, c.pop, col(l.g), 12)}
          <p class="note">${t().homeNote}</p></div>` : "") +

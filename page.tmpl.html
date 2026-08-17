@@ -1075,6 +1075,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       tipKnowNone: "bildiğiniz diller burada kayda değer değil",
       kmShare: "Pay", kmHome: "Ana dil",
       speakT: "Dillerim", spkSearch: "Dil ara", savedTo: "İndirilenler'e kaydedildi", saveNoShell: "Bu sürüm kaydedemiyor",
+      kReach: "anlaşabildiğiniz pay", kReachPpl: "anlaşabildiğiniz kişi",
+      kWith: "Buradaki payı oluşturan diller", kNoneHere: "Bildiğiniz diller burada kayda değer değil.",
+      kHomeLang: "Ülkenin ana dili",
       speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
       spkNoHit: "eşleşen dil yok",
       kStatLangs: "seçili dil", kStatPeople: "kişiye ulaşırsınız",
@@ -1179,6 +1182,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       tipKnowNone: "none of your languages registers here",
       kmShare: "Share", kmHome: "Home language",
       speakT: "My languages", spkSearch: "Search a language", savedTo: "Saved to Downloads", saveNoShell: "This build cannot save",
+      kReach: "share you could talk to", kReachPpl: "people you could talk to",
+      kWith: "Your languages here", kNoneHere: "None of your languages registers here.",
+      kHomeLang: "The country's home language",
       speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
       spkNoHit: "no matching language",
       kStatLangs: "languages picked", kStatPeople: "people reachable",
@@ -2206,6 +2212,86 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // konuşulan ana dil". İsveç'te 95 ile 85 yan yana düşüp çelişki gibi
   // okunuyordu — iki sayı iki ayrı ölçü. Fark varsa ikisini bağdaştıran
   // satır yazılıyor; 20 ülkede fark var, en büyüğü Endonezya (%94 / %20).
+  // Kartın en üstünde, o anki katmanın sorduğu soruya cevap veren şey durur.
+  // Yazı katmanında yazı, resmî dil katmanında devletin dili, "Bildiğim
+  // diller"de senin payın. Üçünde de eskiden ana dilin payı en büyük yazıydı
+  // ve aradığın bilgi küçük bir satıra düşüyordu — telefonda da aynıydı.
+  const leadIsReach = () => layer === "know" && known.size && knowMode === "share";
+  const leadIsOff = (id) => layer === "off" && !leadIsReach()
+    && (((C[id] && C[id].o) || []).length > 0);
+  function cardLead(id, c, l) {
+    const homeBlock =
+      (c.sub ? "" : `<p class="d-endo" lang="${c.l.split("_")[0]}">${esc(l.e)}</p>`) +
+      `<p class="d-lang" style="--c:${col(l.g)}"><i class="${
+        l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
+      `<p class="d-fam">${esc(lf(l))}</p>` +
+      `<p class="d-fam">${t().script} · ${esc(scName(l.sc))}${
+        l.sc2 ? ` <span class="chip chip-s" title="${esc(sc2Note(l))}">+ ${
+          esc(scName(l.sc2))}</span>` : ""}</p>`;
+    // Nüfus telefonda üç büyük rakamdan biri, masaüstünde ise silik bir
+    // dipnottu — aynı veri, iki ayrı sunum.
+    const homeFigs =
+      `<div class="meter" style="--c:${col(l.g)}">
+         <dl class="d-figs">
+           <div><dt class="num">${pc(c.p)}</dt><dd>${t().speaks}</dd></div>
+           <div><dt class="num">${c.pop ? fmtS(c.pop * c.p / 100) : "—"}</dt><dd>${t().people}</dd></div>
+           <div><dt class="num">${c.pop ? fmtS(c.pop) : "—"}</dt><dd>${
+             c.sub ? t().regionPopLbl : t().popLbl}</dd></div>
+         </dl>
+         ${homeGap(c)}
+         <div class="meter-track"><div class="meter-fill" style="width:${
+           Math.min(100, c.p)}%"></div></div>
+       </div>`;
+    const sec = (h, inner) => `<div class="d-sec"><h4>${h}</h4>${inner}</div>`;
+
+    if (leadIsReach()) {
+      const v = reach(id);
+      const m = new Map((c.mix || []).map(([n, q]) => [n, q]));
+      const s2 = new Map((c.l2 || []).map(([n, q]) => [n, q]));
+      const rows = [...known].filter((k) => LG[k])
+        .map((k) => [LG[k], Math.max(m.get(LG[k].n) || 0, s2.get(LG[k].n) || 0)])
+        .filter(([, q]) => q > 0).sort((x, y) => y[1] - x[1]);
+      return `<div class="meter" style="--c:${KNOW_RAMP[binOf(v, KNOW_BINS)]}">
+           <dl class="d-figs">
+             <div><dt class="num">${pc(Math.round(v * 10) / 10)}</dt><dd>${t().kReach}</dd></div>
+             <div><dt class="num">${c.pop ? fmtS(c.pop * v / 100) : "—"}</dt><dd>${t().kReachPpl}</dd></div>
+             <div><dt class="num">${c.pop ? fmtS(c.pop) : "—"}</dt><dd>${
+               c.sub ? t().regionPopLbl : t().popLbl}</dd></div>
+           </dl>
+           <div class="meter-track"><div class="meter-fill" style="width:${
+             Math.min(100, v)}%"></div></div>
+         </div>` +
+        (rows.length
+          ? `<p class="d-fam">${t().kWith}</p>` + rows.map(([lg, q]) =>
+              `<span class="chip" style="box-shadow:inset 3px 0 0 ${col(lg.g)};padding-left:11px">${
+                esc(ln(lg))} ${pc(q)}</span>`).join(" ")
+          : `<p class="d-hint">${t().kNoneHere}</p>`) +
+        `<p class="d-hint">${t().noteKnow}</p>` +
+        sec(t().kHomeLang, homeBlock + homeFigs);
+    }
+    if (layer === "scr") {
+      const g = SCR[l.sc] && SCR[l.sc].g;
+      return `<p class="d-lang" style="--c:${col(g ? SGCOL[g] : "oth")}"><i></i>${
+          esc(scName(l.sc))}${l.sc2 ? " + " + esc(scName(l.sc2)) : ""}</p>` +
+        `<p class="d-fam">${esc(ln(l))} · ${esc(lf(l))}</p>` +
+        (l.sc2 ? `<p class="d-hint">${esc(sc2Note(l))}</p>` : "") +
+        `<p class="d-hint">${t().noteScr}</p>` + homeFigs;
+    }
+    if (leadIsOff(id)) {
+      const o = C[id], list = o.o || [], g = LG[list[0]] ? LG[list[0]].g : "oth";
+      return `<p class="d-lang" style="--c:${col(g)}"><i class="${
+          g === "oth" ? "oth" : ""}"></i>${list.map((k) =>
+          esc(LG[k] ? ln(LG[k]) : k)).join(" · ")}</p>` +
+        `<p class="d-fam">${o.oj ? t().official : t().officialDe}</p>` +
+        (o.od ? `<p class="d-hint">${t().officialDe}: ` +
+          o.od.map((k) => esc(LG[k] ? ln(LG[k]) : k)).join(", ") + `</p>` : "") +
+        (o.oj ? "" : `<p class="d-hint">${t().offNoneChip}</p>`) +
+        (o.om ? `<p class="d-hint">${t().offMismatch}</p>` : "") +
+        (offNote(o) ? `<p class="d-hint">${esc(offNote(o))}</p>` : "") +
+        sec(t().kHomeLang, homeBlock + homeFigs);
+    }
+    return homeBlock + homeFigs;
+  }
   function homeGap(c) {
     const nm = LG[c.l] && LG[c.l].n;
     const row = nm && (c.mix || []).find(([n]) => n === nm);
@@ -2782,30 +2868,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         `<div class="d-country"><h3>${esc(c.sub ? sn(c) : cn(c))}</h3><span class="d-region">${
           esc(c.sub ? cn(C[id]) : (ui === "en" ? C[id].re : c.r))}${
           c.sub ? " · " + t().region : (c.t ? " · " + t().dep : "")}</span></div>` +
-        (c.sub ? "" : `<p class="d-endo" lang="${c.l.split("_")[0]}">${esc(l.e)}</p>`) +
-        `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
-        `<p class="d-fam">${esc(lf(l))}</p>` +
-        `<p class="d-fam">${t().script} · ${esc(scName(l.sc))}${
-          l.sc2 ? ` <span class="chip chip-s" title="${esc(sc2Note(l))}">+ ${esc(scName(l.sc2))}</span>` : ""}</p>` +
-        // Nüfus telefonda üç büyük rakamdan biri, masaüstünde ise silik bir
-        // dipnottu — aynı veri, iki ayrı sunum. Masaüstü de kendi
-        // tipografisiyle (mastheaddeki .stats kalıbı) üç rakamı gösteriyor.
-        `<div class="meter" style="--c:${col(l.g)}">
-           <dl class="d-figs">
-             <div><dt class="num">${pc(c.p)}</dt><dd>${t().speaks}</dd></div>
-             <div><dt class="num">${c.pop ? fmtS(c.pop * c.p / 100) : "—"}</dt><dd>${t().people}</dd></div>
-             <div><dt class="num">${c.pop ? fmtS(c.pop) : "—"}</dt><dd>${
-               c.sub ? t().regionPopLbl : t().popLbl}</dd></div>
-           </dl>
-           ${homeGap(c)}
-           <div class="meter-track"><div class="meter-fill" style="width:${Math.min(100, c.p)}%"></div></div>
-         </div>` +
+        cardLead(id, c, l) +
         (c.m ? "" : `<span class="chip">${t().noMajChip}</span>`) +
         (noteOf(C[id]) ? `<p class="d-note">${esc(noteOf(C[id]))}</p>` : "") +
         // Resmî dil ülkenin kimlik bilgisi; iki büyük dağılım tablosunun
         // yanında ayrı bir sütun olarak durursa ızgaraya dördüncü öğe
         // olarak giriyor ve ikinci satır açıp koca boşluklar bırakıyordu.
-        offSection(id) +
+        (leadIsOff(id) ? "" : offSection(id)) +
       `</div>` +
       (c.mix ? `<div class="d-sec"><h4>${t().home}</h4>${bars(c.mix, col(l.g), 12, c.pop)}` +
         `<p class="d-hint">${t().homeNote}</p></div>` : "") +
