@@ -75,6 +75,15 @@ jobs:
           if echo "$OUT" | grep -q "hakkında simge: yok"; then
             echo "HATA: Hakkında penceresi osascript simgesine düşecek"; exit 1
           fi
+          # Dosya kaydetme köprüsü. WKWebView'in indirme işleyicisi olmadığı
+          # için PNG/SVG dışa aktarma bu köprüye bağlı; köprü Mac olmadan
+          # yazılıyor, o yüzden burada hem kuruluyor mu hem yazma yolu işliyor
+          # mu ölçülüyor. Kurulmazsa sürüm hiç çıkmıyor — sessizce
+          # kurulmaması "kaydettim" diyen ama kaydetmeyen bir butona yol açtı.
+          echo "$OUT" | grep -q "^köprü: ok$" \
+            || { echo "HATA: kaydetme köprüsü kurulmuyor"; exit 1; }
+          echo "$OUT" | grep -q "^kaydetme denemesi: ok$" \
+            || { echo "HATA: İndirilenler'e yazma yolu işlemiyor"; exit 1; }
 
       - name: disk imajı
         run: |

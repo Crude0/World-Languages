@@ -10,6 +10,34 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.12.1 — 17 Ağustos 2026
+
+**macOS uygulamasında PNG ve SVG halen kaydetmiyordu.** 0.12.0'ın köprüsü
+kuruluyorsa çalışıyor, kurulmuyorsa hiçbir şey söylemiyordu: kurulum bir
+`try/catch` içinde sessizce yutuluyor, sayfa da köprüyü bulamayınca eski
+`<a download>` yoluna düşüp — o yol WKWebView'de hiçbir şey yapmadığı hâlde —
+"İndirildi" yazıyordu. Yani hata iki kez sessiz kalıyordu.
+
+Üç şey değişti:
+
+- **Sayfa artık yalan söylemiyor.** Bir uygulama kabuğunun içinde olup
+  olmadığımıza bakılıyor (WKWebView'de `window.webkit.messageHandlers`,
+  WebView2'de `window.chrome.webview`, Android WebView'de kullanıcı
+  aracısındaki `; wv)`) ve köprü yoksa buton "Bu sürüm kaydedemiyor" yazıyor.
+  Gerçek tarayıcıda hiçbir şey değişmedi.
+- **Köprünün hatası yutulmuyor.** Kurulum durumu bir dizge olarak tutuluyor,
+  yazma işi de köprüden ayrı bir işleve çıkarıldı.
+- **Gerçek bir Mac'te ölçülüyor.** Betiğin denetim kipi — yayım iş akışının
+  Hakkında penceresini doğrulamak için macOS koşucusunda zaten çalıştırdığı kip
+  — şimdi köprünün kurulduğunu *ve* İndirilenler'e yazma yolunun işlediğini de
+  bildiriyor (küçük bir dosya yazıp varlığını doğrulayıp siliyor). İkisinden
+  biri tutmazsa sürüm hiç çıkmıyor. Bu köprü Mac olmadan yazıldığı için tek
+  doğru yol buydu.
+
+Kurulumdan `protocols` bildirimi de kaldırıldı: WebKit yöntemi doğrudan
+çağırıyor, bildirim bir şey eklemiyor ama JXA'da kimi sürümlerde kurulumun
+tümünü düşürüyor — köprünün sessizce kurulmamasının en olası sebebi.
+
 ## v0.12.0 — 17 Ağustos 2026
 
 **Telefon arayüzü baştan kuruldu.** 0.2 döneminden kalma düzenin üstüne

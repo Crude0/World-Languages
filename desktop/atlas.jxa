@@ -10,6 +10,7 @@ var COPY = '© 2026 Crude · Açık veri · Natural Earth sınırları';
 var keep = [];   // çöp toplayıcıdan korunacak nesneler
 var web = null;  // menüden sayfaya komut göndermek için
 var appIcon = null;  // Hakkında penceresi de bunu kullanıyor
+var saverStatus = 'kurulmadı';  // dosya kaydetme köprüsünün durumu
 
 function run(argv) {
   var htmlPath = argv[0];
@@ -48,48 +49,7 @@ function run(argv) {
   keep.push(win);
 
   var cfg = $.WKWebViewConfiguration.alloc.init;
-  // Sayfadan dosya kaydetme köprüsü. WKWebView'in indirme işleyicisi yok:
-  // <a download> tıklaması sessizce yutuluyor, PNG/SVG dışa aktarma sayfada
-  // "İndirildi" yazmasına rağmen hiçbir yere dosya bırakmıyordu. Sayfa
-  // baytları base64 olarak yolluyor, burada ~/Downloads'a yazılıyor ve sonuç
-  // sayfaya geri bildiriliyor — buton yazısı gerçeği söylesin.
-  try {
-    ObjC.registerSubclass({
-      name: 'AtlasSaver',
-      superclass: 'NSObject',
-      protocols: ['WKScriptMessageHandler'],
-      methods: {
-        'userContentController:didReceiveScriptMessage:': {
-          types: ['void', ['id', 'id']],
-          implementation: function (_ucc, msg) {
-            var ok = false;
-            try {
-              var body = msg.body;
-              var name = ObjC.unwrap(body.objectForKey('name'));
-              var b64 = ObjC.unwrap(body.objectForKey('b64'));
-              var data = $.NSData.alloc.initWithBase64EncodedStringOptions($(b64), 0);
-              if (name && !data.isNil()) {
-                // Ad sayfadan geliyor; klasör dışına çıkmasın.
-                name = String(name).replace(/[\/\\:]/g, '-');
-                var path = ObjC.unwrap($.NSHomeDirectory()) + '/Downloads/' + name;
-                ok = data.writeToFileAtomically($(path), true);
-              }
-            } catch (e) { ok = false; }
-            try {
-              if (web) {
-                web.evaluateJavaScriptCompletionHandler(
-                  $('window.__atlasSaved && window.__atlasSaved(' +
-                    (ok ? 'true' : 'false') + ')'), null);
-              }
-            } catch (e) {}
-          }
-        }
-      }
-    });
-    var saver = $.AtlasSaver.alloc.init;
-    keep.push(saver);
-    cfg.userContentController.addScriptMessageHandlerName(saver, $('atlasSave'));
-  } catch (e) { /* köprü kurulamazsa pencere yine açılır */ }
+  saverStatus = installSaver(cfg);
   web = $.WKWebView.alloc.initWithFrameConfiguration(rect, cfg);
   var url = $.NSURL.fileURLWithPath(htmlPath);
   web.loadFileURLAllowingReadAccessToURL(url, url.URLByDeletingLastPathComponent);
@@ -127,6 +87,16 @@ function run(argv) {
     out.push('hakkında sürüm: ' + ObjC.unwrap(ab.objectForKey($('ApplicationVersion'))));
     out.push('hakkında simge: ' + (!icon || icon.isNil() ? 'yok'
       : Math.round(icon.size.width) + 'x' + Math.round(icon.size.height)));
+    // Kaydetme köprüsü Mac olmadan yazıldı; burada gerçekten kuruluyor mu ve
+    // yazma yolu işliyor mu, ikisi de gerçek macOS'ta ölçülüyor. Yayım iş
+    // akışı bu iki satırı arıyor (bkz. .github/workflows/release.yml).
+    out.push('köprü: ' + saverStatus);
+    var probe = 'atlas-denetim-' + Math.round(Math.random() * 1e9) + '.txt';
+    var wrote = writeDownload(probe, 'YXRsYXM=');   // "atlas"
+    var probePath = ObjC.unwrap($.NSHomeDirectory()) + '/Downloads/' + probe;
+    var seen = $.NSFileManager.defaultManager.fileExistsAtPath($(probePath));
+    if (seen) { $.NSFileManager.defaultManager.removeItemAtPathError($(probePath), null); }
+    out.push('kaydetme denemesi: ' + (wrote && seen ? 'ok' : 'BAŞARISIZ'));
     $.NSFileHandle.fileHandleWithStandardOutput.writeData(
       $(out.join('\n') + '\n').dataUsingEncoding($.NSUTF8StringEncoding));
     return;
@@ -152,6 +122,78 @@ function run(argv) {
   app.activateIgnoringOtherApps(true);
   win.makeKeyAndOrderFront(null);
   app.run;
+}
+
+// --- dosya kaydetme köprüsü -------------------------------------------------
+// WKWebView'in bir indirme işleyicisi yok: sayfadaki <a download> tıklaması
+// sessizce yutuluyor, PNG/SVG dışa aktarma hiçbir yere dosya bırakmıyordu.
+// Sayfa baytları base64 olarak yolluyor, burada ~/Downloads'a yazılıyor.
+
+// Yazma işi köprüden ayrı bir işlev: denetim kipi bunu doğrudan çağırıp
+// gerçek bir Mac'te yolun işlediğini kanıtlıyor.
+function writeDownload(name, b64) {
+  try {
+    if (!name || !b64) { return false; }
+    var data = $.NSData.alloc.initWithBase64EncodedStringOptions($(String(b64)), 0);
+    if (!data || data.isNil()) { return false; }
+    // Ad sayfadan geliyor; hedef klasörün dışına çıkmasın.
+    var safe = String(name).replace(/[\/\\:]/g, '-');
+    if (!safe || safe === '.' || safe === '..') { return false; }
+    var dir = ObjC.unwrap($.NSHomeDirectory()) + '/Downloads';
+    $.NSFileManager.defaultManager
+      .createDirectoryAtPathWithIntermediateDirectoriesAttributesError(
+        $(dir), true, $(), null);
+    return !!data.writeToFileAtomically($(dir + '/' + safe), true);
+  } catch (e) {
+    return false;
+  }
+}
+
+// Köprüyü kurar ve durumunu döndürür. Hata yutulmuyor: denetim kipi ve
+// yayım iş akışı bu dizgeyi okuyor, böylece köprü bir daha sessizce
+// kurulmamış olamaz.
+function installSaver(cfg) {
+  try {
+    // protocols anahtarı bilerek verilmiyor: WebKit yöntemi doğrudan
+    // çağırıyor, protokol bildirimi bir şey eklemiyor ve JXA'da kimi
+    // sürümlerde kurulumu tümden düşürüyor.
+    if (!$.AtlasSaver) {
+      ObjC.registerSubclass({
+        name: 'AtlasSaver',
+        superclass: 'NSObject',
+        methods: {
+          'userContentController:didReceiveScriptMessage:': {
+            types: ['void', ['id', 'id']],
+            implementation: function (_ucc, msg) {
+              var ok = false;
+              try {
+                var body = msg.body;
+                ok = writeDownload(ObjC.unwrap(body.objectForKey($('name'))),
+                                   ObjC.unwrap(body.objectForKey($('b64'))));
+              } catch (e) { ok = false; }
+              // Geri bildirim başarısız olsa bile dosya yazılmış olur.
+              try {
+                if (web) {
+                  web.evaluateJavaScriptCompletionHandler(
+                    $('window.__atlasSaved && window.__atlasSaved(' +
+                      (ok ? 'true' : 'false') + ')'), $());
+                }
+              } catch (e) {}
+            }
+          }
+        }
+      });
+    }
+    var saver = $.AtlasSaver.alloc.init;
+    if (!saver || saver.isNil()) { return 'HATA: AtlasSaver kurulamadı'; }
+    keep.push(saver);
+    var ucc = cfg.userContentController;
+    if (!ucc || ucc.isNil()) { return 'HATA: userContentController yok'; }
+    ucc.addScriptMessageHandlerName(saver, $('atlasSave'));
+    return 'ok';
+  } catch (e) {
+    return 'HATA: ' + (e && e.message ? e.message : String(e));
+  }
 }
 
 // "Hakkında" penceresinin seçenekleri. Denetim kipi de bunu okuyor, yani
