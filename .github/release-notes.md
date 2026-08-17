@@ -1,19 +1,26 @@
-<!-- title: One list, not two -->
-**"I speak" was showing the same thing twice.** The languages you had picked
-appeared both as a row of removable chips and as blue, checkmarked rows in the
-list below — two representations of one piece of state, taking up room for
-nothing. The chip row is gone; the checkmarked row in the list already both
-shows the selection and removes it when tapped.
+<!-- title: The crash, and a PNG worth keeping -->
+**The macOS app crashed on pressing PNG.** The bridge ran for real for the first
+time in 0.12.1, and one line inside it took the process down: the call that
+reports the result back to the page,
+`evaluateJavaScript:completionHandler:`, was handed `$()` where a block was
+expected. Passing an object where ObjC wants a block crashes at a level
+JavaScript's `try/catch` cannot reach. It now passes a real empty function.
 
-Removing it exposed a case where your picks could have become unreachable:
-searching for a language filtered them out of the list. Your selected languages
-are now pinned to the top of the list regardless of the search. The same
-duplication existed in the desktop "My languages" sheet, and is gone there too.
+The reason that line slipped through was the reach of the check: 0.12.1's check
+mode exercised only the file-writing path, not the callback. Writing passed, and
+the crashing line was never reached. The check now runs both, and the release
+workflow looks for a third gate (`geri bildirim: ok`) — so if it crashes, it
+crashes on a real macOS runner rather than on your machine.
 
-Two small fixes alongside it:
+Two safeguards alongside it: if the callback never arrives the button no longer
+waits forever (the file is written *before* the callback, so a timeout assumes
+success), and the Downloads folder is created only if it is genuinely missing.
 
-- The three figures on the phone use a compact form. "1.7 billion" did not fit
-  a row of three boxes and wrapped onto two lines; it now reads "1.7B".
-- The search field had **two clear buttons** side by side: ours, and the one the
-  browser draws by itself for `type="search"`. The browser's is now hidden —
-  ours is sized for a fingertip and clears the filter as well.
+**The exported PNG came out at a tiny resolution.** The output size was derived
+from the view box's *map units* (`vb.w × 2`), so zooming in shrank the box and
+shrank the export with it — around 387×837 on a phone. The long edge is now
+targeted in pixels (2800) and the scale derived from that, with ceilings for the
+canvas limit and WebView memory. Measured: on the phone both the world view and
+a 16× zoomed view come out at 1375×2800, and the desktop at 2800×1226. Because
+Chromium re-rasterizes the SVG at the destination size, the result is genuinely
+sharp rather than an upscaled bitmap — that was measured too.

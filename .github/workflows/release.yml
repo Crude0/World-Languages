@@ -84,6 +84,12 @@ jobs:
             || { echo "HATA: kaydetme köprüsü kurulmuyor"; exit 1; }
           echo "$OUT" | grep -q "^kaydetme denemesi: ok$" \
             || { echo "HATA: İndirilenler'e yazma yolu işlemiyor"; exit 1; }
+          # Sayfaya sonucu bildiren çağrı. Bu satır denetimin dışında kalmıştı
+          # ve gerçek Mac'te süreci düşürüyordu: PNG'ye basınca uygulama
+          # çöküyordu. Artık denetim onu da koşuyor, yani çökerse burada
+          # çöker — kullanıcıya değil.
+          echo "$OUT" | grep -q "^geri bildirim: ok$" \
+            || { echo "HATA: sayfaya geri bildirim yolu işlemiyor"; exit 1; }
 
       - name: disk imajı
         run: |

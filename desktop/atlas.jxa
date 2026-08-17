@@ -92,11 +92,12 @@ function run(argv) {
     // akışı bu iki satırı arıyor (bkz. .github/workflows/release.yml).
     out.push('köprü: ' + saverStatus);
     var probe = 'atlas-denetim-' + Math.round(Math.random() * 1e9) + '.txt';
-    var wrote = writeDownload(probe, 'YXRsYXM=');   // "atlas"
+    var wrote = handleSave(probe, 'YXRsYXM=');      // "atlas" — yazma + geri bildirim
     var probePath = ObjC.unwrap($.NSHomeDirectory()) + '/Downloads/' + probe;
     var seen = $.NSFileManager.defaultManager.fileExistsAtPath($(probePath));
     if (seen) { $.NSFileManager.defaultManager.removeItemAtPathError($(probePath), null); }
     out.push('kaydetme denemesi: ' + (wrote && seen ? 'ok' : 'BAŞARISIZ'));
+    out.push('geri bildirim: ' + (ackSave(true) ? 'ok' : 'BAŞARISIZ'));
     $.NSFileHandle.fileHandleWithStandardOutput.writeData(
       $(out.join('\n') + '\n').dataUsingEncoding($.NSUTF8StringEncoding));
     return;
@@ -140,9 +141,13 @@ function writeDownload(name, b64) {
     var safe = String(name).replace(/[\/\\:]/g, '-');
     if (!safe || safe === '.' || safe === '..') { return false; }
     var dir = ObjC.unwrap($.NSHomeDirectory()) + '/Downloads';
-    $.NSFileManager.defaultManager
-      .createDirectoryAtPathWithIntermediateDirectoriesAttributesError(
+    var fm = $.NSFileManager.defaultManager;
+    if (!fm.fileExistsAtPath($(dir))) {
+      // attributes ve error için $() vermek yerine yalnız gerekince oluştur:
+      // bu köprüde blok/nesne beklentisini karıştırmak bir kez süreci düşürdü.
+      fm.createDirectoryAtPathWithIntermediateDirectoriesAttributesError(
         $(dir), true, $(), null);
+    }
     return !!data.writeToFileAtomically($(dir + '/' + safe), true);
   } catch (e) {
     return false;
@@ -152,6 +157,31 @@ function writeDownload(name, b64) {
 // Köprüyü kurar ve durumunu döndürür. Hata yutulmuyor: denetim kipi ve
 // yayım iş akışı bu dizgeyi okuyor, böylece köprü bir daha sessizce
 // kurulmamış olamaz.
+// Sayfaya sonucu bildirir. Blok parametresi olarak gerçek bir JS işlevi
+// veriliyor: burada bir kez $() verildi ve süreç PNG'ye basıldığı anda
+// çöktü — blok bekleyen bir yere nesne vermek ObjC düzeyinde çöküyor,
+// JS'in try/catch'i onu yakalayamıyor. Boş bir işlev tek güvenli biçim.
+function ackSave(ok) {
+  try {
+    if (!web) { return false; }
+    web.evaluateJavaScriptCompletionHandler(
+      'window.__atlasSaved && window.__atlasSaved(' + (ok ? 'true' : 'false') + ')',
+      function (_res, _err) {});
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Yazma + geri bildirim bir arada. Denetim kipi bunu doğrudan çağırıyor,
+// böylece ikisi de gerçek bir Mac'te koşuyor: çöken satır tam olarak
+// denetimin kapsamadığı satırdı.
+function handleSave(name, b64) {
+  var ok = writeDownload(name, b64);
+  ackSave(ok);
+  return ok;
+}
+
 function installSaver(cfg) {
   try {
     // protocols anahtarı bilerek verilmiyor: WebKit yöntemi doğrudan
@@ -165,20 +195,13 @@ function installSaver(cfg) {
           'userContentController:didReceiveScriptMessage:': {
             types: ['void', ['id', 'id']],
             implementation: function (_ucc, msg) {
-              var ok = false;
               try {
                 var body = msg.body;
-                ok = writeDownload(ObjC.unwrap(body.objectForKey($('name'))),
-                                   ObjC.unwrap(body.objectForKey($('b64'))));
-              } catch (e) { ok = false; }
-              // Geri bildirim başarısız olsa bile dosya yazılmış olur.
-              try {
-                if (web) {
-                  web.evaluateJavaScriptCompletionHandler(
-                    $('window.__atlasSaved && window.__atlasSaved(' +
-                      (ok ? 'true' : 'false') + ')'), $());
-                }
-              } catch (e) {}
+                handleSave(ObjC.unwrap(body.objectForKey('name')),
+                           ObjC.unwrap(body.objectForKey('b64')));
+              } catch (e) {
+                ackSave(false);
+              }
             }
           }
         }

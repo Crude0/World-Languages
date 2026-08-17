@@ -10,6 +10,33 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.12.3 — 17 Ağustos 2026
+
+**macOS uygulaması PNG'ye basınca çöküyordu.** Köprü 0.12.1'de ilk kez
+gerçekten koştu ve içindeki bir satır süreci düşürdü: sayfaya sonucu bildiren
+`evaluateJavaScript:completionHandler:` çağrısına, blok beklenen yere `$()`
+verilmişti. Blok bekleyen bir parametreye nesne vermek ObjC düzeyinde çöküyor
+ve JS'in `try/catch`'i onu yakalayamıyor. Artık gerçek bir boş işlev veriliyor.
+
+Bu satırın gözden kaçmasının sebebi denetimin kapsamıydı: 0.12.1'in denetim
+kipi yalnız dosya yazma yolunu koşuyordu, geri bildirim yolunu değil. Yazma
+geçiyordu, çöken satıra hiç uğranmıyordu. Şimdi denetim ikisini de koşuyor ve
+yayım iş akışı üçüncü bir kapı arıyor (`geri bildirim: ok`) — çökerse gerçek
+macOS koşucusunda çöküyor, kullanıcıda değil.
+
+Yanında iki emniyet: geri bildirim hiç gelmezse buton sonsuza kadar beklemiyor
+(dosya bildirimden *önce* yazıldığı için zaman aşımında başarı varsayılıyor), ve
+İndirilenler klasörü yalnız gerçekten yoksa oluşturuluyor.
+
+**Dışa aktarılan PNG aşırı düşük çözünürlüklüydü.** Çıktı boyutu görüş
+kutusunun *harita birimlerine* bağlıydı (`vb.w × 2`), yani yakınlaştıkça kutu
+küçüldüğü için çıktı da küçülüyordu: telefonda 387×837 gibi. Artık uzun kenar
+piksel olarak hedefleniyor (2800) ve ölçek ondan türetiliyor; tuval sınırı ve
+WebView belleği için tavanlar var. Ölçüldü — telefonda dünya görünümü ve 16 kat
+yakınlaştırılmış görünüm ikisi de 1375×2800, masaüstünde 2800×1226. Chromium
+SVG'yi hedef boyutta yeniden rasterize ettiği için sonuç büyütülmüş bir bitmap
+değil, gerçekten keskin; bu da ölçüldü.
+
 ## v0.12.2 — 17 Ağustos 2026
 
 **"Bildiğim diller" aynı şeyi iki kez gösteriyordu.** Seçtiğin diller hem

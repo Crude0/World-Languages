@@ -3019,10 +3019,19 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     }
     return btoa(out);
   }
-  let macPending = null;
+  // Kabuk sonucu geri bildirir; gelmezse buton sonsuza kadar beklemesin.
+  // Dosya, bildirimden önce yazılıyor: bildirim yolu bozuksa bile kaydedilmiş
+  // olur, o yüzden zaman aşımında başarı varsayılıyor.
+  let macPending = null, macTimer = 0;
   window.__atlasSaved = (ok) => {
+    clearTimeout(macTimer);
     const f = macPending; macPending = null;
     if (f) f(!!ok);
+  };
+  const waitAck = (done) => {
+    macPending = done;
+    clearTimeout(macTimer);
+    macTimer = setTimeout(() => { const f = macPending; macPending = null; if (f) f(true); }, 2500);
   };
   // done(ok) her yolda tam bir kez çağrılır; buton yazısı gerçeği söylesin.
   function save(blob, name, done) {
@@ -3046,7 +3055,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         Promise.resolve(window.atlasSaveFile(name, b64)).then((r) => done(!!r), () => done(false));
         return;
       }
-      macPending = done;
+      waitAck(done);
       window.webkit.messageHandlers.atlasSave.postMessage({ name: name, b64: b64 });
     }, () => done(false));
   }
@@ -3066,7 +3075,19 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     } catch (e) { flash($("#btnSvg"), t().saveFail, "SVG"); }
   };
 
-  // PNG: SVG'yi bir görüntüye yükleyip iki kat ölçekte tuvale çiziyoruz.
+  // PNG çözünürlüğü görüş kutusunun *harita birimlerine* bağlıydı (vb.w × 2):
+  // yakınlaştıkça kutu küçüldüğü için çıktı da küçülüyordu — telefonda
+  // 387×837 gibi. Artık uzun kenar piksel olarak hedefleniyor, ölçek ondan
+  // türetiliyor; Chromium SVG'yi hedef boyutta yeniden rasterize ettiği için
+  // sonuç gerçekten keskin, büyütülmüş bir bitmap değil. Tavanlar tuval
+  // sınırı ve WebView belleği için.
+  const PNG_LONG = 2800, PNG_MAXDIM = 4096, PNG_MAXPX = 9e6;
+  function pngScale(w, h) {
+    const long = Math.max(w, h);
+    return Math.max(2, Math.min(PNG_LONG / long, PNG_MAXDIM / long,
+                                Math.sqrt(PNG_MAXPX / (w * h))));
+  }
+  // PNG: SVG bir görüntüye yüklenip tuvale çiziliyor.
   $("#btnPng").onclick = () => {
     const btn = $("#btnPng");
     let url;
@@ -3075,7 +3096,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     } catch (e) { flash(btn, t().saveFail, "PNG"); return; }
     const img = new Image();
     img.onload = () => {
-      const s = 2, cv = document.createElement("canvas");
+      const s = pngScale(vb.w, vb.h), cv = document.createElement("canvas");
       cv.width = Math.round(vb.w * s); cv.height = Math.round(vb.h * s);
       const cx = cv.getContext("2d");
       cx.drawImage(img, 0, 0, cv.width, cv.height);
