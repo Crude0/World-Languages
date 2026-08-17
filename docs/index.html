@@ -562,6 +562,16 @@ body.fs-on { overflow: hidden; }
 .d-lang i.oth { background-image: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 3px); }
 .d-fam { font-size: .75rem; color: var(--ink-3); margin-top: 3px; }
 .meter { margin-top: 11px; }
+/* Kartın üç rakamı: pay, kişi, nüfus. Mastheaddeki .stats ile aynı dil —
+   serif rakam, altında küçük büyük harfli etiket. */
+/* Üçü hep tek satırda: dar panelde sarınca üçüncü rakam tek başına alt
+   satıra düşüyor ve blok dağılmış gibi duruyor. Etiketler sarabilir. */
+.d-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 2px 12px; margin: 0 0 8px; }
+.d-figs > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.d-figs dt { font: 400 1.375rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; }
+.d-figs dd { margin: 0; font-size: .625rem; letter-spacing: .05em; text-transform: uppercase;
+             color: var(--ink-3); line-height: 1.2; }
 .meter-top { display: flex; align-items: baseline; justify-content: space-between; font-size: .75rem; color: var(--ink-3); }
 .meter-top b { font-family: "Plex Mono", monospace; font-size: .8125rem; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
 .meter-track { height: 6px; background: var(--panel-2); border: 1px solid var(--rule); margin-top: 4px; border-radius: 1px; overflow: hidden; }
@@ -1088,6 +1098,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       rankSAll: "ana dil ve ikinci dil olarak konuşanların toplamı",
       rankSCnt: "ülke ve bağımlı bölge sayısı",
       speaks: "bu dili konuşabilenler", popIs: (v) => `Ülke nüfusu ≈ ${v} kişi.`,
+      people: "kişi", popLbl: "ülke nüfusu", regionPopLbl: "bölge nüfusu",
       regionPop: (v) => `Bölge nüfusu ≈ ${v} kişi.`,
       home: "Evde konuşulan diller",
       homeNote: "Ana dil olarak yaklaşık paylar. Çok dilli ülkelerde toplam %100'ü aşar: pek çok kişi evde birden fazla dil konuşur.",
@@ -1185,6 +1196,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       rankSAll: "native and second-language speakers combined",
       rankSCnt: "number of countries and dependencies",
       speaks: "speak this language", popIs: (v) => `Country population ≈ ${v}.`,
+      people: "people", popLbl: "country population", regionPopLbl: "region population",
       regionPop: (v) => `Region population ≈ ${v}.`,
       home: "Languages spoken at home",
       homeNote: "Approximate first-language shares. Totals exceed 100% in multilingual countries: many people speak more than one language at home.",
@@ -2651,11 +2663,17 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         `<p class="d-fam">${esc(lf(l))}</p>` +
         `<p class="d-fam">${t().script} · ${esc(scName(l.sc))}${
           l.sc2 ? ` <span class="chip chip-s" title="${esc(sc2Note(l))}">+ ${esc(scName(l.sc2))}</span>` : ""}</p>` +
+        // Nüfus telefonda üç büyük rakamdan biri, masaüstünde ise silik bir
+        // dipnottu — aynı veri, iki ayrı sunum. Masaüstü de kendi
+        // tipografisiyle (mastheaddeki .stats kalıbı) üç rakamı gösteriyor.
         `<div class="meter" style="--c:${col(l.g)}">
-           <div class="meter-top"><span>${t().speaks}</span><b>${pc(c.p)}${
-             c.pop ? " · " + fmtS(c.pop * c.p / 100) : ""}</b></div>
+           <dl class="d-figs">
+             <div><dt class="num">${pc(c.p)}</dt><dd>${t().speaks}</dd></div>
+             <div><dt class="num">${c.pop ? fmtS(c.pop * c.p / 100) : "—"}</dt><dd>${t().people}</dd></div>
+             <div><dt class="num">${c.pop ? fmtS(c.pop) : "—"}</dt><dd>${
+               c.sub ? t().regionPopLbl : t().popLbl}</dd></div>
+           </dl>
            <div class="meter-track"><div class="meter-fill" style="width:${Math.min(100, c.p)}%"></div></div>
-           ${c.pop ? `<p class="d-hint">${c.sub ? t().regionPop(fmtK(c.pop)) : t().popIs(fmtK(c.pop))}</p>` : ""}
          </div>` +
         (c.m ? "" : `<span class="chip">${t().noMajChip}</span>`) +
         (noteOf(C[id]) ? `<p class="d-note">${esc(noteOf(C[id]))}</p>` : "") +

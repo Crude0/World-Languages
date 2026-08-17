@@ -10,6 +10,23 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.11.1 — 17 Ağustos 2026
+
+**Nüfus masaüstünde silik bir dipnottu.** Telefonda üç büyük rakamdan biri
+olarak duruyor — pay, kişi, nüfus — ve o kadar farklı görünüyordu ki telefona
+özel bir istatistik sanılmıştı. Aynı veri masaüstünde de vardı, ama ölçü
+çubuğunun altında küçük gri bir satırda: "Ülke nüfusu ≈ 36,6 milyon."
+
+Masaüstü kartı da artık üç rakamı gösteriyor, kendi tipografisiyle:
+mastheaddeki `.stats` kalıbı — serif rakam, altında küçük büyük harfli etiket.
+Üçü hep tek satırda duruyor; dar panelde sarınca üçüncüsü tek başına alta
+düşüyor ve blok dağılmış gibi görünüyordu. Bölge kartında etiket "bölge
+nüfusu" oluyor.
+
+Telefon menüsünde **"Dışa aktar" başlığı çevrilmiyordu**: altı başlıktan yalnız
+ilk dördü dile göre yazılıyor, İngilizce arayüzde LAYER / COLOUR BY / DETAIL
+LEVEL / THEME'in altında Türkçe DIŞA AKTAR duruyordu.
+
 ## v0.11.0 — 16 Ağustos 2026
 
 ### Telefonda da aynı sebep, aynı çözüm
