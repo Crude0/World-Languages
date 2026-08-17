@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
 	webview2 "github.com/jchv/go-webview2"
 	"github.com/jchv/go-webview2/webviewloader"
@@ -44,6 +48,36 @@ func scale(v uint) uint {
 	return v * uint(dpi) / 96
 }
 
+// bindSave sayfadan gelen baytları İndirilenler klasörüne yazar. WebView2'nin
+// bir indirme işleyicisi yok: sayfadaki <a download> tıklaması sessizce
+// yutuluyordu, yani dışa aktarma "İndirildi" yazıp hiçbir dosya bırakmıyordu.
+// Sayfa köprüyü bulursa baytları base64 olarak buraya veriyor.
+func bindSave(w webview2.WebView) {
+	_ = w.Bind("atlasSaveFile", func(name, b64 string) (bool, error) {
+		data, err := base64.StdEncoding.DecodeString(b64)
+		if err != nil {
+			return false, nil
+		}
+		// Ad sayfadan geliyor; hedef klasörün dışına çıkmasın.
+		name = filepath.Base(strings.NewReplacer(`\`, "-", "/", "-", ":", "-").Replace(name))
+		if name == "" || name == "." || name == ".." {
+			return false, nil
+		}
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return false, nil
+		}
+		dir := filepath.Join(home, "Downloads")
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return false, nil
+		}
+		if err := os.WriteFile(filepath.Join(dir, name), data, 0o644); err != nil {
+			return false, nil
+		}
+		return true, nil
+	})
+}
+
 // showNative Windows'un kendi WebView2 bileşeniyle gerçek bir pencere açar.
 // WebView2 çalışma zamanı yoksa (Windows 10 öncesi kurulumlar) hata döner ve
 // çağıran taraf tarayıcı kipine düşer.
@@ -78,6 +112,7 @@ func showNative(htmlPath string) (err error) {
 		return errors.New("pencere oluşturulamadı")
 	}
 	defer w.Destroy()
+	bindSave(w) // Navigate'ten önce: Bind sayfa açılış betiğine yazılıyor
 	w.Navigate(fileURL(htmlPath))
 	w.Run()
 	return nil

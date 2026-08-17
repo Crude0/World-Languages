@@ -19,16 +19,33 @@ for (let i = 0; i < 6; i++) { await p.click("#btnOut"); await p.waitForTimeout(1
 const v = await vb();
 console.log("en uzak:", v.map(Math.round), "· dikey boşluk var mı:", v[3] > 612.9);
 
-// katman menüsü
-await p.tap("#btnLayers"); await p.waitForTimeout(300);
-console.log("menü açık:", await p.$eval("#pop", (e) => !e.hidden));
-await p.screenshot({ path: "m5-pop.png" });
-await p.tap('#pop [data-paint="pct"]'); await p.waitForTimeout(400);
+// alt sekme çubuğu: dört varış noktası, hepsi tek dokunuşla
+for (const [tab, ad] of [["map", "harita"], ["langs", "diller"], ["know", "bildiğim"], ["settings", "ayarlar"]]) {
+  await p.tap(`#tabs [data-tab="${tab}"]`); await p.waitForTimeout(450);
+  // En alçak duraklarda panelin gövdesi çubuğun *arkasından* aşağı kayıyor;
+  // önemli olan çubuğun her durumda görünür ve dokunulabilir kalması.
+  const r = await p.evaluate(() => {
+    const t = document.querySelector("#tabs [aria-selected=true]");
+    const hit = [...document.querySelectorAll("#tabs [data-tab]")].every((b) => {
+      const q = b.getBoundingClientRect();
+      const el = document.elementFromPoint(q.x + q.width / 2, q.y + q.height / 2);
+      return !!(el && el.closest("#tabs [data-tab]") === b);
+    });
+    return { sekme: t && t.dataset.tab, hit,
+             gövde: document.querySelector("#body").scrollHeight };
+  });
+  console.log(`  ${ad.padEnd(9)} seçili=${r.sekme} · gövde=${r.gövde}px · çubuk ${
+    r.hit ? "dokunulabilir" : "ERİŞİLEMİYOR"}`);
+}
+await p.screenshot({ path: "m5-tabs.png" });
+
+// ayarlar sekmesinden yoğunluk boyaması
+await p.tap('#tabs [data-tab="settings"]'); await p.waitForTimeout(400);
+await p.tap('#body [data-paint="pct"]'); await p.waitForTimeout(400);
 console.log("yoğunluk modunda ilk ülke dolgusu:", await p.$eval('#map [data-id="792"]', (e) => e.style.fill));
-await p.tap("#btnLayers"); await p.waitForTimeout(200);
 
 // paneli içerikten aşağı çekerek kapat
-await p.tap("#grab"); await p.waitForTimeout(500);
+await p.tap('#tabs [data-tab="langs"]'); await p.waitForTimeout(450);
 const before = await p.$eval("#sheet", (e) => Math.round(e.getBoundingClientRect().top));
 const bb = await p.$eval("#body", (e) => { const r = e.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + 60 }; });
 await touch("touchStart", [{ x: bb.x, y: bb.y, id: 1 }]);

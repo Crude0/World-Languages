@@ -25,6 +25,7 @@
   --g-rom: #ea231a; --g-ger: #0080ea; --g-ine: #7529ce; --g-trk: #d88c04;
   --g-afa: #06830f; --g-nkg: #15bb77; --g-asi: #a40062; --g-aus: #db3bb6;
   --g-oth: #8d949e;
+  --tabh: 50px;              /* sekme çubuğu; açılışta ölçülüp yazılıyor */
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -82,6 +83,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
 .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+/* [hidden] varsayılan olarak display:none verir ama her display kuralı onu
+   eziyor — .searchbar (flex), .seg (flex), .scale (flex) hep böyleydi. Aynı
+   hataya üç kez düştükten sonra kaideye taşındı. */
+[hidden] { display: none !important; }
 
 /* Cam yüzey: arkasını bulanıklaştırıp doygunlaştırır, üst kenarında ince bir
    parlama bırakır. Katmanlar birbirinin üstünde durduğunda derinlik hissi
@@ -186,6 +191,11 @@ body.zoomed .orn { opacity: 0; }
 .top p { margin: 0; font-size: .75rem; color: var(--ink-3); line-height: 1.25; }
 .top .grow { min-width: 0; flex: 1; }
 .top h1, .top p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Panel tam açıldığında üst çubuğun anlatacağı bir şey kalmıyor ve panelin
+   kendi başlıklarının üstüne biniyor; çekiliyor. Süzgeç varken kalır — onu
+   kaldıran düğme orada. */
+.top { transition: opacity .24s ease, transform .24s ease; }
+.top.away { opacity: 0; transform: translateY(-10px); pointer-events: none; }
 .top .x {
   flex: none; width: 30px; height: 30px; border-radius: 15px; display: grid; place-items: center;
   background: var(--rule); font-size: .9rem; color: var(--ink-2);
@@ -209,22 +219,50 @@ body.zoomed .orn { opacity: 0; }
 .tools button[aria-pressed="true"] { background: var(--tint); color: #fff; }
 .tools .lbl { font-size: .625rem; letter-spacing: .04em; text-transform: uppercase; }
 
-/* katman menüsü */
-/* Menü de opak: altındaki harita bulanıklaşınca renkler birbirine karışıp
-   metnin okunurluğunu düşürüyordu. Cam yalnızca üst çubukta ve araç sütununda. */
-.pop {
-  background: var(--sheet);
-  border: .5px solid var(--edge);
-  box-shadow: 0 10px 34px var(--shade);
-  position: fixed; right: 12px; z-index: 6; width: min(300px, calc(100vw - 24px));
-  border-radius: 18px; padding: 12px 13px 13px; display: grid; gap: 8px;
-  overflow-y: auto; overscroll-behavior: contain;
+/* ====================================================== sekme çubuğu === */
+/* iOS'ta tab bar, Android'de navigation bar. İkisinin de kuralı aynı:
+   sekme bir *varış noktası*, bir kip değil. Dört varış noktası — harita,
+   dil dizini, bildiğin diller, ayarlar — ve her biri tek dokunuşla, hep
+   aynı yerde. Bunların hepsi eskiden tek bir yüzen kartın içinde üst üste
+   duruyordu; neyin nerede olduğu görünmüyordu. */
+/* Çubuk cam değil opak: panel en alçak duraktayken gövdesi çubuğun arkasından
+   aşağı kayıyor ve camın ardından liste satırları okunacak kadar net kalıyordu —
+   iki metin üst üste biniyordu. Apple'ın tab bar'ı da arkasında içerik varken
+   opaklaşır. */
+.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--sheet); border-top: .5px solid var(--rule);
+  padding-bottom: env(safe-area-inset-bottom);
 }
-.pop[hidden] { display: none; }
-.pop-t { margin: 0; font-size: .75rem; font-weight: 600; letter-spacing: .03em;
-  text-transform: uppercase; color: var(--ink-3); }
+.tabs button {
+  position: relative; display: grid; justify-items: center; align-content: center;
+  gap: 3px; padding: 7px 2px; min-height: 50px; color: var(--ink-3);
+  font-size: .625rem; font-weight: 550; letter-spacing: .005em;
+}
+.tabs button svg { width: 26px; height: 22px; display: block; }
+.tabs button svg * {
+  fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.tabs button[aria-selected="true"] { color: var(--tint); }
+.tabs button:active { opacity: .5; }
+.tabs .cnt {
+  position: absolute; top: 3px; left: 50%; margin-left: 5px;
+  min-width: 17px; height: 17px; border-radius: 9px; padding: 0 5px;
+  background: var(--tint); color: #fff; font-size: .625rem; line-height: 17px;
+  font-weight: 600; text-align: center;
+}
+
+/* ayar kümeleri (eskiden yüzen menünün içindeydi) */
+.grp { margin-top: 20px; }
+.grp:first-child { margin-top: 6px; }
+.grp h3 {
+  margin: 0 0 8px; font-size: .75rem; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--ink-3);
+}
 .pop-n { margin: 2px 0 0; font-size: .75rem; color: var(--ink-3); line-height: 1.35; }
-/* Yeni katmanların renk anahtarı: masaüstündeki yan panelin karşılığı */
+/* Katmanın renk anahtarı: masaüstündeki yan panelin karşılığı */
 .popkey { display: grid; gap: 3px; margin-top: 2px; }
 .popkey-row { display: flex; align-items: center; gap: 7px; font-size: .75rem; }
 .popkey-row i { width: 10px; height: 10px; border-radius: 2px; background: var(--c); flex: none; }
@@ -247,8 +285,10 @@ body.zoomed .orn { opacity: 0; }
   transition: transform .34s cubic-bezier(.22,.9,.24,1),
               background .34s ease, -webkit-backdrop-filter .34s ease,
               backdrop-filter .34s ease;
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-  height: 92vh; border-radius: 22px 22px 0 0; padding: 0;
+  /* Panel sekme çubuğunun üstünde durur, onu hiç örtmez: App Store'da da
+     tab bar her zaman görünür kalır, ekranın çıpası odur. */
+  position: fixed; left: 0; right: 0; bottom: var(--tabh); z-index: 10;
+  height: calc(92vh - var(--tabh)); border-radius: 22px 22px 0 0; padding: 0;
   display: flex; flex-direction: column;
   transform: translate3d(0, calc(100% - var(--peek, 128px)), 0);
 }
@@ -280,8 +320,9 @@ body.zoomed .orn { opacity: 0; }
 }
 .searchbar .ic { color: var(--ink-3); font-size: .95rem; flex: none; }
 .searchbar button { color: var(--ink-3); padding: 4px; font-size: .9rem; }
+/* Güvenli alan payı artık sekme çubuğunda; panel onun üstünde bitiyor. */
 .sheet-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain; padding: 0 14px calc(env(safe-area-inset-bottom) + 20px); }
+  overscroll-behavior: contain; padding: 0 14px 24px; }
 
 /* iOS tarzı bölümlü denetim */
 .seg { display: flex; background: var(--rule); border-radius: 10px; padding: 2px; }
@@ -385,11 +426,9 @@ body.zoomed .orn { opacity: 0; }
   .map-label, .pin { animation: fade .3s ease both; }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
-  .pop:not([hidden]) { animation: pop .22s cubic-bezier(.2,1.1,.3,1) both; transform-origin: 88% 100%; }
-  @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.94); } }
-
   /* kart bölümleri sırayla belirsin */
-  .sheet-body > .sec, .sheet-body > .d-top, .sheet-body > .stat, .sheet-body > .acts {
+  .sheet-body > .sec, .sheet-body > .d-top, .sheet-body > .stat, .sheet-body > .acts,
+  .sheet-body > .grp {
     animation: up .32s cubic-bezier(.22,.9,.24,1) both;
   }
   .sheet-body > *:nth-child(2) { animation-delay: .03s; }
@@ -419,57 +458,26 @@ body.zoomed .orn { opacity: 0; }
 </div>
 
 <div class="tools glass" id="tools">
-  <button id="btnLayers" aria-label="Görünüm ve ayrıntı" aria-pressed="false">◧</button>
   <button id="btnIn" aria-label="Yakınlaş">+</button>
   <button id="btnOut" aria-label="Uzaklaş">−</button>
   <button id="btnFit" aria-label="En geniş görünüm">⤢</button>
 </div>
 
-<div class="pop" id="pop" hidden>
-  <p class="pop-t">Katman</p>
-  <div class="seg" role="group" aria-label="Katman">
-    <button data-lay="home" aria-pressed="true">Ana dil</button>
-    <button data-lay="scr" aria-pressed="false">Yazı</button>
-    <button data-lay="off" aria-pressed="false">Resmî dil</button>
-    <button data-lay="know" aria-pressed="false">Bildiğim</button>
-  </div>
-  <div id="popKey"></div>
-  <p class="pop-t">Renk ölçütü</p>
-  <div class="seg" role="group" aria-label="Renk ölçütü">
-    <button data-paint="fam" aria-pressed="true">Aile</button>
-    <button data-paint="pct" aria-pressed="false">Yoğunluk</button>
-    <button data-paint="ppl" aria-pressed="false">Kişi</button>
-  </div>
-  <div id="popScale"></div>
-  <p class="pop-t">Ayrıntı düzeyi</p>
-  <div class="seg" role="group" aria-label="Ayrıntı düzeyi">
-    <button data-lod="auto" aria-pressed="true">Oto</button>
-    <button data-lod="off" aria-pressed="false">Ülke</button>
-    <button data-lod="on" aria-pressed="false">Bölge</button>
-  </div>
-  <p class="pop-n" id="popNote">Oto: uzakta ülke, yaklaşınca eyalet/il. Bölge verisi 18 ülkede var.</p>
-  <p class="pop-t" id="popThemeT">Tema</p>
-  <div class="seg" role="group" aria-label="Tema">
-    <button data-theme="auto" aria-pressed="true">Oto</button>
-    <button data-theme="light">Açık</button>
-    <button data-theme="dark">Koyu</button>
-  </div>
-  <p class="pop-t">Dışa aktar</p>
-  <div class="seg" role="group" aria-label="Dışa aktar">
-    <button data-exp="png">PNG</button>
-    <button data-exp="svg">SVG</button>
-  </div>
-  <p class="pop-t" id="popLangT">Dil · Language</p>
-  <div class="seg" role="group" aria-label="Dil">
-    <button data-ui="tr">Türkçe</button>
-    <button data-ui="en">English</button>
-  </div>
-</div>
-
 <div class="sheet" id="sheet">
   <div class="grab" id="grab"><i></i></div>
+  <!-- Panelin başlığı sekmeye göre değişir; parçalar DOM'da kalıp gizlenir
+       (arama kutusu yeniden yaratılırsa odağı ve yazılanı kaybediyor). -->
   <div class="sheet-head" id="head">
-    <div class="searchbar">
+    <div class="seg" id="hLayer" role="group" aria-label="Katman">
+      <button data-lay="home" aria-pressed="true">Ana dil</button>
+      <button data-lay="scr" aria-pressed="false">Yazı</button>
+      <button data-lay="off" aria-pressed="false">Resmî dil</button>
+    </div>
+    <div class="seg" id="hKnow" role="group" aria-label="Okuma biçimi" hidden>
+      <button data-km="share" aria-pressed="true">Pay</button>
+      <button data-km="home" aria-pressed="false">Ana dil</button>
+    </div>
+    <div class="searchbar" id="hSearch" hidden>
       <span class="ic">⌕</span>
       <input id="q" type="search" placeholder="Dil veya ülke ara" autocomplete="off"
              spellcheck="false" enterkeyhint="search" aria-label="Dil veya ülke ara">
@@ -478,6 +486,25 @@ body.zoomed .orn { opacity: 0; }
   </div>
   <div class="sheet-body" id="body"></div>
 </div>
+
+<nav class="tabs" id="tabs" role="tablist" aria-label="Bölümler">
+  <button data-tab="map" role="tab" aria-selected="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5 3.5 6.6v12.9L9 17.4l6 2.1 5.5-2.1V4.5L15 6.6z"/><path d="M9 4.5v12.9M15 6.6v12.9"/></svg>
+    <span>Harita</span>
+  </button>
+  <button data-tab="langs" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="4" ry="8.5"/><path d="M3.9 9.2h16.2M3.9 14.8h16.2"/></svg>
+    <span>Diller</span>
+  </button>
+  <button data-tab="know" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 11c0-3.6 3.6-6.4 8.4-6.4s8.4 2.8 8.4 6.4-3.6 6.4-8.4 6.4c-1 0-2-.1-2.9-.4l-4.4 2.2 1.2-3.4C4.6 14.6 3.6 12.9 3.6 11Z"/><path d="M8.7 11.1l2 2 4.6-4.4"/></svg>
+    <span>Bildiğim</span>
+  </button>
+  <button data-tab="settings" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.1"/><path d="M19.5 12c0-.5-.1-1-.2-1.5l1.9-1.4-1.9-3.3-2.2.9c-.8-.7-1.7-1.2-2.6-1.5L14.2 3h-3.8l-.3 2.2c-1 .3-1.9.8-2.6 1.5l-2.2-.9-1.9 3.3 1.8 1.4c-.1.5-.2 1-.2 1.5s.1 1 .2 1.5l-1.8 1.4 1.9 3.3 2.2-.9c.8.7 1.7 1.2 2.6 1.5l.3 2.2h3.8l.3-2.2c1-.3 1.9-.8 2.6-1.5l2.2.9 1.9-3.3-1.9-1.4c.1-.5.2-1 .2-1.5Z"/></svg>
+    <span>Ayarlar</span>
+  </button>
+</nav>
 
 <div class="tip glass" id="tip" aria-hidden="true"></div>
 <div class="vh" id="live" role="status" aria-live="polite"></div>
@@ -526,6 +553,15 @@ body.zoomed .orn { opacity: 0; }
       `<b>${t().tipKnow(pc(Math.round(v * 10) / 10))}</b>` +
       (c.pop ? ` · ≈ ${fmtK(c.pop * v / 100)} / ${fmtK(c.pop)}` : "") +
       `<span>${top}</span></p>`;
+  }
+  // Kartın üstündeki yüzde "bu dili konuşanlar", aşağıdaki liste ise "evde
+  // konuşulan ana dil". Yan yana düşünce çelişki gibi okunuyordu (İsveç
+  // %95 / %85); fark varsa ikisini bağdaştıran satır yazılıyor.
+  function homeGap(c) {
+    const nm = LG[c.l] && LG[c.l].n;
+    const row = nm && (c.mix || []).find(([n]) => n === nm);
+    if (!row || Math.abs(c.p - row[1]) < 1.5) return "";
+    return `<p class="note">${esc(t().speaksNote(pc(row[1])))}</p>`;
   }
   function reach(cid) {
     const c = C[cid];
@@ -611,7 +647,8 @@ body.zoomed .orn { opacity: 0; }
       native: (v) => `ana dili ${v} kişi`,
       paint: "Renk ölçütü", pFam: "Aile", pPct: "Yoğunluk", pPpl: "Kişi",
       layerT: "Katman", lHome: "Ana dil", lScr: "Yazı", lOff: "Resmî dil",
-      lKnow: "Bildiğim", saved: "İndirildi", saveFail: "İndirilemedi",
+      lKnow: "Bildiğim", saved: "İndirildi", saveFail: "Kaydedilemedi",
+      savedTo: "İndirilenler'e kaydedildi",
       kmShare: "Pay", kmHome: "Ana dil",
       noteHome: "Yalnız seçtiğiniz dillerin evde konuşulan çoğunluk dili olduğu ülkeler yanıyor; öbürleri sönük.",
       noteKnow: "Renk, seçtiğiniz dillerden en az birini konuşan nüfusun payı. Paylar toplandığı için bu bir üst sınır.",
@@ -630,6 +667,15 @@ body.zoomed .orn { opacity: 0; }
       theme: "Tema", tAuto: "Oto", tLight: "Açık", tDark: "Koyu",
       scaleLo: "az", scaleHi: "çok", scaleLoP: "az kişi", scaleHiP: "çok kişi",
       filterOff: "Süzgeç kaldırıldı", panelOpen: "Panel açıldı", panelShut: "Panel kapatıldı",
+      tabMap: "Harita", tabLangs: "Diller", tabKnow: "Bildiğim", tabSet: "Ayarlar",
+      kStatLangs: "seçili dil", kStatPeople: "kişiye ulaşırsınız",
+      kStatCty: "ülkede yarıdan çok", kStatCtyHome: "ülkede evin dili",
+      pickLangs: "Bildiğiniz dilleri seçin",
+      paintOnlyHome: "Yoğunluk ve kişi ölçütü yalnız ana dil katmanında çalışır.",
+      noteHomeKey: "Renk, ülkede evde en çok konuşulan dilin ailesini gösteriyor.",
+      uiLang: "Dil · Language", credit: "© 2026 Crude · Açık veri · Natural Earth sınırları",
+      speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
+      mapHint: "Haritada bir ülkeye dokunun; ayrıntısı burada açılır.",
       bil: " milyar", mil: " milyon", tho: " bin",
     },
     en: {
@@ -657,6 +703,7 @@ body.zoomed .orn { opacity: 0; }
       paint: "Colour by", pFam: "Family", pPct: "Density", pPpl: "People",
       layerT: "Layer", lHome: "Home", lScr: "Script", lOff: "Official",
       lKnow: "I speak", saved: "Saved", saveFail: "Save failed",
+      savedTo: "Saved to Downloads",
       kmShare: "Share", kmHome: "Home language",
       noteHome: "Only countries where one of your languages is the majority language spoken at home are lit; the rest are dimmed.",
       noteKnow: "Colour shows the share of the population that speaks at least one of your languages. Shares are added, so read it as an upper bound.",
@@ -675,6 +722,15 @@ body.zoomed .orn { opacity: 0; }
       theme: "Theme", tAuto: "Auto", tLight: "Light", tDark: "Dark",
       scaleLo: "low", scaleHi: "high", scaleLoP: "few", scaleHiP: "many",
       filterOff: "Filter cleared", panelOpen: "Panel opened", panelShut: "Panel closed",
+      tabMap: "Map", tabLangs: "Languages", tabKnow: "I speak", tabSet: "Settings",
+      kStatLangs: "languages", kStatPeople: "people reachable",
+      kStatCty: "countries, over half", kStatCtyHome: "countries, at home",
+      pickLangs: "Pick the languages you speak",
+      paintOnlyHome: "Density and people apply to the home-language layer only.",
+      noteHomeKey: "Colour shows the family of the language most spoken at home.",
+      uiLang: "Dil · Language", credit: "© 2026 Crude · Open data · Natural Earth borders",
+      speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
+      mapHint: "Tap a country on the map to see its details here.",
       bil: " billion", mil: " million", tho: "k",
     },
   };
@@ -699,7 +755,11 @@ body.zoomed .orn { opacity: 0; }
   const scName = (k) => SCR[k] ? (ui === "en" ? SCR[k].ne : SCR[k].n) : k;
   const sc2Note = (l) => ui === "en" ? (l.s2e || l.s2n || "") : (l.s2n || "");
 
-  const state = { filter: null, sel: null, selSub: null, q: "", sort: "spk", paint: "fam", lod: "auto", layer: "home" };
+  // tab: hangi varış noktasındayız. mapLayer: Bildiğim sekmesinden çıkınca
+  // haritanın döneceği katman — sekme kip değil, o yüzden katman sekmeyi izler.
+  const state = { filter: null, sel: null, selSub: null, q: "", sort: "spk",
+                  paint: "fam", lod: "auto", layer: "home",
+                  tab: "map", mapLayer: "home" };
 
   /* --------------------------------------------------------- URL'de durum
      Masaüstü sayfasıyla aynı biçim: bir link iki arayüzde de aynı görünümü
@@ -1357,6 +1417,9 @@ body.zoomed .orn { opacity: 0; }
   const sheet = $("#sheet"), body = $("#body"), grab = $("#grab"), head = $("#head");
   const PEEK = 128;
   let detent = "peek", sheetTop = 0;         // peek | half | full
+  // Her sekme kendi panel yüksekliğini hatırlar: haritada panel alçak durur,
+  // dil dizininde tam açılır. Kullanıcı sürükleyince o sekme için güncellenir.
+  const detentOf = { map: "peek", langs: "full", know: "half", settings: "full" };
   const heights = () => {
     const h = sheet.offsetHeight;
     return { peek: h - PEEK, half: h * 0.42, full: 0 };   // translateY değerleri
@@ -1366,7 +1429,7 @@ body.zoomed .orn { opacity: 0; }
   // ama üst çubuğun altına girmez; menü de araç sütununun üstünde açılır ve
   // ekranın dışına taşmaz. Eskiden ikisi de panele bakıp körlemesine
   // konumlanıyordu, panel yukarıdayken tepeden kırpılıyorlardı.
-  const tools = $("#tools");
+  const tools = $("#tools"), topBar = document.querySelector(".top");
   const GAP = 12;
   function placeFloaters(top) {
     const st = stage.clientHeight || 1;
@@ -1376,19 +1439,14 @@ body.zoomed .orn { opacity: 0; }
     const bottom = Math.min(Math.max(GAP, st - top + GAP), Math.max(GAP, roof));
     tools.style.bottom = bottom + "px";
     tools.classList.toggle("away", away);
-    if (!pop.hidden) {
-      const pb = st - (st - bottom - th) + 10;        // araç sütununun üstü
-      pop.style.bottom = pb + "px";
-      pop.style.maxHeight = Math.max(160, st - pb - (TOPBAR + 8)) + "px";
-    }
   }
-  function setDetent(d, quiet, keepPop) {
-    if (!keepPop && !pop.hidden) setPop(false);   // menü panelle sürüklenmesin
+  function setDetent(d, quiet) {
     detent = d;
     sheet.classList.toggle("up", d !== "peek");
     const y = heights()[d];
     sheet.style.transform = `translate3d(0, ${y}px, 0)`;
     sheetTop = sheet.offsetTop + y;                  // araç sütunu ve harita için
+    topBar.classList.toggle("away", d === "full" && !state.filter);
     placeFloaters(sheetTop);
     if (!quiet) live(d === "peek" ? t().panelShut : t().panelOpen);
   }
@@ -1396,7 +1454,6 @@ body.zoomed .orn { opacity: 0; }
   let sd = null;
   const startDrag = (e) => {
     if (e.target.closest("input, button")) return;
-    if (!pop.hidden) setPop(false);
     sd = { y: e.clientY, base: heights()[detent], t: Date.now() };
     sheet.classList.add("dragging");
     tools.style.transition = "none";     // parmakla birlikte anında kaysın
@@ -1421,6 +1478,7 @@ body.zoomed .orn { opacity: 0; }
     else d = [["peek", h.peek], ["half", h.half], ["full", h.full]]
       .sort((a, b) => Math.abs(a[1] - y) - Math.abs(b[1] - y))[0][0];
     sd = null;
+    detentOf[state.tab] = d;
     setDetent(d);
   };
   [grab, head].forEach((el) => {
@@ -1475,11 +1533,147 @@ body.zoomed .orn { opacity: 0; }
     return (l.in || []).some(([i]) => norm(C[i].n).includes(q) || norm(C[i].en).includes(q));
   }
   let lastKey = "";
+
+  /* ------------------------------------------------------------ sekmeler */
+  const tabs = $("#tabs");
+  const hLayer = $("#hLayer"), hKnow = $("#hKnow"), hSearch = $("#hSearch");
+  const TABLBL = () => ({ map: t().tabMap, langs: t().tabLangs,
+                          know: t().tabKnow, settings: t().tabSet });
+  function syncTabs() {
+    const lbl = TABLBL();
+    tabs.querySelectorAll("[data-tab]").forEach((b) => {
+      b.setAttribute("aria-selected", String(b.dataset.tab === state.tab));
+      b.lastElementChild.textContent = lbl[b.dataset.tab];
+    });
+    // Seçili dil sayısı sekmenin üstünde rozetle duruyor: kaç dil işaretlediğini
+    // görmek için sekmeye girmen gerekmesin.
+    const kb = tabs.querySelector('[data-tab="know"]');
+    let badge = kb.querySelector(".cnt");
+    if (known.size && !badge) kb.insertAdjacentHTML("afterbegin", `<b class="cnt num"></b>`);
+    else if (!known.size && badge) { badge.remove(); badge = null; }
+    badge = kb.querySelector(".cnt");
+    if (badge) badge.textContent = known.size;
+  }
+  // Seçili bir yer varken harita sekmesi en alçak durakta kalırsa kart
+  // görünmez; o durumda yarıya çıkar.
+  const wantDetent = (v) =>
+    state.sel && (v === "map" || v === "know") && detentOf[v] === "peek" ? "half" : detentOf[v];
+  function goTab(v, quiet) {
+    state.tab = v;
+    // Katman sekmeyi izler: Bildiğim bir varış noktası, gizli bir kip değil.
+    if (v === "know") setLayer("know");
+    else if (state.layer === "know") setLayer(state.mapLayer);
+    render();
+    setDetent(wantDetent(v), quiet);
+  }
+  function setTab(v) {
+    if (v !== state.tab) { goTab(v); return; }
+    // Aynı sekmeye ikinci dokunuş: iOS'ta "başa dön" demektir.
+    if (state.sel) { select(null); return; }
+    if (body.scrollTop > 4) { body.scrollTop = 0; return; }
+    setDetent(detent === "peek" ? (detentOf[v] === "peek" ? "half" : detentOf[v]) : "peek");
+  }
+  tabs.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-tab]");
+    if (b) setTab(b.dataset.tab);
+  });
+  function syncHead() {
+    hLayer.hidden = state.tab !== "map";
+    hKnow.hidden = state.tab !== "know";
+    hSearch.hidden = state.tab !== "langs" && state.tab !== "know";
+    head.hidden = state.tab === "settings";
+    [["home", t().lHome], ["scr", t().lScr], ["off", t().lOff]].forEach(([k, lb]) => {
+      const b = hLayer.querySelector(`[data-lay="${k}"]`);
+      b.textContent = lb;
+      b.setAttribute("aria-pressed", String(state.layer === k));
+    });
+    [["share", t().kmShare], ["home", t().kmHome]].forEach(([k, lb]) => {
+      const b = hKnow.querySelector(`[data-km="${k}"]`);
+      b.textContent = lb;
+      b.setAttribute("aria-pressed", String(knowMode === k));
+    });
+  }
+
   function render() {
     // içerik değiştiyse panel başa sarsın; aynı içerik yenileniyorsa yerinde kalsın
-    const key = (state.sel || "") + "|" + (state.selSub || "") + "|" + state.q;
+    const key = state.tab + "|" + (state.sel || "") + "|" + (state.selSub || "") + "|" + state.q;
     if (key !== lastKey) { body.scrollTop = 0; lastKey = key; }
-    if (state.sel) { renderDetail(); return; }
+    syncTabs();
+    syncHead();
+    body.innerHTML =
+      state.tab === "settings" ? settingsHTML()
+      : state.tab === "langs" ? langsHTML()
+      : state.sel ? detailHTML()
+      : state.tab === "know" ? knowHTML()
+      : mapHTML();
+  }
+
+  /* --------------------------------------------------------- harita sekmesi */
+  const mapHTML = () => keyHTML() + scaleHTML() + `<p class="note">${t().mapHint}</p>`;
+
+  /* ------------------------------------------------------- bildiğim sekmesi */
+  const knowScale = () => `<div class="scale"><span>${t().scaleLo}</span>` +
+    KNOW_RAMP.map((c) => `<i style="background:${c}"></i>`).join("") +
+    `<span>${t().scaleHi}</span></div>`;
+  function knowHTML() {
+    const list = [...known].filter((k) => LG[k]);
+    const ppl = ids.reduce((a, i) => a + (C[i].pop || 0) * reach(i) / 100, 0);
+    const cty = knowMode === "home"
+      ? ids.filter((i) => speaksHome(C[i])).length
+      : ids.filter((i) => reach(i) >= 50).length;
+    const hits = langIds.filter(matches)
+      .sort((a, b) => (known.has(b) ? 1 : 0) - (known.has(a) ? 1 : 0)
+                   || spk(b) - spk(a) || trc(ln(LG[a]), ln(LG[b])));
+    return `<div class="stat">
+        <div><b class="num">${list.length}</b><span>${t().kStatLangs}</span></div>
+        <div><b class="num">${list.length ? fmtK(ppl) : "—"}</b><span>${t().kStatPeople}</span></div>
+        <div><b class="num">${cty}</b><span>${
+          knowMode === "home" ? t().kStatCtyHome : t().kStatCty}</span></div>
+      </div>` +
+      (list.length ? `<div class="chips">` + list.map((k) =>
+        `<button class="chip" data-unknow="${k}" style="--c:${col(LG[k].g)}">${
+          esc(ln(LG[k]))} ✕</button>`).join("") + `</div>` : "") +
+      `<p class="note">${!list.length ? t().noteKnowEmpty
+        : knowMode === "home" ? t().noteHome : t().noteKnow}</p>` +
+      (list.length && knowMode === "share" ? knowScale() : "") +
+      `<div class="sec"><div class="sec-h"><h2>${t().pickLangs}</h2>
+         <span>${t().nLangs(hits.length)}</span></div>` +
+      (hits.length ? `<div class="rows">` + hits.slice(0, 160).map((s) => {
+        const l = LG[s], on = known.has(s);
+        return `<button class="row" data-l="${s}" aria-pressed="${on}" style="--c:${col(l.g)}">
+          <span class="dot-c ${l.g === "oth" ? "oth" : ""}"></span>
+          <span><span class="row-t">${esc(ln(l))}</span><br><span class="sub-t">${esc(l.e)}</span></span>
+          <span class="val num">${on ? "✓" : fmtK(l.s)}</span></button>`;
+      }).join("") + `</div>` : `<p class="empty">${esc(t().noHit(state.q))}</p>`) +
+      `</div>`;
+  }
+
+  /* --------------------------------------------------------- ayarlar sekmesi */
+  const segHTML = (attr, opts, cur, dis) => `<div class="seg" role="group">` +
+    opts.map(([v, lb]) => `<button data-${attr}="${v}" aria-pressed="${String(cur === v)}"${
+      dis ? " disabled" : ""}>${esc(lb)}</button>`).join("") + `</div>`;
+  const grpHTML = (title, inner, note) =>
+    `<div class="grp"><h3>${esc(title)}</h3>${inner}${
+      note ? `<p class="pop-n">${esc(note)}</p>` : ""}</div>`;
+  function settingsHTML() {
+    return grpHTML(t().paint,
+        segHTML("paint", [["fam", t().pFam], ["pct", t().pPct], ["ppl", t().pPpl]],
+                state.paint, state.layer !== "home") + scaleHTML(),
+        state.layer !== "home" ? t().paintOnlyHome : "") +
+      grpHTML(t().detail,
+        segHTML("lod", [["auto", t().dAuto], ["off", t().dOff], ["on", t().dOn]], state.lod),
+        t().lodNote) +
+      grpHTML(t().theme,
+        segHTML("theme", [["auto", t().tAuto], ["light", t().tLight], ["dark", t().tDark]], theme)) +
+      grpHTML(t().exportT,
+        `<div class="seg" role="group"><button data-exp="png">PNG</button>` +
+        `<button data-exp="svg">SVG</button></div>`) +
+      grpHTML(t().uiLang, segHTML("ui", [["tr", "Türkçe"], ["en", "English"]], ui)) +
+      `<p class="pop-n" style="margin-top:22px">${esc(t().credit)}</p>`;
+  }
+
+  /* ----------------------------------------------------------- dil dizini */
+  function langsHTML() {
     const q = norm(state.q);
     let html = "";
     if (state.q) {
@@ -1513,42 +1707,25 @@ body.zoomed .orn { opacity: 0; }
         <span class="val num">${state.sort === "spk" ? fmtK(l.s) : (total(s) ? t().cnt(total(s)) : "—")}</span>
       </button>`;
     }).join("") + `</div>` : `<p class="empty">${esc(t().noHit(state.q))}</p>`;
-    html += `</div>`;
-    body.innerHTML = html;
+    return html + `</div>`;
   }
   /* ----------------------------------------------------------- katmanlar */
-  // Masaüstünde gösterge yan panelde duruyor; burada yer yok, o yüzden
-  // renk anahtarı yalnız yeni katmanlarda menünün içinde açılıyor.
+  // Renk anahtarı artık Harita sekmesinin panelinde: yüzen menüde yer yoktu,
+  // o yüzden ana dil katmanında hiç gösterilmiyordu. Panelde yer var.
   const keyOrder = () => state.layer === "scr" ? SGORDER : GORDER;
   const keyName = (g) => state.layer === "scr"
     ? (ui === "en" ? SGR[g].ne : SGR[g].n) : (ui === "en" ? GR[g].ne : GR[g].n);
   const keyCol = (g) => col(state.layer === "scr" ? SGCOL[g] : g);
   const keyIsOth = (g) => (state.layer === "scr" ? SGCOL[g] : g) === "oth";
   function keyHTML() {
-    if (state.layer === "know") {
-      const seg = `<div class="seg" role="group" style="margin-bottom:6px">
-          <button data-km="share" aria-pressed="${knowMode === "share"}">${t().kmShare}</button>
-          <button data-km="home" aria-pressed="${knowMode === "home"}">${t().kmHome}</button>
-        </div>`;
-      const rows = [...known].filter((k) => LG[k]).map((k) =>
-        `<button class="chip" data-unknow="${k}" style="--c:${col(LG[k].g)}">${
-          esc(ln(LG[k]))} ✕</button>`).join("");
-      return seg + (rows ? `<div class="chips" style="margin-top:4px">${rows}</div>` : "") +
-        `<p class="pop-n">${!known.size ? t().noteKnowEmpty
-          : knowMode === "home" ? t().noteHome : t().noteKnow}</p>` +
-        (known.size && knowMode === "share"
-          ? `<div class="scale"><span>${t().scaleLo}</span>` +
-            ramp.map((c) => `<i style="background:${c}"></i>`).join("") +
-            `<span>${t().scaleHi}</span></div>` : "");
-    }
-    if (state.layer === "home") return "";
     const n = {};
     ids.forEach((i) => { const k = keyOf(C[i], i); n[k] = (n[k] || 0) + 1; });
     return `<div class="popkey">` + keyOrder().filter((g) => n[g]).map((g) =>
       `<span class="popkey-row" style="--c:${keyCol(g)}">
          <i class="${keyIsOth(g) ? "oth" : ""}"></i>${esc(keyName(g))}
          <b class="num">${n[g]}</b></span>`).join("") + `</div>` +
-      `<p class="pop-n">${state.layer === "scr" ? t().noteScr : t().noteOff}</p>`;
+      `<p class="pop-n">${state.layer === "scr" ? t().noteScr
+        : state.layer === "off" ? t().noteOff : t().noteHomeKey}</p>`;
   }
   function reclass(n, o, cid) {
     n.classList.remove("crl", "mism");
@@ -1566,7 +1743,7 @@ body.zoomed .orn { opacity: 0; }
   function toggleKnown(slug) {
     if (known.has(slug)) known.delete(slug); else known.add(slug);
     localStorage.setItem("wl-known", [...known].join(","));
-    rampKey = ""; repaint(); syncPop(); render(); queueHash();
+    rampKey = ""; repaint(); render(); queueHash();
   }
 
   // Dışa aktarma: o anki görünümü tek başına duran bir SVG'ye çevirip
@@ -1604,23 +1781,59 @@ body.zoomed .orn { opacity: 0; }
     return '<?xml version="1.0" encoding="UTF-8"?>\n' +
       new XMLSerializer().serializeToString(clone);
   }
-  function saveBlob(blob, name) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = name;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 8000);
+  // Android WebView'de <a download> hiçbir şey yapmıyor: indirme işleyicisi
+  // yok, tıklama sessizce yutuluyor. Sayfa "İndirildi" yazıyor ama dosya ne
+  // İndirilenler'e ne galeriye düşüyordu. Kabuk köprü sunuyorsa baytları ona
+  // veriyoruz; tarayıcıda eski yol geçerli.
+  const bridge = (() => {
+    try { if (window.AtlasSave && window.AtlasSave.save) return "android"; } catch (e) {}
+    try {
+      if (window.webkit && window.webkit.messageHandlers
+          && window.webkit.messageHandlers.atlasSave) return "mac";
+    } catch (e) {}
+    return null;
+  })();
+  // btoa tek seferde büyük diziyi kaldırmıyor: 32 KB'lık parçalara bölünüyor.
+  function toB64(u8) {
+    let out = "";
+    for (let i = 0; i < u8.length; i += 0x8000) {
+      out += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    }
+    return btoa(out);
+  }
+  let macPending = null;
+  window.__atlasSaved = (ok) => { const f = macPending; macPending = null; if (f) f(!!ok); };
+  // done(ok) her yolda tam bir kez çağrılır; buton yazısı gerçeği söylesin.
+  function saveBlob(blob, name, done) {
+    if (!bridge) {
+      try {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 8000);
+        done(true);
+      } catch (e) { done(false); }
+      return;
+    }
+    blob.arrayBuffer().then((buf) => {
+      const b64 = toB64(new Uint8Array(buf));
+      const mime = blob.type || "application/octet-stream";
+      if (bridge === "android") { done(!!window.AtlasSave.save(name, mime, b64)); return; }
+      macPending = done;
+      window.webkit.messageHandlers.atlasSave.postMessage({ name: name, b64: b64 });
+    }, () => done(false));
   }
   function exportMap(kind, btn) {
     const label = btn.textContent;
     const done = (ok) => {
-      btn.textContent = ok ? t().saved : t().saveFail;
+      btn.textContent = ok ? (bridge ? t().savedTo : t().saved) : t().saveFail;
       setTimeout(() => { btn.textContent = label; }, 1800);
     };
     let svgText;
     try { svgText = exportSVG(); } catch (e) { done(false); return; }
     if (kind === "svg") {
-      try { saveBlob(new Blob([svgText], { type: "image/svg+xml" }), "dunya-dilleri.svg"); done(true); }
+      try { saveBlob(new Blob([svgText], { type: "image/svg+xml" }), "dunya-dilleri.svg", done); }
       catch (e) { done(false); }
       return;
     }
@@ -1633,7 +1846,7 @@ body.zoomed .orn { opacity: 0; }
       cv.toBlob((bl) => {
         URL.revokeObjectURL(url);
         if (!bl) { done(false); return; }
-        saveBlob(bl, "dunya-dilleri.png"); done(true);
+        saveBlob(bl, "dunya-dilleri.png", done);
       }, "image/png");
     };
     img.onerror = () => { URL.revokeObjectURL(url); done(false); };
@@ -1690,7 +1903,7 @@ body.zoomed .orn { opacity: 0; }
       (rest ? `<p class="note">${esc(t().more(rest))}</p>` : "");
   };
 
-  function renderDetail() {
+  function detailHTML() {
     const sub = state.selSub ? SB[state.selSub] : null;
     const id = state.sel;
     const c = sub
@@ -1701,7 +1914,7 @@ body.zoomed .orn { opacity: 0; }
           note: noteOf(C[id]), m: C[id].m };
     const l = LG[c.l] || LG[C[id].l];
     const minor = LG[c.l] ? (LG[c.l].in || []).filter(([i]) => C[i].l !== c.l) : [];
-    body.innerHTML =
+    return (
       `<div class="d-top"><div class="grow" style="flex:1;min-width:0">
          <h2>${esc(c.n)}</h2><p>${esc(c.r)}</p></div></div>` +
       `<p class="d-lang" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}</p>` +
@@ -1714,6 +1927,7 @@ body.zoomed .orn { opacity: 0; }
          <div><b class="num">${c.pop ? fmtK(c.pop * c.p / 100) : "—"}</b><span>${t().people}</span></div>
          <div><b class="num">${c.pop ? fmtK(c.pop) : "—"}</b><span>${t().pop}</span></div>
        </div>` +
+      homeGap(c) +
       knowLine(id, c) +
       (c.m === 0 ? `<p class="note">${t().noMajority}</p>` : "") +
       (c.note ? `<p class="note">${esc(c.note)}</p>` : "") +
@@ -1734,68 +1948,19 @@ body.zoomed .orn { opacity: 0; }
         (!sub && subsOf[id] ? `<button class="ghost" data-sub="${id}">${esc(t().showSubs(c.n))}</button>` : "") +
         `<button data-l="${c.l}">${esc(t().showLang(ln(l)))}</button>` +
         `<button class="ghost" data-close="1">${t().close}</button>` +
-      `</div>`;
+      `</div>`);
   }
 
-  /* ------------------------------------------------------ katman menüsü */
-  const pop = $("#pop");
-  function setPop(on) {
-    if (on) {
-      // Menü yarım açılmaktansa panel aşağı insin: panel en alt durağa
-      // kayarken menü kendi animasyonuyla, tam sığacağı yerde açılır.
-      setDetent("peek", 1, true);
-      pop.hidden = false;
-      placeFloaters(sheetTop);
-      syncPop();
-    } else {
-      pop.hidden = true;
-    }
-    $("#btnLayers").setAttribute("aria-pressed", String(on));
-  }
-  function syncPop() {
-    const set = (sel, val) => pop.querySelectorAll(sel).forEach((b) =>
-      b.setAttribute("aria-pressed", String(b.dataset[Object.keys(b.dataset)[0]] === val)));
-    set("[data-lay]", state.layer);
-    set("[data-paint]", state.paint);
-    set("[data-lod]", state.lod);
-    set("[data-theme]", theme);
-    set("[data-ui]", ui);
-    $("#popKey").innerHTML = keyHTML();
-    $("#popScale").innerHTML = scaleHTML();
-    pop.querySelectorAll("[data-paint]").forEach((b) => (b.disabled = state.layer !== "home"));
-    // menü etiketleri de seçili dile göre
-    const P = pop.querySelectorAll(".pop-t");
-    P[0].textContent = t().layerT; P[1].textContent = t().paint;
-    P[2].textContent = t().detail; P[3].textContent = t().theme;
-    if (P[4]) P[4].textContent = t().exportT;   // atlanmıştı: İngilizce arayüzde Türkçe kalıyordu
-    $("#popNote").textContent = t().lodNote;
-    const lbl = [["[data-lay='home']", t().lHome], ["[data-lay='scr']", t().lScr],
-                 ["[data-lay='off']", t().lOff], ["[data-lay='know']", t().lKnow],
-                 ["[data-paint='fam']", t().pFam], ["[data-paint='pct']", t().pPct],
-                 ["[data-paint='ppl']", t().pPpl], ["[data-lod='auto']", t().dAuto],
-                 ["[data-lod='off']", t().dOff], ["[data-lod='on']", t().dOn],
-                 ["[data-theme='auto']", t().tAuto], ["[data-theme='light']", t().tLight],
-                 ["[data-theme='dark']", t().tDark]];
-    lbl.forEach(([q, v]) => { const b = pop.querySelector(q); if (b) b.textContent = v; });
-  }
-  $("#btnLayers").onclick = () => setPop(pop.hidden);
-  pop.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-lay],[data-km],[data-exp],[data-unknow],[data-paint],[data-lod],[data-theme],[data-ui]");
+  /* ------------------------------------------------- panel başlığı denetimi */
+  // Katman ve okuma biçimi seçicileri panelin başlığında duruyor; ikisi de
+  // aynı ele bağlı, çünkü ikisi de "harita neyi anlatıyor" sorusunu yanıtlıyor.
+  head.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-lay],[data-km]");
     if (!b) return;
-    const d = b.dataset;
-    if (d.km) {
-      knowMode = d.km; localStorage.setItem("wl-knowmode", knowMode);
-      rampKey = ""; repaint(); syncPop(); setFilter(state.filter); queueHash();
-      return;
-    }
-    if (d.exp) { exportMap(d.exp, b); return; }
-    if (d.unknow) { toggleKnown(d.unknow); return; }
-    if (d.lay) { setLayer(d.lay); }
-    else if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); queueHash(); }
-    else if (d.lod) { state.lod = d.lod; applyLod(); queueHash(); }
-    else if (d.theme) { setTheme(d.theme); }
-    else if (d.ui) { setUi(d.ui); }
-    syncPop();
+    if (b.dataset.lay) { state.mapLayer = b.dataset.lay; setLayer(b.dataset.lay); return; }
+    knowMode = b.dataset.km;
+    localStorage.setItem("wl-knowmode", knowMode);
+    rampKey = ""; repaint(); setFilter(state.filter); render(); queueHash();
   });
 
   /* --------------------------------------------------------- tema ve dil */
@@ -1816,25 +1981,34 @@ body.zoomed .orn { opacity: 0; }
     setFilter(state.filter);          // başlık ve liste yeniden yazılır
     render();
   }
-  svg.addEventListener("pointerdown", () => { if (!pop.hidden) setPop(false); });
 
   /* ---------------------------------------------------------- eylemler */
   body.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-go],[data-l],[data-offl],[data-sort],[data-up],[data-sub],[data-close]");
-    if (!t) return;
-    const d = t.dataset;
-    if (d.go) { setDetent("half", 1); select(d.go); focusCountry(d.go); return; }
+    const el = e.target.closest("[data-go],[data-l],[data-offl],[data-sort],[data-up],[data-sub]," +
+      "[data-close],[data-unknow],[data-paint],[data-lod],[data-theme],[data-ui],[data-exp]");
+    if (!el) return;
+    const d = el.dataset;
+    // ayarlar sekmesi
+    if (d.exp) { exportMap(d.exp, el); return; }
+    if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); render(); queueHash(); return; }
+    if (d.lod) { state.lod = d.lod; applyLod(); render(); queueHash(); return; }
+    if (d.theme) { setTheme(d.theme); render(); return; }
+    if (d.ui) { setUi(d.ui); return; }
+    if (d.unknow) { toggleKnown(d.unknow); return; }
+    // gezinme
+    if (d.go) { select(d.go); focusCountry(d.go); return; }
     // resmî dil rozeti: o dilin resmî olduğu ülkeleri süz
-    if (d.offl) { setLayer("off"); setFilter({ t: "l", k: d.offl }); setDetent("peek"); return; }
+    if (d.offl) { goTab("map"); state.mapLayer = "off"; setLayer("off");
+                  setFilter({ t: "l", k: d.offl }); return; }
     if (d.sort) { state.sort = d.sort; render(); return; }
-    if (d.up) { setDetent("half", 1); select(d.up); focusCountry(d.up); return; }
-    if (d.sub) { state.lod = "on"; applyLod(); focusCountry(d.sub); syncPop(); return; }
-    if (d.close) { select(null); setDetent("peek"); return; }
+    if (d.up) { select(d.up); focusCountry(d.up); return; }
+    if (d.sub) { state.lod = "on"; applyLod(); focusCountry(d.sub); return; }
+    if (d.close) { select(null); return; }
     if (d.l) {
-      if (state.layer === "know") { toggleKnown(d.l); return; }
+      if (state.tab === "know") { toggleKnown(d.l); return; }
       const same = state.filter && state.filter.t === "l" && state.filter.k === d.l;
       setFilter(same ? null : { t: "l", k: d.l });
-      if (!same) setDetent("peek");
+      if (!same) { goTab("map"); setDetent("peek"); }
     }
   });
 
@@ -1845,6 +2019,7 @@ body.zoomed .orn { opacity: 0; }
     markMap();
     rampKey = ""; repaint();
     $("#btnClear").hidden = !f;
+    topBar.classList.toggle("away", detent === "full" && !f);
     if (!f) {
       $("#capT").textContent = t().title;
       $("#capS").textContent = capSub();
@@ -1875,6 +2050,9 @@ body.zoomed .orn { opacity: 0; }
     marks.insertAdjacentHTML("beforeend",
       `<text class="map-label" x="${o.c[0]}" y="${o.c[1] - 12 * u}" text-anchor="middle"
         font-size="${(14 * u).toFixed(2)}">${esc(sid ? sn(o) : cn(o))}</text>`);
+    // Yer kartının yeri Harita ve Bildiğim sekmeleri; listeden ya da ayarlardan
+    // bir yer seçilince oraya götürür. Sekme bir varış noktası: seçim onu izler.
+    if (state.tab !== "map" && state.tab !== "know") { goTab("map"); return; }
     render();
     if (detent === "peek") setDetent("half");
   }
@@ -1901,7 +2079,11 @@ body.zoomed .orn { opacity: 0; }
   qClear.onclick = () => { q.value = ""; state.q = ""; qClear.hidden = true; render(); q.focus(); };
 
   /* --------------------------------------------------------------- git */
-  addEventListener("resize", () => { applyVB(); setDetent(detent, true); });
+  // Sekme çubuğunun gerçek yüksekliği (güvenli alan payı dahil) panelin
+  // dibini belirliyor; CSS'e ölçerek yazılıyor, tahmin edilmiyor.
+  const measureTabs = () =>
+    document.documentElement.style.setProperty("--tabh", tabs.offsetHeight + "px");
+  addEventListener("resize", () => { measureTabs(); applyVB(); setDetent(detent, true); });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
     rampKey = ""; repaint(); render();
   });
@@ -1911,8 +2093,9 @@ body.zoomed .orn { opacity: 0; }
   $("#capT").textContent = t().title;
   $("#capS").textContent = capSub();
   buildRamp("--g-ger");
+  measureTabs();
   render();
-  setDetent("peek", true);
+  setDetent(detentOf[state.tab], true);
   homeView();
 
   /* --------------------------------------------------- linkten gelen durum */
@@ -1946,8 +2129,9 @@ body.zoomed .orn { opacity: 0; }
       // Seçim görüş kutusundan sonra: bölge seçimi ayrıntı düzeyini açtırıyor.
       if (h.u && SB[h.u]) { state.lod = "on"; applyLod(); select(SB[h.u].p, h.u); }
       else if (h.s && C[h.s]) select(h.s);
-      if (h.u || h.s) setDetent("half", true);
-      syncPop();
+      // Bağlantı katmanı belirliyorsa sekme de onu izlesin.
+      if (state.layer !== "know") state.mapLayer = state.layer;
+      goTab(state.layer === "know" ? "know" : "map", true);
     } finally {
       hashLock = false;
     }

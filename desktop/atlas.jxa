@@ -48,6 +48,48 @@ function run(argv) {
   keep.push(win);
 
   var cfg = $.WKWebViewConfiguration.alloc.init;
+  // Sayfadan dosya kaydetme köprüsü. WKWebView'in indirme işleyicisi yok:
+  // <a download> tıklaması sessizce yutuluyor, PNG/SVG dışa aktarma sayfada
+  // "İndirildi" yazmasına rağmen hiçbir yere dosya bırakmıyordu. Sayfa
+  // baytları base64 olarak yolluyor, burada ~/Downloads'a yazılıyor ve sonuç
+  // sayfaya geri bildiriliyor — buton yazısı gerçeği söylesin.
+  try {
+    ObjC.registerSubclass({
+      name: 'AtlasSaver',
+      superclass: 'NSObject',
+      protocols: ['WKScriptMessageHandler'],
+      methods: {
+        'userContentController:didReceiveScriptMessage:': {
+          types: ['void', ['id', 'id']],
+          implementation: function (_ucc, msg) {
+            var ok = false;
+            try {
+              var body = msg.body;
+              var name = ObjC.unwrap(body.objectForKey('name'));
+              var b64 = ObjC.unwrap(body.objectForKey('b64'));
+              var data = $.NSData.alloc.initWithBase64EncodedStringOptions($(b64), 0);
+              if (name && !data.isNil()) {
+                // Ad sayfadan geliyor; klasör dışına çıkmasın.
+                name = String(name).replace(/[\/\\:]/g, '-');
+                var path = ObjC.unwrap($.NSHomeDirectory()) + '/Downloads/' + name;
+                ok = data.writeToFileAtomically($(path), true);
+              }
+            } catch (e) { ok = false; }
+            try {
+              if (web) {
+                web.evaluateJavaScriptCompletionHandler(
+                  $('window.__atlasSaved && window.__atlasSaved(' +
+                    (ok ? 'true' : 'false') + ')'), null);
+              }
+            } catch (e) {}
+          }
+        }
+      }
+    });
+    var saver = $.AtlasSaver.alloc.init;
+    keep.push(saver);
+    cfg.userContentController.addScriptMessageHandlerName(saver, $('atlasSave'));
+  } catch (e) { /* köprü kurulamazsa pencere yine açılır */ }
   web = $.WKWebView.alloc.initWithFrameConfiguration(rect, cfg);
   var url = $.NSURL.fileURLWithPath(htmlPath);
   web.loadFileURLAllowingReadAccessToURL(url, url.URLByDeletingLastPathComponent);

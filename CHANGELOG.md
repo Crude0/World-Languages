@@ -10,6 +10,76 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.12.0 — 17 Ağustos 2026
+
+**Telefon arayüzü baştan kuruldu.** 0.2 döneminden kalma düzenin üstüne
+güncelleme üstüne güncelleme binmişti: katman, renk ölçütü, ayrıntı düzeyi,
+tema, dışa aktarma ve arayüz dili tek bir yüzen kartın içinde üst üste
+duruyordu, o kartı açan `◧` düğmesi de ne yaptığını söylemiyordu. Neyin nerede
+olduğu görünmüyordu.
+
+Yerine **alt sekme çubuğu** geldi — iOS'ta tab bar, Android'de navigation bar.
+İkisinin de kuralı aynı: *sekme bir varış noktası, bir kip değil.* Dört varış
+noktası, hepsi tek dokunuşla ve hep aynı yerde:
+
+- **Harita** — panelin başlığında haritanın yanıtladığı soru (Ana dil · Yazı ·
+  Resmî dil), gövdesinde renk anahtarı. Anahtar ana dil katmanında hiç
+  yoktu, çünkü yüzen kartta yer yoktu.
+- **Diller** — arama ve 270 dilin dizini. Bir dile dokununca harita süzülüyor
+  ve Harita sekmesine dönüyor.
+- **Bildiğim** — kendi sekmesi. Üç büyük rakam (kaç dil, kaç kişiye
+  ulaşıyorsun, kaç ülkede), seçtiğin diller ve seçim listesi. Sekmenin üstünde
+  kaç dil işaretlediğini gösteren bir rozet var.
+- **Ayarlar** — renk ölçütü, ayrıntı düzeyi, tema, dışa aktarma, arayüz dili.
+
+Her sekme kendi panel yüksekliğini hatırlıyor: haritada panel alçak durup
+haritayı gösteriyor, dil dizininde tam açılıyor. Panel tam açıldığında üst
+çubuk çekiliyor. Sekme çubuğu opak: panelin gövdesi arkasından aşağı kayarken
+camın ardından liste satırları okunuyordu, iki metin üst üste biniyordu.
+
+**PNG ve SVG indirme hiçbir yere dosya yazmıyordu.** Sayfa "İndirildi" diyor,
+dosya ne İndirilenler'de ne galeride oluyordu. Sebep: `<a download>` yalnız
+tarayıcıda çalışıyor — ne Android WebView'in, ne WKWebView'in, ne WebView2'nin
+indirme işleyicisi var, tıklama sessizce yutuluyordu. Üç kabuğun her birine
+kaydetme köprüsü eklendi (Android `JavascriptInterface` + MediaStore, macOS
+`WKScriptMessageHandler`, Windows WebView2 `Bind`), dosyalar İndirilenler
+klasörüne yazılıyor ve buton yazısı artık gerçekten olanı söylüyor. Android
+tarafında yeni izin istenmiyor.
+
+**Tam ekranda "Bildiğim diller" katmanını seçmek çıkmaz sokaktı.** Dil seçimi
+yalnız sol paneldeki dizinde duruyordu, tam ekranda o panel yok — katmanı
+seçtikten sonra Esc ile çıkıp dil seçmek, sonra geri girmek gerekiyordu.
+Masaüstüne haritanın içinde açılan **"Dillerim"** yaprağı eklendi: okuma
+biçimi, üç büyük rakam, seçtiğin diller ve kendi arama alanıyla dil listesi.
+Katmana geçince, hiç dil seçilmemişse kendiliğinden açılıyor. İki kipte de aynı
+yerde, çünkü haritanın kendi içinde.
+
+**Toplam kaç kişiyle konuşabileceğin rakamı bayat kalıyordu.** Altyazıda vardı
+ama yalnız süzgeç değişince yazılıyordu; dil ekleyip çıkarınca güncellenmiyor,
+altı dil seçiliyken bile "Bildiğiniz dilleri seçin" yazıyordu.
+
+**İsveç'te %95 ile %85 çelişki gibi okunuyordu.** İki sayı iki ayrı şeyi
+ölçüyor — kartın üstündeki "bu dili konuşuyor" ana dil ve ikinci dili birlikte
+sayıyor, aşağıdaki liste ise evde konuşulan ana dili. Fark 20 ülkede var, en
+büyüğü Endonezya (%94 / %20: Endonezce'yi neredeyse herkes konuşuyor ama evde
+konuşan beşte bir). Kart artık farkı olan yerlerde ikisini bağdaştıran bir
+satır yazıyor.
+
+Yanında iki veri düzeltmesi:
+
+- Dağılım tablolarındaki takma adlar artık `data.json`'a kanonik adıyla
+  giriyor. "Filipince (Tagalog)" satırı dil kaydının adı olan "Filipince" ile
+  eşleşmiyordu: Filipince bilen biri için Filipinler ve Kuzey Mariana Adaları
+  sıfır sayılıyordu. 234 ülkenin hepsinde çoğunluk dili artık dağılımda
+  bulunuyor.
+- Hırvatistan'da dili konuşanların payı (%95) evde konuşanların payından (%96)
+  küçüktü — tanım gereği imkânsız. Düzeltildi ve derlemeye bunu bir daha
+  geçirmeyecek bir denetim eklendi.
+
+**Fare ipucu HUD çubuğunun altında kalıyordu.** İmleç "Görünüm · Tablo ·
+Paylaş" çubuğunun altına gelen bir ülkenin üzerindeyken ipucu metni çubuğun
+ardında kalıyordu; z-sırası düzeltildi.
+
 ## v0.11.1 — 17 Ağustos 2026
 
 **Nüfus masaüstünde silik bir dipnottu.** Telefonda üç büyük rakamdan biri

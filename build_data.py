@@ -364,7 +364,7 @@ C = {
  "070": ("Bosna-Hersek", "bs", 53, 1, "Sırpça ve Hırvatça ile karşılıklı anlaşılır; üçü de resmî.", AV, 0),
  "100": ("Bulgaristan", "bg", 85, 1, "", AV, 0),
  "112": ("Belarus", "ru", 71, 1, "Belarusça resmî ve ulusal dil; günlük hayatta Rusça baskın.", AV, 0),
- "191": ("Hırvatistan", "hr", 95, 1, "", AV, 0),
+ "191": ("Hırvatistan", "hr", 96, 1, "", AV, 0),
  "196": ("Kıbrıs", "el", 79, 1, "Ada genelinde Türkçe de resmî dil.", AV, 0),
  "203": ("Çekya", "cs", 96, 1, "", AV, 0),
  "208": ("Danimarka", "da", 96, 1, "", AV, 0),
@@ -632,6 +632,33 @@ for cid, rows in DIASPORA.items():
             have.add(name)
             added += 1
     MIX[cid] = sorted(cur, key=lambda r: -r[1])
+
+# Takma adları veri çıkmadan önce kanonik ada çevir. Şimdiye kadar ALIAS
+# yalnız konuşan sayılarını toplarken kullanılıyordu; data.json'a ham ad
+# gidiyordu. Sonuç: sayfadaki "Filipince (Tagalog)" satırı dil kaydının adı
+# olan "Filipince" ile eşleşmiyor, "Bildiğim diller" katmanı Filipinler'i ve
+# Kuzey Mariana Adaları'nı sıfır sayıyordu. Aynı ada düşen iki satır olursa
+# büyük pay kalır.
+for table in (MIX, L2):
+    for _cid, _rows in list(table.items()):
+        merged = {}
+        for name, pct in _rows:
+            k = ALIAS.get(name, name)
+            merged[k] = max(merged.get(k, 0), pct)
+        table[_cid] = sorted(merged.items(), key=lambda r: -r[1])
+
+# Tutarlılık: bir dili konuşanların payı, o dili evde konuşanların payından
+# küçük olamaz. İsveç'teki 95/85 çifti iki ayrı ölçü (konuşan / evde konuşan)
+# ama Hırvatistan'da sıra tersine dönmüştü ve bu tanım gereği imkânsız.
+bad_share = []
+for _cid, (_tr, _lang, _pct, *_rest) in C.items():
+    _nm = L[_lang][0] if _lang in L else None
+    _m = dict(MIX.get(_cid, ()))
+    if _nm and _nm in _m and _pct < _m[_nm] - 1e-9:
+        bad_share.append((_cid, _tr, _pct, _m[_nm]))
+if bad_share:
+    print("KONUŞAN PAYI EVDEKİ PAYDAN KÜÇÜK:", bad_share)
+    sys.exit(1)
 
 no_pop = sorted(set(C) - set(POP))
 if no_pop:

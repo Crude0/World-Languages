@@ -315,6 +315,34 @@ body.busy .hud-panels > .minor {
 .opts button:disabled[aria-pressed="true"] { background: var(--rule-2); color: var(--ink-3); border-color: var(--rule-2); }
 .opts.wide button { flex: 1 1 auto; text-align: center; }
 
+/* --- "Dillerim" yaprağı ------------------------------------------------ */
+.spk-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 2px 12px; margin: 10px 0 2px; }
+.spk-figs > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.spk-figs dt { font: 400 1.375rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; }
+.spk-figs dd { margin: 0; font-size: .625rem; letter-spacing: .05em; text-transform: uppercase;
+               color: var(--ink-3); line-height: 1.2; }
+.spk-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 9px; }
+.spk-chips:empty { display: none; }
+.spk-chips button {
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px;
+  border: 1px solid var(--rule-2); border-radius: 2px; background: none;
+  color: var(--ink); font: inherit; font-size: .75rem; cursor: pointer;
+}
+.spk-chips button:hover { border-color: var(--ink-3); }
+.spk-chips i { width: 8px; height: 8px; border-radius: 1px; background: var(--c); flex: none; }
+.spk-chips b { color: var(--ink-3); font-weight: 400; }
+.spk-q {
+  width: 100%; margin-top: 10px; padding: 6px 9px; font: inherit; font-size: .8125rem;
+  background: var(--panel-2); color: var(--ink);
+  border: 1px solid var(--rule-2); border-radius: 2px;
+}
+.spk-q:focus { outline: none; border-color: var(--ink-3); }
+/* Liste kendi içinde kayar: yaprak tam ekranda da haritanın boyunu aşmasın. */
+.spk-list { margin-top: 6px; max-height: min(38vh, 300px); overflow-y: auto; overscroll-behavior: contain; }
+.spk-list .key-row { width: 100%; }
+.spk-empty { padding: 12px 2px; font-size: .75rem; color: var(--ink-3); }
+
 /* Tam ekran: harita görünümü kaplıyor, denetimler zaten üstünde yüzdüğü
    için yerleşimin değişmesi gerekmiyor. Fullscreen API varsa o kullanılıyor;
    yoksa (ya da reddedilirse) sabit konumlu bir kaplama aynı işi görüyor. */
@@ -481,8 +509,11 @@ body.fs-on { overflow: hidden; }
   paint-order: stroke; stroke: var(--ocean); stroke-width: 3.5; stroke-linejoin: round;
   vector-effect: non-scaling-stroke; }
 
+/* HUD z-index 10'da; ipucu 5'teyken imleç çubuğun altına gelen bir ülkenin
+   üzerindeyse metin "Görünüm · Tablo · Paylaş" çubuğunun ardında kalıyordu.
+   İpucu geçici ve pointer-events: none, en üstte durması doğru olan. */
 .tip {
-  position: absolute; z-index: 5; pointer-events: none; opacity: 0;
+  position: absolute; z-index: 20; pointer-events: none; opacity: 0;
   background: var(--panel); border: 1px solid var(--rule-2); border-radius: 2px;
   box-shadow: var(--shadow); padding: 7px 10px; min-width: 132px; max-width: 240px;
   transform: translate(-50%, calc(-100% - 12px));
@@ -771,6 +802,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
             <p class="hud-cap glass" id="hudCap" hidden></p>
             <div class="glass bar" role="toolbar" aria-label="Harita denetimleri">
               <button class="gbtn" id="btnModes" aria-expanded="false" aria-controls="modes">Görünüm</button>
+              <button class="gbtn" id="btnSpeak" hidden aria-expanded="false" aria-controls="speakSheet">Dillerim</button>
               <button class="gbtn" id="btnReset" hidden>Süzgeci kaldır</button>
               <button class="gbtn" id="btnTable" aria-pressed="false">Tablo</button>
               <button class="gbtn" id="btnShare" aria-expanded="false" aria-controls="shareMenu">Paylaş</button>
@@ -809,6 +841,28 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
                   <button id="lodOn" aria-pressed="false" title="Veri olan 18 ülkede il/eyalet düzeyi">Bölge</button>
                 </div>
               </div>
+            </div>
+
+            <!-- "Bildiğim diller" katmanının kendi yaprağı. Dil seçimi eskiden
+                 yalnız sol paneldeki dizinden yapılabiliyordu; tam ekranda o
+                 panel yok, dolayısıyla katmanı seçince yapacak bir şey
+                 kalmıyordu. Yaprak haritanın içinde olduğu için iki kipte de
+                 elde. -->
+            <div class="glass sheet" id="speakSheet" hidden aria-labelledby="speakTitle">
+              <div class="sheet-head">
+                <h3 id="speakTitle" class="eyebrow">Dillerim</h3>
+                <button class="sheet-x" data-close="speakSheet" aria-label="Kapat">✕</button>
+              </div>
+              <div class="seg" role="group" id="spkMode" aria-labelledby="speakTitle">
+                <button data-km="share" aria-pressed="true">Pay</button>
+                <button data-km="home" aria-pressed="false">Ana dil</button>
+              </div>
+              <div id="spkStats"></div>
+              <div id="spkChips" class="spk-chips"></div>
+              <input id="spkQ" type="search" class="spk-q" autocomplete="off" spellcheck="false"
+                     placeholder="Dil ara" aria-label="Dil ara">
+              <div id="spkList" class="spk-list"></div>
+              <p class="mgroup-p" id="spkNote"></p>
             </div>
 
             <div class="glass sheet" id="shareMenu" hidden aria-labelledby="shareTitle">
@@ -1022,18 +1076,24 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       keyKnow: "Bildiğim diller", capKnow: "Bildiğim dillerle dünya",
       capKnowSub: (n, v) => n
         ? `${n} dil seçili · dünyada ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2).replace(".", ",") + " milyar" : Math.round(v / 1000) + " milyon"} kişiyle anlaşılabilir`
-        : "Soldaki listeden bildiğiniz dilleri seçin.",
+        : "Bildiğiniz dilleri seçin.",
       noteKnow: "Renk, o ülkede seçtiğiniz dillerden en az birini konuşan nüfusun payı — ana dil ya da ikinci dil olarak. Paylar toplandığı için iki dili birden bilenler iki kez sayılır: rakam bir üst sınırdır.",
-      noteKnowEmpty: "Soldaki dil listesinden bildiğiniz dillere tıklayın. Seçim tarayıcıda saklanır ve bağlantıya girer.",
+      noteKnowEmpty: "Bildiğiniz dillere dokunun \u2014 buradaki listeden ya da soldaki dizinden. Seçim tarayıcıda saklanır ve bağlantıya girer.",
       knowScale: "anlaşılabilen nüfusun payı",
       binsKnow: ["<%5", "%5–20", "%20–45", "%45–70", "%70–90", ">%90"],
       knowLive: (n) => `${n} dil seçili.`,
       tipKnow: (p) => `halkın ${p}’i ile anlaşabilirsiniz`,
       tipKnowNone: "bildiğiniz diller burada kayda değer değil",
       kmShare: "Pay", kmHome: "Ana dil",
+      speakT: "Dillerim", spkSearch: "Dil ara", savedTo: "İndirilenler'e kaydedildi",
+      speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
+      spkNoHit: "eşleşen dil yok",
+      kStatLangs: "seçili dil", kStatPeople: "kişiye ulaşırsınız",
+      kStatCty: "ülkede yarıdan çok", kStatCtyHome: "ülkede evin dili",
+      speakOpen: "Bildiğiniz dilleri seçin",
       capHomeSub: (n, c, v) => n
         ? `${n} dil seçili · ${c} ülkede evin dili · ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2).replace(".", ",") + " milyar" : Math.round(v / 1000) + " milyon"} kişi`
-        : "Soldaki listeden bildiğiniz dilleri seçin.",
+        : "Bildiğiniz dilleri seçin.",
       noteHome: "Yalnız seçtiğiniz dillerden birinin evde konuşulan çoğunluk dili olduğu ülkeler yanıyor; her biri kendi dil ailesinin renginde. Öbürleri sönük — orada diliniz konuşuluyor olabilir ama çoğunluğun dili değil.",
       keyScr: "Yazı sistemleri", keyOff: "Resmî dilin ailesi",
       capScr: "Dünya · çoğunluğun dilinin yazısı",
@@ -1120,18 +1180,24 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       keyKnow: "Languages I speak", capKnow: "The world in the languages you speak",
       capKnowSub: (n, v) => n
         ? `${n} selected · you could talk to ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2) + " billion" : Math.round(v / 1000) + " million"} people`
-        : "Pick the languages you speak from the list on the left.",
+        : "Pick the languages you speak.",
       noteKnow: "Colour shows the share of the population that speaks at least one of your languages — as a first or second language. Shares are added together, so people who speak two of them are counted twice: read the figure as an upper bound.",
-      noteKnowEmpty: "Click the languages you speak in the list on the left. The choice is stored in your browser and goes into the link.",
+      noteKnowEmpty: "Pick the languages you speak \u2014 from the list here or the index on the left. The choice is stored in your browser and goes into the link.",
       knowScale: "share of the population you could talk to",
       binsKnow: ["<5%", "5–20%", "20–45%", "45–70%", "70–90%", ">90%"],
       knowLive: (n) => `${n} languages selected.`,
       tipKnow: (p) => `you could talk to ${p} of the population`,
       tipKnowNone: "none of your languages registers here",
       kmShare: "Share", kmHome: "Home language",
+      speakT: "My languages", spkSearch: "Search a language", savedTo: "Saved to Downloads",
+      speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
+      spkNoHit: "no matching language",
+      kStatLangs: "languages picked", kStatPeople: "people reachable",
+      kStatCty: "countries, over half", kStatCtyHome: "countries, home language",
+      speakOpen: "Pick the languages you speak",
       capHomeSub: (n, c, v) => n
         ? `${n} selected · the home language in ${c} countries · ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2) + " billion" : Math.round(v / 1000) + " million"} people`
-        : "Pick the languages you speak from the list on the left.",
+        : "Pick the languages you speak.",
       noteHome: "Only countries where one of your languages is the majority language spoken at home are lit, each in the colour of its own family. The rest are dimmed — your language may well be spoken there, just not by most people.",
       keyScr: "Writing systems", keyOff: "Family of the official language",
       capScr: "World · the script of the majority language",
@@ -1572,6 +1638,13 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (v !== "home" && paint !== "fam") setPaint("fam");
     rampKey = "";
     applyLayer();
+    // Dil seçimi eskiden yalnız sol paneldeki dizindeydi; tam ekranda o panel
+    // yok. Katmana geçince yaprak da elin altına gelsin, hiç dil seçilmemişse
+    // kendiliğinden açılsın — yapılacak tek iş o.
+    const spk = $("#btnSpeak");
+    spk.hidden = v !== "know";
+    if (v === "know") { if (!known.size) openSheet("speakSheet"); else renderSpeak(); }
+    else if (!$("#speakSheet").hidden) closeSheets();
     renderKey();
     // Gösterge anahtarları katmanlar arasında ortak değil (aile "rom",
     // yazı "lat"): eski grup süzgeci hiçbir ülkeyle eşleşmezdi.
@@ -1828,14 +1901,15 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // durmuyor; hepsi haritanın üstünde açılan tek bir "Görünüm" yaprağında.
   // Aynı yaprak tam ekranda da elde kalıyor, çünkü haritanın içinde.
   const area = $("#mapArea");
-  const SHEETS = ["modes", "shareMenu"];
-  const opener = { modes: "btnModes", shareMenu: "btnShare" };
+  const SHEETS = ["modes", "speakSheet", "shareMenu"];
+  const opener = { modes: "btnModes", speakSheet: "btnSpeak", shareMenu: "btnShare" };
   function openSheet(id) {
     SHEETS.forEach((s) => {
       const on = s === id;
       $("#" + s).hidden = !on;
       $("#" + opener[s]).setAttribute("aria-expanded", String(on));
     });
+    if (id === "speakSheet") renderSpeak();
   }
   const closeSheets = () => openSheet(null);
   SHEETS.forEach((s) => {
@@ -2139,6 +2213,16 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     place(e);
   }
   // ipucunun alt satırı: paya en çok katkıyı hangi diller yapıyor
+  // Kartın üstündeki yüzde "bu dili konuşanlar", aşağıdaki liste ise "evde
+  // konuşulan ana dil". İsveç'te 95 ile 85 yan yana düşüp çelişki gibi
+  // okunuyordu — iki sayı iki ayrı ölçü. Fark varsa ikisini bağdaştıran
+  // satır yazılıyor; 20 ülkede fark var, en büyüğü Endonezya (%94 / %20).
+  function homeGap(c) {
+    const nm = LG[c.l] && LG[c.l].n;
+    const row = nm && (c.mix || []).find(([n]) => n === nm);
+    if (!row || Math.abs(c.p - row[1]) < 1.5) return "";
+    return `<p class="d-hint">${esc(t().speaksNote(pc(row[1])))}</p>`;
+  }
   function knowLine(c) {
     if (!known.size) return "";
     const m = new Map((c.mix || []).map(([n, q]) => [n, q]));
@@ -2186,7 +2270,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         `<div class="seg know-seg" role="group" aria-label="${t().keyKnow}">
            <button data-km="share" aria-pressed="${knowMode === "share"}">${t().kmShare}</button>
            <button data-km="home" aria-pressed="${knowMode === "home"}">${t().kmHome}</button>
-         </div>` + (known.size
+         </div>` + spkFigsHTML() + (known.size
         ? [...known].filter((k) => LG[k]).map((k) =>
             `<button class="key-row" data-unknow="${k}" style="--c:${col(LG[k].g)}">
                <span class="swatch ${LG[k].g === "oth" ? "oth" : ""}"></span>
@@ -2310,9 +2394,73 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   function toggleKnown(slug) {
     if (known.has(slug)) known.delete(slug); else known.add(slug);
     localStorage.setItem("wl-known", [...known].join(","));
-    renderKey(); rampKey = ""; repaint(); renderIndex(); queueHash();
+    renderKey(); rampKey = ""; repaint(); renderIndex(); renderSpeak();
+    // Altyazıdaki "toplam kaç kişiyle konuşabilirsiniz" rakamı setFilter
+    // içinde yazılıyor; buradan çağrılmadığı için dil eklenip çıkarılınca
+    // olduğu yerde kalıyor, hep "dillerinizi seçin" görünüyordu.
+    setFilter(state.filter); queueHash();
     live(t().knowLive(known.size));
   }
+
+  /* ------------------------------------------------- "Dillerim" yaprağı */
+  // Üç rakam: kaç dil seçildi, kaç kişiye ulaşılıyor, kaç ülkede. Ortadaki
+  // ülke ülke pay × nüfus toplamı — dünya çapında tek bir sayı.
+  function knowStats() {
+    const list = [...known].filter((k) => LG[k]);
+    const ppl = ids.reduce((a, i) => a + (C[i].pop || 0) * reach(i) / 100, 0);
+    const cty = knowMode === "home"
+      ? ids.filter((i) => speaksHome(C[i])).length
+      : ids.filter((i) => reach(i) >= 50).length;
+    return { list, ppl, cty };
+  }
+  function spkFigsHTML() {
+    const s = knowStats();
+    return `<dl class="spk-figs">
+        <div><dt class="num">${s.list.length}</dt><dd>${t().kStatLangs}</dd></div>
+        <div><dt class="num">${s.list.length ? fmtS(s.ppl) : "—"}</dt><dd>${t().kStatPeople}</dd></div>
+        <div><dt class="num">${s.cty}</dt><dd>${
+          knowMode === "home" ? t().kStatCtyHome : t().kStatCty}</dd></div>
+      </dl>`;
+  }
+  const spkQ = $("#spkQ");
+  function renderSpeak() {
+    if ($("#speakSheet").hidden) return;      // kapalıyken yazmaya gerek yok
+    $("#spkMode").querySelectorAll("[data-km]").forEach((b) =>
+      b.setAttribute("aria-pressed", String(b.dataset.km === knowMode)));
+    $("#spkStats").innerHTML = spkFigsHTML();
+    $("#spkChips").innerHTML = [...known].filter((k) => LG[k]).map((k) =>
+      `<button data-unknow="${k}" style="--c:${col(LG[k].g)}"><i></i>${
+        esc(ln(LG[k]))}<b>✕</b></button>`).join("");
+    const q = norm(spkQ.value.trim());
+    const hits = langIds
+      .filter((s) => !q || norm(LG[s].n).includes(q) || norm(LG[s].e).includes(q)
+                  || norm(LG[s].ne || "").includes(q))
+      .sort((a, b) => (known.has(b) ? 1 : 0) - (known.has(a) ? 1 : 0) || LG[b].s - LG[a].s);
+    $("#spkList").innerHTML = hits.length
+      ? hits.slice(0, 120).map((s) => {
+          const l = LG[s];
+          return `<button class="key-row" data-know="${s}" aria-pressed="${known.has(s)}"
+                    style="--c:${col(l.g)}">
+             <span class="swatch ${l.g === "oth" ? "oth" : ""}"></span>
+             <span class="key-name">${esc(ln(l))}</span>
+             <span class="key-count num">${known.has(s) ? "✓" : fmtS(l.s)}</span></button>`;
+        }).join("")
+      : `<p class="spk-empty">${esc(t().spkNoHit)}</p>`;
+    $("#spkNote").textContent = !known.size ? t().noteKnowEmpty
+      : knowMode === "home" ? t().noteHome : t().noteKnow;
+  }
+  spkQ.addEventListener("input", renderSpeak);
+  $("#speakSheet").addEventListener("click", (e) => {
+    const km = e.target.closest("[data-km]");
+    if (km) {
+      knowMode = km.dataset.km;
+      localStorage.setItem("wl-knowmode", knowMode);
+      rampKey = ""; repaint(); renderKey(); renderSpeak(); setFilter(state.filter); queueHash();
+      return;
+    }
+    const b = e.target.closest("[data-know],[data-unknow]");
+    if (b) toggleKnown(b.dataset.know || b.dataset.unknow);
+  });
   idxList.addEventListener("click", (e) => {
     const c = e.target.closest("[data-c]");
     if (c) { select(c.dataset.c); focusCountry(c.dataset.c); return; }
@@ -2657,6 +2805,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
              <div><dt class="num">${c.pop ? fmtS(c.pop) : "—"}</dt><dd>${
                c.sub ? t().regionPopLbl : t().popLbl}</dd></div>
            </dl>
+           ${homeGap(c)}
            <div class="meter-track"><div class="meter-fill" style="width:${Math.min(100, c.p)}%"></div></div>
          </div>` +
         (c.m ? "" : `<span class="chip">${t().noMajChip}</span>`) +
@@ -2845,23 +2994,70 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
-  function save(blob, name) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = name;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 8000);
+  // Uygulama kabuğunda <a download> hiçbir şey yapmıyor: ne WKWebView'in ne de
+  // WebView2'nin bir indirme işleyicisi var, tıklama sessizce yutuluyordu.
+  // Sayfa "İndirildi" yazıyor, dosya hiçbir yere düşmüyordu. Kabuk bir köprü
+  // sunuyorsa baytları ona veriyoruz; tarayıcıda eski yol geçerli.
+  const bridge = (() => {
+    try { if (window.AtlasSave && window.AtlasSave.save) return "android"; } catch (e) {}
+    try {
+      if (window.webkit && window.webkit.messageHandlers
+          && window.webkit.messageHandlers.atlasSave) return "mac";
+    } catch (e) {}
+    try { if (typeof window.atlasSaveFile === "function") return "win"; } catch (e) {}
+    return null;
+  })();
+  // btoa tek seferde büyük diziyi kaldırmıyor (argüman sayısı sınırı): 32 KB'lık
+  // parçalara bölünüyor.
+  function toB64(u8) {
+    let out = "";
+    for (let i = 0; i < u8.length; i += 0x8000) {
+      out += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    }
+    return btoa(out);
+  }
+  let macPending = null;
+  window.__atlasSaved = (ok) => {
+    const f = macPending; macPending = null;
+    if (f) f(!!ok);
+  };
+  // done(ok) her yolda tam bir kez çağrılır; buton yazısı gerçeği söylesin.
+  function save(blob, name, done) {
+    if (!bridge) {
+      try {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 8000);
+        done(true);
+      } catch (e) { done(false); }
+      return;
+    }
+    blob.arrayBuffer().then((buf) => {
+      const b64 = toB64(new Uint8Array(buf));
+      const mime = blob.type || "application/octet-stream";
+      if (bridge === "android") { done(!!window.AtlasSave.save(name, mime, b64)); return; }
+      if (bridge === "win") {
+        Promise.resolve(window.atlasSaveFile(name, b64)).then((r) => done(!!r), () => done(false));
+        return;
+      }
+      macPending = done;
+      window.webkit.messageHandlers.atlasSave.postMessage({ name: name, b64: b64 });
+    }, () => done(false));
   }
 
   function flash(btn, msg, label) {
     btn.textContent = msg; live(msg);
     setTimeout(() => { btn.textContent = label; }, 1800);
   }
+  const flashSave = (btn, label) => (ok) =>
+    flash(btn, ok ? (bridge ? t().savedTo : t().saved) : t().saveFail, label);
 
   $("#btnSvg").onclick = () => {
     try {
-      save(new Blob([exportSVG()], { type: "image/svg+xml" }), fileStem() + ".svg");
-      flash($("#btnSvg"), t().saved, "SVG");
+      save(new Blob([exportSVG()], { type: "image/svg+xml" }), fileStem() + ".svg",
+           flashSave($("#btnSvg"), "SVG"));
     } catch (e) { flash($("#btnSvg"), t().saveFail, "SVG"); }
   };
 
@@ -2881,8 +3077,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       cv.toBlob((b) => {
         URL.revokeObjectURL(url);
         if (!b) { flash(btn, t().saveFail, "PNG"); return; }
-        save(b, fileStem() + ".png");
-        flash(btn, t().saved, "PNG");
+        save(b, fileStem() + ".png", flashSave(btn, "PNG"));
       }, "image/png");
     };
     img.onerror = () => { URL.revokeObjectURL(url); flash(btn, t().saveFail, "PNG"); };
@@ -2918,6 +3113,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     set("#btnReset", t().reset); set("#btnTable", t().table); set("#btnLink", t().link);
     set("#btnModes", t().view); set("#modesTitle", t().view);
     set("#btnShare", t().share); set("#shareTitle", t().share);
+    set("#btnSpeak", t().speakT); set("#speakTitle", t().speakT);
+    $("#spkQ").placeholder = t().spkSearch;
+    $("#spkQ").setAttribute("aria-label", t().spkSearch);
+    $("#spkMode").querySelector('[data-km="share"]').textContent = t().kmShare;
+    $("#spkMode").querySelector('[data-km="home"]').textContent = t().kmHome;
+    renderSpeak();
     set("#mLayT", t().mLayer); set("#mLayD", t().mLayerD);
     set("#mPaiT", t().mPaint); set("#mPaiD", t().mPaintD);
     set("#mDetT", t().mDetail); set("#mDetD", t().mDetailD);
