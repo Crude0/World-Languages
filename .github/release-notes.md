@@ -1,4 +1,30 @@
-<!-- title: The card moves beside the map -->
+<!-- title: The map grows into the empty column -->
+**With nothing selected, the map now grows into the card column.** The column
+sat there as an empty 312px strip whenever it had nothing to show. It now
+starts closed and gives that space to the map: in a 1500px window the map goes
+from 776 to 1110 pixels, 43% wider. Click a place and the column opens again,
+handing the space back — both on the same 0.44s curve.
+
+The column gutter was moved out of the grid and onto the column's own margin
+for this: `gap` stays put even when the third track collapses to zero, which
+left a 22px dead strip to the right of the map. Because the card widens along
+with the column, its text spends the first moments wrapping inside a narrow
+box; the column reaches 94% of its final size in 220ms, so a dimmed opening
+covers exactly that phase. The box the pointer-to-map conversion relies on is
+refreshed during the transition and again when it ends, otherwise clicks would
+land off-target afterwards. With "reduce motion" on there is no transition, the
+size just lands; below 1360px there is no column to begin with, so nothing
+changed there.
+
+**The masthead figures broke into two rows in English.** The fourth figure
+("21 · no majority language") dropped to a second line, its left rule hanging
+in empty space and its number tucked under the label above it. The cause was
+how a flex row decides where to break: it measures each item unwrapped, so the
+long label counted as one unbreakable piece and pushed the band over. Turkish
+labels are short, which is why only English showed it. The band is a grid now —
+the first three columns size to their content, the fourth takes what is left
+and wraps its label inside its own cell. Below 560px it becomes a 2×2 block.
+
 **The selected place's card is no longer below the map — it is beside it.** You
 had to scroll down to see the card of a country you had just clicked. On a wide
 screen a third column now opens and the card lives there. Below 1360px the

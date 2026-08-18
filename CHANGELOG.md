@@ -12,6 +12,31 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 
 ## v0.16.0 — 18 Ağustos 2026
 
+**Ülke seçili değilken harita kart sütununa doğru büyüyor.** Sütun gösterecek
+bir şeyi yokken 312 piksellik boş bir şerit olarak duruyordu. Artık kapalı
+başlıyor ve o yeri haritaya bırakıyor: 1500 piksellik bir pencerede harita
+776'dan 1110 piksele çıkıyor, %43 daha geniş. Bir yere tıklayınca sütun
+açılıp harita yerini geri veriyor; ikisi de aynı 0,44 saniyelik eğride.
+
+Sütun aralığı bu iş için ızgaradan alınıp sütunun kendi kenar boşluğuna
+taşındı: `gap` üçüncü sütun sıfırlansa da yerinde duruyor, yani kapalıyken
+haritanın sağında 22 piksellik ölü bir şerit kalıyordu. Kart sütunla birlikte
+genişlediğinden ilk anlarda metin dar bir kutuda sarılıp duruyor; sütun
+220 ms'de son ölçüsünün %94'üne vardığı için karartılı açılış tam o evreyi
+örtüyor. İmleç–harita koordinat çevriminin dayandığı kutu geçiş boyunca ve
+bittiğinde tazeleniyor, yoksa animasyondan sonra tıklamalar kayardı.
+"Hareketi azalt" açıkken geçiş yok, ölçü anında oturuyor; 1360px altında
+sütun zaten yok, orada hiçbir şey değişmedi.
+
+**Künye bandı İngilizcede ikiye bölünüyordu.** Dördüncü rakam ("21 · no
+majority language") alt satıra düşüyor, sol cetveli boşlukta kalıyor ve sayısı
+bir üstteki etiketin dibine giriyordu. Sebep esnek kutunun satır kırma kuralı:
+satır, her ögenin sarılmamış genişliğine göre hesaplanıyor, bu yüzden uzun
+etiket tek parça sayılıp bandı taşırıyordu — Türkçe etiketler kısa olduğu için
+yalnız İngilizcede görünüyordu. Bant artık ızgara: ilk üç sütun içeriğine
+göre, dördüncüsü kalan yeri alıp etiketini kendi içinde sarıyor. 560px altında
+ikiye ikilik bloğa geçiyor.
+
 **Seçilen yerin kartı artık haritanın altında değil yanında.** Bir ülkeye
 tıklayıp kartını görmek için aşağı inmek gerekiyordu; geniş ekranda üçüncü bir
 sütun açıldı ve kart oraya taşındı. 1360px altında sütun çözülüp kart eski
@@ -44,6 +69,14 @@ söylüyor.
 Bunu düzeltirken ipucunun içinde çevrilmemiş bir Türkçe dizge daha çıktı
 ("· çoğunluk yok"): yalnız çoğunluğu olmayan 21 ülkede göründüğü için önceki
 taramaya yakalanmamıştı.
+
+Yayım denetimi masaüstü paketlerinin içine de bakıyor artık. Sürüm dizgesinin
+ikilide bulunması paketin bu sürümde derlendiğini gösteriyordu ama sayfanın
+güncel olduğunu göstermiyordu: numara `-X main.version` ile, sayfa `go:embed`
+ile giriyor, ikisi birbirinden bağımsız. APK'da sayfa zaten karşılaştırılıyordu,
+masaüstünde karşılığı yoktu — 0.9.0–0.9.2'de eski ikililerin yayımlanmasına yol
+açan boşluğun kalan yarısı buydu. Denetim, bir önceki derlemenin `.exe`'siyle
+sınandı ve onu bayat saydı.
 
 Çapa algoritmasında sorun yoktu, ölçtüm: 177 ülkenin hepsinde çapa kendi
 çokgeninin içinde ve kenara uzaklığın eşdeğer yarıçapa oranı medyanda 0,625

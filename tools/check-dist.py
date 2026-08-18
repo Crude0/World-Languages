@@ -49,6 +49,22 @@ def strip_pwa(html: str) -> str:
     return html
 
 
+def desktop_page() -> bytes:
+    """Masaüstü ikililerinde birebir geçmesi gereken sayfa.
+
+    Sürüm dizgesinin ikilide bulunması paketin bu sürümde derlendiğini
+    gösteriyordu ama sayfanın güncel olduğunu göstermiyordu: `-X main.version`
+    ile gömülen numara, go:embed ile gömülen HTML'den bağımsız. APK'da sayfa
+    zaten karşılaştırılıyordu, masaüstünde karşılığı yoktu.
+
+    go:embed dosyayı sıkıştırmadan koyuyor, yani ikilinin içinde bayt bayt
+    aranabiliyor. Karşılaştırma kaynağı depoda izlenen docs/index.html;
+    pwa.py'nin oraya eklediği yama geri alınınca desktop/app.html ile aynı
+    oluyor, dolayısıyla CI'da yeniden derlemeye gerek kalmıyor.
+    """
+    return strip_pwa((HERE / "docs" / "index.html").read_text(encoding="utf-8")).encode("utf-8")
+
+
 def check_mac() -> None:
     print(f"{MAC.name}:")
     if not MAC.exists():
@@ -65,7 +81,10 @@ def check_mac() -> None:
     blob = z.read(exe[0])
     if VERSION.encode() not in blob:
         bad(f"ikilide {VERSION} dizgesi yok (-X main.version geçmemiş)")
-    print(f"  ikili: {len(blob)} bayt")
+    page = desktop_page()
+    print(f"  ikili: {len(blob)} bayt · gömülü sayfa {'güncel' if page in blob else 'BAYAT'}")
+    if page not in blob:
+        bad("ikilideki sayfa docs/index.html ile aynı değil — paket bayat")
 
 
 def check_exe() -> None:
@@ -75,7 +94,10 @@ def check_exe() -> None:
     blob = EXE.read_bytes()
     if VERSION.encode() not in blob:
         bad(f"ikilide {VERSION} dizgesi yok")
-    print(f"  {len(blob)} bayt")
+    page = desktop_page()
+    print(f"  {len(blob)} bayt · gömülü sayfa {'güncel' if page in blob else 'BAYAT'}")
+    if page not in blob:
+        bad("ikilideki sayfa docs/index.html ile aynı değil — paket bayat")
 
 
 def check_apk() -> None:
