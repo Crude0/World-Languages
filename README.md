@@ -300,28 +300,29 @@ lang_mix / diaspora / population / subdiv ────────────�
                                                     mobile.tmpl.html ◄────────────┘
 ```
 
-On its first run `build_subs.py` downloads Natural Earth's 40 MB subdivision
+On its first run `src/build_subs.py` downloads Natural Earth's 40 MB subdivision
 file (not kept in the repository).
 
 ### Layout
 
 ```
-build_map.py        country borders → projected SVG paths
-build_subs.py       state/province borders; topology-preserving simplification
-build_data.py       joins every layer, computes speaker counts
-build_page.py       desktop page (single file, fonts embedded)
-build_mobile.py     phone interface (system fonts)
-pwa.py              manifest, service worker and icon wiring for docs/
-anchor.py           label anchors (pole of inaccessibility)
+src/                every build script, data table and template
+  build_map.py      country borders → projected SVG paths
+  build_subs.py     state/province borders; topology-preserving simplification
+  build_data.py     joins every layer, computes speaker counts
+  build_page.py     desktop page (single file, fonts embedded)
+  build_mobile.py   phone interface (system fonts)
+  pwa.py            manifest, service worker and icon wiring for docs/
+  anchor.py         label anchors (pole of inaccessibility)
+  page.tmpl.html    desktop interface
+  mobile.tmpl.html  phone interface
+  layers.py         writing systems and official languages (the two extra layers)
+  lang_mix.py       language distribution per country
+  diaspora.py       migrant and minority communities (down to 0.05%)
+  population.py     country populations
+  subdiv.py         state/province distributions and populations
+  i18n.py           English language names, family labels, country notes
 VERSION             single source for the version in every package
-page.tmpl.html      desktop interface
-mobile.tmpl.html    phone interface
-layers.py           writing systems and official languages (the two extra layers)
-lang_mix.py         language distribution per country
-diaspora.py         migrant and minority communities (down to 0.05%)
-population.py       country populations
-subdiv.py           state/province distributions and populations
-i18n.py             English language names, family labels, country notes
 desktop/            Go launcher + packaging (WKWebView / WebView2)
 android/            WebView shell + APK build script
 tools/              Playwright verification scripts

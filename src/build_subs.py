@@ -15,11 +15,15 @@ import urllib.request
 from anchor import label_anchor
 from collections import defaultdict
 from build_map import rdp, ring_area, to_svg, W, H   # aynı projeksiyon
+import pathlib
+# Kaynaklar src/ altında, üretilen ara dosyalar ve çıktılar depo kökünde.
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parent
 
-SRC = "ne_admin1_10m.json"
+SRC = ROOT / "ne_admin1_10m.json"
 URL = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/"
        "geojson/ne_10m_admin_1_states_provinces.geojson")
-OUT = "sub_paths.json"
+OUT = ROOT / "sub_paths.json"
 Q = 0.05              # ızgara: ortak noktaların birebir çakışması için
 TOL = 0.22            # yay başına RDP toleransı (svg birimi)
 MIN_AREA = 0.6

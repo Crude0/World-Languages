@@ -299,28 +299,29 @@ lang_mix / diaspora / population / subdiv ────────────�
                                                     mobile.tmpl.html ◄────────────┘
 ```
 
-`build_subs.py` ilk çalıştırmada Natural Earth'ün 40 MB'lık alt bölge dosyasını
+`src/build_subs.py` ilk çalıştırmada Natural Earth'ün 40 MB'lık alt bölge dosyasını
 indirir (depoda tutulmuyor).
 
 ### Dosya düzeni
 
 ```
-build_map.py        ülke sınırları → projeksiyonlu SVG yolları
-build_subs.py       eyalet/il sınırları; topoloji koruyan sadeleştirme
-build_data.py       tüm katmanları birleştirir, konuşan sayılarını hesaplar
-build_page.py       masaüstü sayfası (gömülü fontlarla tek dosya)
-build_mobile.py     telefon arayüzü (sistem fontları)
-pwa.py              docs/ için manifest, hizmet çalışanı ve ikon bağlama
-anchor.py           etiket çapaları (erişilmezlik kutbu)
+src/                bütün derleme betikleri, veri tabloları ve şablonlar
+  build_map.py      ülke sınırları → projeksiyonlu SVG yolları
+  build_subs.py     eyalet/il sınırları; topoloji koruyan sadeleştirme
+  build_data.py     tüm katmanları birleştirir, konuşan sayılarını hesaplar
+  build_page.py     masaüstü sayfası (gömülü fontlarla tek dosya)
+  build_mobile.py   telefon arayüzü (sistem fontları)
+  pwa.py            docs/ için manifest, hizmet çalışanı ve ikon bağlama
+  anchor.py         etiket çapaları (erişilmezlik kutbu)
+  page.tmpl.html    masaüstü arayüzü
+  mobile.tmpl.html  telefon arayüzü
+  layers.py         yazı sistemleri ve resmî diller (iki ek katman)
+  lang_mix.py       ülke başına dil dağılımı
+  diaspora.py       göçmen ve azınlık toplulukları (%0,05'e kadar)
+  population.py     ülke nüfusları
+  subdiv.py         eyalet/il dağılımları ve nüfusları
+  i18n.py           İngilizce dil adları, aile etiketleri, ülke notları
 VERSION             paketlerdeki sürüm numarasının tek kaynağı
-page.tmpl.html      masaüstü arayüzü
-mobile.tmpl.html    telefon arayüzü
-layers.py           yazı sistemleri ve resmî diller (iki ek katman)
-lang_mix.py         ülke başına dil dağılımı
-diaspora.py         göçmen ve azınlık toplulukları (%0,05'e kadar)
-population.py       ülke nüfusları
-subdiv.py           eyalet/il dil dağılımları ve nüfusları
-i18n.py             İngilizce dil adları, aile etiketleri, ülke notları
 desktop/            Go başlatıcı + paketleme (WKWebView / WebView2)
 android/            WebView kabuğu + APK derleme betiği
 tools/              Playwright doğrulama betikleri

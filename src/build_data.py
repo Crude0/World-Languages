@@ -8,6 +8,10 @@ from diaspora import DIASPORA
 from layers import (SCRIPTS, SCRIPT_GROUPS, SCRIPT_FIX, SCRIPT2,
                     OFFICIAL_ONLY, OFFICIAL, DE_FACTO, OFF_NOTE)
 import i18n
+import pathlib
+# Kaynaklar src/ altında, üretilen ara dosyalar ve çıktılar depo kökünde.
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parent
 
 # ---------------------------------------------------------------- diller
 # slug: (Türkçe ad, kendi dilindeki ad, kol/aile etiketi, renk grubu)
@@ -598,7 +602,7 @@ C = {
 }
 
 # ---------------------------------------------------------------- birleştir
-mp = json.load(open("map_paths.json"))
+mp = json.load(open(ROOT / "map_paths.json"))
 feat = mp["f"]
 
 missing = sorted(set(feat) - set(C))
@@ -797,7 +801,7 @@ subs = {}
 inner = {}
 outer = {}
 try:
-    _sub = json.load(open("sub_paths.json"))
+    _sub = json.load(open(ROOT / "sub_paths.json"))
     sp = _sub["s"]
     inner = _sub.get("inner", {})      # ülke içi il sınırları (ayrı katman)
     outer = _sub.get("outer", {})      # bölgelerden türeyen ülke dış çeperi
@@ -844,7 +848,7 @@ if sp:
 import collections as _co
 
 def tone_index(countries, langs):
-    topo = json.load(open("countries-50m.json"))
+    topo = json.load(open(HERE / "countries-50m.json"))
     arcs_of = {}
     for g in topo["objects"]["countries"]["geometries"]:
         cid = g.get("id")
@@ -918,7 +922,7 @@ out = {"w": mp["w"], "h": mp["h"], "grat": mp["grat"], "eq": mp["eq"], "frame": 
                        "ne": i18n.SGROUP_EN[k][0], "de": i18n.SGROUP_EN[k][1]}
                    for k, v in SCRIPT_GROUPS.items()},
        "tx": i18n.name_map({v[0]: i18n.LANG_EN.get(k, v[0]) for k, v in L.items()})}
-json.dump(out, open("data.json", "w"), separators=(",", ":"), ensure_ascii=False)
+json.dump(out, open(ROOT / "data.json", "w"), separators=(",", ":"), ensure_ascii=False)
 
 print(f"  ton basamağı: en çok {_worst} · boyanan dil {len(_tones)}")
 print(f"ülke/bölge: {len(countries)}  dil: {len(langs)}  "

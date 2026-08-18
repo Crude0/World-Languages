@@ -10,14 +10,14 @@ olarak okunmalı, ondalık hassasiyetle değil.
 
 | Katman | Dosya | Kapsam | Ne anlatır |
 |---|---|---|---|
-| Çoğunluk dili | `build_data.py` içindeki `C` | 234/234 | Ülkede nüfusun en büyük bölümünün günlük hayatta konuştuğu dil |
-| Evde konuşulan diller | `lang_mix.py` (`MIX`) | 234/234 | Ana dil paylarının dağılımı |
-| Göçmen/azınlık kuyruğu | `diaspora.py` | 56 ülke, 440 satır | %1'in altında kalan topluluklar, %0,05'e kadar |
-| İkinci dil | `lang_mix.py` (`L2`) | 189/234 | Ana dili olmadığı hâlde sohbet edecek düzeyde konuşulan diller |
-| Nüfus | `population.py` | 234/234 | BM 2024 tahmini, bin kişi |
-| Eyalet / il | `subdiv.py` | 507 bölge, 18 ülke | Bölge bazında dil dağılımı ve nüfus |
-| Yazı sistemi | `layers.py` (`SCRIPT_FIX`, `SCRIPT2`) | 155/155 dil | Dilin hangi alfabeyle yazıldığı; iki yazılı dillerde ikincisi |
-| Resmî dil | `layers.py` (`OFFICIAL`, `DE_FACTO`) | 234/234 | Devletin hukuken resmî dilleri; ilan edilmemişse fiilî olan |
+| Çoğunluk dili | `src/build_data.py` içindeki `C` | 234/234 | Ülkede nüfusun en büyük bölümünün günlük hayatta konuştuğu dil |
+| Evde konuşulan diller | `src/lang_mix.py` (`MIX`) | 234/234 | Ana dil paylarının dağılımı |
+| Göçmen/azınlık kuyruğu | `src/diaspora.py` | 56 ülke, 440 satır | %1'in altında kalan topluluklar, %0,05'e kadar |
+| İkinci dil | `src/lang_mix.py` (`L2`) | 189/234 | Ana dili olmadığı hâlde sohbet edecek düzeyde konuşulan diller |
+| Nüfus | `src/population.py` | 234/234 | BM 2024 tahmini, bin kişi |
+| Eyalet / il | `src/subdiv.py` | 507 bölge, 18 ülke | Bölge bazında dil dağılımı ve nüfus |
+| Yazı sistemi | `src/layers.py` (`SCRIPT_FIX`, `SCRIPT2`) | 155/155 dil | Dilin hangi alfabeyle yazıldığı; iki yazılı dillerde ikincisi |
+| Resmî dil | `src/layers.py` (`OFFICIAL`, `DE_FACTO`) | 234/234 | Devletin hukuken resmî dilleri; ilan edilmemişse fiilî olan |
 
 ## Kaynaklar
 
@@ -37,8 +37,8 @@ yuvarlandı.
 **İkinci dil** — Avrupa'da Eurobarometre 386 (2012), "bir sohbeti sürdürecek
 düzeyde" ölçütü. Diğer bölgelerde ulusal sayım ve tahminler.
 
-**Eşleşmeyen dil adları.** Dağılım tabloları (`lang_mix.py`, `subdiv.py`,
-`diaspora.py`) dil adlarını metin olarak taşıyor; bir ad `build_data.py`
+**Eşleşmeyen dil adları.** Dağılım tabloları (`src/lang_mix.py`, `src/subdiv.py`,
+`src/diaspora.py`) dil adlarını metin olarak taşıyor; bir ad `src/build_data.py`
 içindeki dil tablosunda karşılık bulamazsa o satır düşer. 0.8.0'a kadar
 düşen satırların toplamı 0,94 milyar kişiydi. İki milyondan çok konuşanı
 olan 63 dilin hepsi eklendi ve aynı dilin farklı yazımları için bir takma
@@ -109,7 +109,7 @@ düzeyindeki Kürtçe, Zazaca ve Arapça payları anket temelli (KONDA benzeri)
 
 **Diaspora kapsamı eşitsiz.** Göçmen topluluk kuyruğu başlıca göç alan 56 ülke
 için doldurulmuştur; her ülkedeki her küçük topluluk listelenmiş değildir.
-Eksik gördüğünüz bir topluluk varsa `diaspora.py` içine eklenebilir.
+Eksik gördüğünüz bir topluluk varsa `src/diaspora.py` içine eklenebilir.
 
 **Şehir düzeyi veri yok.** Belediye bazında dil istatistiği çoğu ülkede
 yayımlanmaz. İsveç örneğin belediye başına *doğum ülkesi* yayımlar, konuşulan
@@ -138,11 +138,11 @@ yazılıdır.
 Bir rakamın yanlış olduğunu düşünüyorsanız, kaynağıyla birlikte bir issue açın.
 Veri dosyaları düz Python sözlükleridir, düzenlemesi kolaydır:
 
-- `lang_mix.py` — ülke başına ana dil ve ikinci dil dağılımı
-- `diaspora.py` — küçük topluluklar
-- `population.py` — nüfuslar
-- `subdiv.py` — eyalet/il dağılımları
-- `build_data.py` içindeki `L` ve `C` — dil listesi ve ülke başına çoğunluk dili
+- `src/lang_mix.py` — ülke başına ana dil ve ikinci dil dağılımı
+- `src/diaspora.py` — küçük topluluklar
+- `src/population.py` — nüfuslar
+- `src/subdiv.py` — eyalet/il dağılımları
+- `src/build_data.py` içindeki `L` ve `C` — dil listesi ve ülke başına çoğunluk dili
 
-Değişiklikten sonra `make` yeterlidir; `build_data.py` tanımsız ülke veya dil
+Değişiklikten sonra `make` yeterlidir; `src/build_data.py` tanımsız ülke veya dil
 bulursa hata verip durur.

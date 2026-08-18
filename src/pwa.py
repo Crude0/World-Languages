@@ -12,10 +12,13 @@ her derlemede yeniden yapılmıyor; palet değişirse elle yenilenmeleri gerekir
 import json
 import pathlib
 import re
+import pathlib
+# Kaynaklar src/ altında, üretilen ara dosyalar ve çıktılar depo kökünde.
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parent
 
-HERE = pathlib.Path(__file__).parent
-DOCS = HERE / "docs"
-VERSION = (HERE / "VERSION").read_text().strip()
+DOCS = ROOT / "docs"
+VERSION = (ROOT / "VERSION").read_text().strip()
 
 BASE_ICONS = [
     {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},

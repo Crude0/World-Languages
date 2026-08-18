@@ -14,7 +14,7 @@ rm -rf "$OUT"
 mkdir -p "$OUT/res" "$OUT/gen" "$OUT/classes" "$OUT/dex"
 
 echo "· telefon arayüzü üretiliyor"
-python3 "$HERE/../build_mobile.py" >/dev/null
+python3 "$HERE/../src/build_mobile.py" >/dev/null
 
 echo "· kaynaklar derleniyor (aapt2 compile)"
 "$BT/aapt2" compile --dir "$HERE/res" -o "$OUT/res.zip"

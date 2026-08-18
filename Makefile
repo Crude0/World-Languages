@@ -10,18 +10,18 @@ all: web
 
 ## veri: sınırlar + dil katmanları -> data.json
 data:
-	$(PY) build_map.py
-	$(PY) build_subs.py
-	$(PY) build_data.py
+	$(PY) src/build_map.py
+	$(PY) src/build_subs.py
+	$(PY) src/build_data.py
 
 ## web: tek dosyalık sayfa (docs/index.html ve docs/mobile.html)
 web: data
-	$(PY) build_page.py
-	$(PY) build_mobile.py
+	$(PY) src/build_page.py
+	$(PY) src/build_mobile.py
 	@mkdir -p docs
 	@cp preview.html docs/index.html
 	@cp mobile-preview.html docs/mobile.html
-	$(PY) pwa.py
+	$(PY) src/pwa.py
 	@echo "hazır: docs/index.html"
 
 ## desktop: macOS .app + .dmg, Windows .exe  (Go 1.21+ gerekir)

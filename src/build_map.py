@@ -3,9 +3,13 @@
 import json
 import math, sys
 from anchor import label_anchor
+import pathlib
+# Kaynaklar src/ altında, üretilen ara dosyalar ve çıktılar depo kökünde.
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parent
 
-SRC = "countries-50m.json"
-OUT = "map_paths.json"
+SRC = HERE / "countries-50m.json"
+OUT = ROOT / "map_paths.json"
 
 W = 1400.0          # target width in svg units
 LAT_MIN = -58.0     # drop Antarctica

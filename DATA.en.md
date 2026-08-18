@@ -10,14 +10,14 @@ of magnitude, not to the decimal.
 
 | Layer | File | Coverage | What it says |
 |---|---|---|---|
-| Majority language | `C` in `build_data.py` | 234/234 | The language the largest part of the population uses in daily life |
-| Home languages | `lang_mix.py` (`MIX`) | 234/234 | Distribution of native-language shares |
-| Migrant/minority tail | `diaspora.py` | 56 countries, 440 rows | Communities below 1%, down to 0.05% |
-| Second language | `lang_mix.py` (`L2`) | 189/234 | Languages spoken well enough to hold a conversation without being native |
-| Population | `population.py` | 234/234 | UN 2024 estimate, thousands |
-| State / province | `subdiv.py` | 507 regions, 18 countries | Language distribution and population per region |
-| Writing system | `layers.py` (`SCRIPT_FIX`, `SCRIPT2`) | 155/155 languages | Which alphabet the language is written in; the second one where two are in use |
-| Official language | `layers.py` (`OFFICIAL`, `DE_FACTO`) | 234/234 | The state's official languages in law; the de facto one where none is declared |
+| Majority language | `C` in `src/build_data.py` | 234/234 | The language the largest part of the population uses in daily life |
+| Home languages | `src/lang_mix.py` (`MIX`) | 234/234 | Distribution of native-language shares |
+| Migrant/minority tail | `src/diaspora.py` | 56 countries, 440 rows | Communities below 1%, down to 0.05% |
+| Second language | `src/lang_mix.py` (`L2`) | 189/234 | Languages spoken well enough to hold a conversation without being native |
+| Population | `src/population.py` | 234/234 | UN 2024 estimate, thousands |
+| State / province | `src/subdiv.py` | 507 regions, 18 countries | Language distribution and population per region |
+| Writing system | `src/layers.py` (`SCRIPT_FIX`, `SCRIPT2`) | 155/155 languages | Which alphabet the language is written in; the second one where two are in use |
+| Official language | `src/layers.py` (`OFFICIAL`, `DE_FACTO`) | 234/234 | The state's official languages in law; the de facto one where none is declared |
 
 ## Sources
 
@@ -37,9 +37,9 @@ official language policy.
 **Second language** — Eurobarometer 386 (2012) in Europe, on the "able to hold a
 conversation" criterion. National censuses and estimates elsewhere.
 
-**Unmatched language names.** The distribution tables (`lang_mix.py`,
-`subdiv.py`, `diaspora.py`) carry language names as text; a name that finds no
-entry in the language table in `build_data.py` is dropped along with its row.
+**Unmatched language names.** The distribution tables (`src/lang_mix.py`,
+`src/subdiv.py`, `src/diaspora.py`) carry language names as text; a name that finds no
+entry in the language table in `src/build_data.py` is dropped along with its row.
 Up to 0.8.0 the dropped rows added up to 0.94 billion people. Every language
 with more than two million speakers — 63 of them — has now been added, and an
 alias table (`ALIAS`) maps the spellings that referred to the same language.
@@ -118,7 +118,7 @@ approximations derived from survey-based studies (of the KONDA kind).
 
 **Diaspora coverage is uneven.** The migrant-community tail has been filled in
 for the 56 main destination countries; not every small community in every country
-is listed. If one you know is missing it can be added to `diaspora.py`.
+is listed. If one you know is missing it can be added to `src/diaspora.py`.
 
 **No city-level data.** Language statistics per municipality are not published in
 most countries. Sweden, for example, publishes *country of birth* per
@@ -148,12 +148,12 @@ exact family of every language is shown in its own row and tooltip.
 If you think a number is wrong, open an issue with the source. The data files are
 plain Python dictionaries and are easy to edit:
 
-- `lang_mix.py` — native and second-language distribution per country
-- `diaspora.py` — small communities
-- `population.py` — populations
-- `subdiv.py` — state/province distributions
-- `L` and `C` in `build_data.py` — the language list and the majority language
+- `src/lang_mix.py` — native and second-language distribution per country
+- `src/diaspora.py` — small communities
+- `src/population.py` — populations
+- `src/subdiv.py` — state/province distributions
+- `L` and `C` in `src/build_data.py` — the language list and the majority language
   per country
 
-After a change, `make` is enough; `build_data.py` stops with an error if it finds
+After a change, `make` is enough; `src/build_data.py` stops with an error if it finds
 an undefined country or language.
