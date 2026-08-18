@@ -834,6 +834,78 @@ if sp:
         if hits and slug in langs:
             langs[slug]["sub"] = sorted(hits, key=lambda r: -r[1])
 
+# --- ton basamakları ---------------------------------------------------------
+# Aynı aile aynı renk demek, ama aynı renk aynı dil değil: bugün Brezilya ile
+# Arjantin ayırt edilemiyor. Aile rengi korunup her dile bir açıklık basamağı
+# veriliyor. Kaç basamak gerektiği ülke komşuluk grafiği aile içinde boyanarak
+# bulunuyor: kara sınırı olan iki ülke aynı ailede asla aynı basamağa düşmüyor.
+# Dokuz ailenin hiçbirinde dörtten fazlası gerekmiyor (en kalabalığı 26 dilli
+# "Hint-Avrupa diğer" ve o da 4).
+import collections as _co
+
+def tone_index(countries, langs):
+    topo = json.load(open("countries-50m.json"))
+    arcs_of = {}
+    for g in topo["objects"]["countries"]["geometries"]:
+        cid = g.get("id")
+        if not cid:
+            continue
+        st = arcs_of.setdefault(str(cid).zfill(3), set())
+        polys = g["arcs"] if g["type"] == "MultiPolygon" else [g["arcs"]]
+        for poly in polys:
+            for ring in poly:
+                for i in ring:
+                    st.add(i if i >= 0 else ~i)
+    owner = _co.defaultdict(set)
+    for cid, st in arcs_of.items():
+        for a in st:
+            owner[a].add(cid)
+    nb = _co.defaultdict(set)
+    for cs in owner.values():
+        if len(cs) >= 2:                      # paylaşılan yay = kara sınırı
+            for x in cs:
+                nb[x] |= (cs - {x})
+    lang_of = {cid: c["l"] for cid, c in countries.items() if c.get("l") in langs}
+    fam = {sl: langs[sl]["g"] for sl in langs}
+    edges = _co.defaultdict(set)
+    for a, ns in nb.items():
+        la = lang_of.get(a)
+        if not la:
+            continue
+        for b in ns:
+            lb = lang_of.get(b)
+            if lb and lb != la and fam[la] == fam[lb]:
+                edges[la].add(lb)
+                edges[lb].add(la)
+    cnt = _co.Counter(lang_of.values())
+    byfam = _co.defaultdict(list)
+    for sl in langs:
+        byfam[fam[sl]].append(sl)
+    tones, worst = {}, 0
+    for ls in byfam.values():
+        order = sorted(ls, key=lambda x: (-cnt[x], -len(edges[x]), x))
+        # Ailenin en çok ülkeye yayılan dört diline sabit ve ayrı basamak:
+        # böylece İspanyolca, Fransızca, Portekizce ve İtalyanca dünyanın her
+        # yerinde birbirinden ayrı okunuyor. Salt komşuluk boyaması bunu
+        # garanti etmiyordu — İtalyanca ile İspanyolca komşu olmadığı için
+        # aynı basamağa düşebiliyordu.
+        for i, sl in enumerate(order[:4]):
+            tones[sl] = i
+        # Kalanlar komşuluk kısıtına göre: aynı ailede kara sınırı olan iki
+        # ülke asla aynı basamağa düşmesin.
+        for sl in order[4:]:
+            taken = {tones[n] for n in edges[sl] if n in tones}
+            k = 0
+            while k in taken:
+                k += 1
+            tones[sl] = k
+        worst = max(worst, max(tones[sl] for sl in ls) + 1)
+    return tones, worst
+
+_tones, _worst = tone_index(countries, langs)
+for _sl, _k in _tones.items():
+    langs[_sl]["ti"] = _k
+
 out = {"w": mp["w"], "h": mp["h"], "grat": mp["grat"], "eq": mp["eq"], "frame": mp["frame"],
        "countries": countries, "langs": langs, "subs": subs,
        "inner": inner, "outer": outer,
@@ -848,6 +920,7 @@ out = {"w": mp["w"], "h": mp["h"], "grat": mp["grat"], "eq": mp["eq"], "frame": 
        "tx": i18n.name_map({v[0]: i18n.LANG_EN.get(k, v[0]) for k, v in L.items()})}
 json.dump(out, open("data.json", "w"), separators=(",", ":"), ensure_ascii=False)
 
+print(f"  ton basamağı: en çok {_worst} · boyanan dil {len(_tones)}")
 print(f"ülke/bölge: {len(countries)}  dil: {len(langs)}  "
       f"boyut: {len(json.dumps(out, ensure_ascii=False))/1024:.0f} KB")
 cnt = Counter(L[c[1]][3] for c in C.values())

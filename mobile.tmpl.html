@@ -25,6 +25,15 @@
   --g-rom: #ea231a; --g-ger: #0080ea; --g-ine: #7529ce; --g-trk: #d88c04;
   --g-afa: #06830f; --g-nkg: #15bb77; --g-asi: #a40062; --g-aus: #db3bb6;
   --g-oth: #8d949e;
+  --t-rom-0: #ff7c6b; --t-rom-1: #f54435; --t-rom-2: #d60000; --t-rom-3: #a40000;
+  --t-ger-0: #65adff; --t-ger-1: #2e8ff3; --t-ger-2: #0071d1; --t-ger-3: #0055a0;
+  --t-ine-0: #9963ef; --t-ine-1: #8041d7; --t-ine-2: #670dbd; --t-ine-3: #480089;
+  --t-trk-0: #ffba61; --t-trk-1: #e49c36; --t-trk-2: #c47e00; --t-trk-3: #9d6400;
+  --t-afa-0: #53ab50; --t-afa-1: #2d902c; --t-afa-2: #007205; --t-afa-3: #005201;
+  --t-nkg-0: #6ee4a6; --t-nkg-1: #42c887; --t-nkg-2: #00aa6a; --t-nkg-3: #008753;
+  --t-asi-0: #cb4d89; --t-asi-1: #b0286e; --t-asi-2: #8d0053; --t-asi-3: #610037;
+  --t-aus-0: #ff7bdb; --t-aus-1: #e753c2; --t-aus-2: #c926a6; --t-aus-3: #a20084;
+  --t-oth-0: #b7bec7; --t-oth-1: #9ba2ab; --t-oth-2: #7e858f; --t-oth-3: #616871;
   --tabh: 50px;              /* sekme çubuğu; açılışta ölçülüp yazılıyor */
 }
 @media (prefers-color-scheme: dark) {
@@ -48,6 +57,15 @@
     --g-rom: #db0002; --g-ger: #119efd; --g-ine: #6354f5; --g-trk: #c7810a;
     --g-afa: #81c90d; --g-nkg: #009a73; --g-asi: #ff4b9d; --g-aus: #b529b8;
     --g-oth: #99a1ac;
+    --t-rom-0: #ff6150; --t-rom-1: #e63328; --t-rom-2: #c20000; --t-rom-3: #900000;
+    --t-ger-0: #8ec9ff; --t-ger-1: #4aadff; --t-ger-2: #008ee7; --t-ger-3: #0070b8;
+    --t-ine-0: #8b8eff; --t-ine-1: #6f67fd; --t-ine-2: #5742e3; --t-ine-3: #4113c3;
+    --t-trk-0: #eeae5d; --t-trk-1: #d39034; --t-trk-2: #b47300; --t-trk-3: #8d5900;
+    --t-afa-0: #b2f46c; --t-afa-1: #92d73f; --t-afa-2: #74b800; --t-afa-3: #5e9600;
+    --t-nkg-0: #5dc29e; --t-nkg-1: #33a781; --t-nkg-2: #008966; --t-nkg-3: #00684c;
+    --t-asi-0: #ffa8c6; --t-asi-1: #ff70ab; --t-asi-2: #ed378e; --t-asi-3: #c70070;
+    --t-aus-0: #dc67dd; --t-aus-1: #c143c3; --t-aus-2: #a40ca8; --t-aus-3: #7b007e;
+    --t-oth-0: #c4ccd6; --t-oth-1: #a7afb9; --t-oth-2: #8a929c; --t-oth-3: #6c747f;
   }
 }
 :root[data-theme="dark"] {
@@ -70,6 +88,15 @@
   --g-rom: #db0002; --g-ger: #119efd; --g-ine: #6354f5; --g-trk: #c7810a;
   --g-afa: #81c90d; --g-nkg: #009a73; --g-asi: #ff4b9d; --g-aus: #b529b8;
   --g-oth: #99a1ac;
+  --t-rom-0: #ff6150; --t-rom-1: #e63328; --t-rom-2: #c20000; --t-rom-3: #900000;
+  --t-ger-0: #8ec9ff; --t-ger-1: #4aadff; --t-ger-2: #008ee7; --t-ger-3: #0070b8;
+  --t-ine-0: #8b8eff; --t-ine-1: #6f67fd; --t-ine-2: #5742e3; --t-ine-3: #4113c3;
+  --t-trk-0: #eeae5d; --t-trk-1: #d39034; --t-trk-2: #b47300; --t-trk-3: #8d5900;
+  --t-afa-0: #b2f46c; --t-afa-1: #92d73f; --t-afa-2: #74b800; --t-afa-3: #5e9600;
+  --t-nkg-0: #5dc29e; --t-nkg-1: #33a781; --t-nkg-2: #008966; --t-nkg-3: #00684c;
+  --t-asi-0: #ffa8c6; --t-asi-1: #ff70ab; --t-asi-2: #ed378e; --t-asi-3: #c70070;
+  --t-aus-0: #dc67dd; --t-aus-1: #c143c3; --t-aus-2: #a40ca8; --t-aus-3: #7b007e;
+  --t-oth-0: #c4ccd6; --t-oth-1: #a7afb9; --t-oth-2: #8a929c; --t-oth-3: #6c747f;
 }
 
 * { -webkit-tap-highlight-color: transparent; }
@@ -133,6 +160,23 @@ body.zoomed .orn { opacity: 0; }
 .g-afa { fill: var(--g-afa); } .g-nkg { fill: var(--g-nkg); } .g-aus { fill: var(--g-aus); }
 .g-trk { fill: var(--g-trk); } .g-asi { fill: var(--g-asi); }
 .g-oth { fill: url(#hatch); }
+/* Ton basamakları: aile rengi aynı, dil başına açıklık farklı. Ayarlardan
+   açılıyor; varsayılan kapalı. Kurallar tek bir .tone-on sınıfına bağlı, o
+   yüzden açıp kapamak haritayı yeniden çizdirmiyor — sınıf değişiyor, o kadar.
+   Basamak dili izliyor, ülkeyi değil — İspanyolca 20 ülkede de aynı ton.
+   Kaç basamak gerektiği ülke komşuluk grafiğinin aile içinde boyanmasıyla
+   bulundu; dokuz ailenin hiçbirinde dörtten fazlası gerekmiyor. Kreol ve
+   resmî-uyuşmazlık desenleri aşağıda ve aynı özgüllükte, onlar kazanmaya
+   devam ediyor. */
+.tone-on .g-rom.t0 { fill: var(--t-rom-0); } .tone-on .g-rom.t1 { fill: var(--t-rom-1); } .tone-on .g-rom.t2 { fill: var(--t-rom-2); } .tone-on .g-rom.t3 { fill: var(--t-rom-3); }
+.tone-on .g-ger.t0 { fill: var(--t-ger-0); } .tone-on .g-ger.t1 { fill: var(--t-ger-1); } .tone-on .g-ger.t2 { fill: var(--t-ger-2); } .tone-on .g-ger.t3 { fill: var(--t-ger-3); }
+.tone-on .g-ine.t0 { fill: var(--t-ine-0); } .tone-on .g-ine.t1 { fill: var(--t-ine-1); } .tone-on .g-ine.t2 { fill: var(--t-ine-2); } .tone-on .g-ine.t3 { fill: var(--t-ine-3); }
+.tone-on .g-trk.t0 { fill: var(--t-trk-0); } .tone-on .g-trk.t1 { fill: var(--t-trk-1); } .tone-on .g-trk.t2 { fill: var(--t-trk-2); } .tone-on .g-trk.t3 { fill: var(--t-trk-3); }
+.tone-on .g-afa.t0 { fill: var(--t-afa-0); } .tone-on .g-afa.t1 { fill: var(--t-afa-1); } .tone-on .g-afa.t2 { fill: var(--t-afa-2); } .tone-on .g-afa.t3 { fill: var(--t-afa-3); }
+.tone-on .g-nkg.t0 { fill: var(--t-nkg-0); } .tone-on .g-nkg.t1 { fill: var(--t-nkg-1); } .tone-on .g-nkg.t2 { fill: var(--t-nkg-2); } .tone-on .g-nkg.t3 { fill: var(--t-nkg-3); }
+.tone-on .g-asi.t0 { fill: var(--t-asi-0); } .tone-on .g-asi.t1 { fill: var(--t-asi-1); } .tone-on .g-asi.t2 { fill: var(--t-asi-2); } .tone-on .g-asi.t3 { fill: var(--t-asi-3); }
+.tone-on .g-aus.t0 { fill: var(--t-aus-0); } .tone-on .g-aus.t1 { fill: var(--t-aus-1); } .tone-on .g-aus.t2 { fill: var(--t-aus-2); } .tone-on .g-aus.t3 { fill: var(--t-aus-3); }
+.tone-on .g-oth.t0 { fill: var(--t-oth-0); } .tone-on .g-oth.t1 { fill: var(--t-oth-1); } .tone-on .g-oth.t2 { fill: var(--t-oth-2); } .tone-on .g-oth.t3 { fill: var(--t-oth-3); }
 /* Kreoller kendi rengini almaz: kaynak dilin renginin taramalı hâliyle çizilir. */
 .crl.g-rom { fill: url(#hx-rom); } .crl.g-ger { fill: url(#hx-ger); }
 .crl.g-ine { fill: url(#hx-ine); } .crl.g-afa { fill: url(#hx-afa); }
@@ -646,6 +690,9 @@ body.zoomed .orn { opacity: 0; }
   function gcls(o, cid) {
     let s = "g-" + colOf(o, cid);
     const lex = state.layer === "off" ? offOf(cid) : (state.layer === "scr" ? null : o.l);
+    // Ton basamağı dili izliyor: aynı dil her ülkede aynı ton. Yazı
+    // katmanında renk bir dile değil yazı sistemine ait, orada ton yok.
+    if (lex && LG[lex] && LG[lex].ti !== undefined) s += " t" + LG[lex].ti;
     if (LG[lex] && LG[lex].x) s += " crl";
     if (state.layer === "off" && C[cid] && C[cid].om) s += " mism";
     return s;
@@ -740,6 +787,8 @@ body.zoomed .orn { opacity: 0; }
       lblMap: "Dünya dil haritası", lblClear: "Süzgeci kaldır", lblIn: "Yakınlaş",
       lblOut: "Uzaklaş", lblFit: "En geniş görünüm", lblClearQ: "Temizle",
       lblTabs: "Bölümler", lblMode: "Okuma biçimi", lblSort: "Sıralama",
+      mTone: "Ton", toneOff: "Kapalı", toneOn: "Açık",
+      toneNote: "Açıkken aynı ailedeki diller farklı açıklıkta çizilir: Brezilya ile Arjantin ayırt edilir. Aile rengi değişmez.",
       speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
       mapHint: "Haritada bir ülkeye dokunun; ayrıntısı burada açılır.",
       kReach: "anlaşabildiğiniz pay", kReachPpl: "anlaşabildiğiniz kişi",
@@ -802,6 +851,8 @@ body.zoomed .orn { opacity: 0; }
       lblMap: "World language map", lblClear: "Clear the filter", lblIn: "Zoom in",
       lblOut: "Zoom out", lblFit: "Widest view", lblClearQ: "Clear",
       lblTabs: "Sections", lblMode: "Reading", lblSort: "Sort",
+      mTone: "Shade", toneOff: "Off", toneOn: "On",
+      toneNote: "When on, languages in the same family are drawn at different lightness, so Brazil reads apart from Argentina. The family colour stays the same.",
       speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
       mapHint: "Tap a country on the map to see its details here.",
       kReach: "share you could talk to", kReachPpl: "people you could talk to",
@@ -848,6 +899,7 @@ body.zoomed .orn { opacity: 0; }
     const p = [];
     if (ui !== "tr") p.push("l=" + ui);
     if (state.layer !== "home") p.push("k=" + state.layer);
+    if (tone) p.push("tone=1");
     if (known.size) p.push("kn=" + [...known].join("."));
     if (knowMode !== "share") p.push("km=" + knowMode);
     if (state.paint !== "fam") p.push("p=" + state.paint);
@@ -1656,6 +1708,12 @@ body.zoomed .orn { opacity: 0; }
     const b = e.target.closest("[data-tab]");
     if (b) setTab(b.dataset.tab);
   });
+  // Ton: aile rengi aynı kalıp her dilin farklı açıklık basamağı alması.
+  // Varsayılan kapalı. Kurallar .tone-on sınıfına bağlı, açıp kapamak
+  // haritayı yeniden çizdirmiyor.
+  let tone = localStorage.getItem("wl-tone") === "on";
+  const applyTone = () => document.body.classList.toggle("tone-on", tone);
+
   const shareM = $("#shareM"), btnShare = $("#btnShare");
   const setShare = (on) => {
     shareM.hidden = !on;
@@ -1757,6 +1815,9 @@ body.zoomed .orn { opacity: 0; }
         t().lodNote) +
       grpHTML(t().theme,
         segHTML("theme", [["auto", t().tAuto], ["light", t().tLight], ["dark", t().tDark]], theme)) +
+      grpHTML(t().mTone,
+        segHTML("tone", [["off", t().toneOff], ["on", t().toneOn]], tone ? "on" : "off"),
+        t().toneNote) +
       grpHTML(t().uiLang, segHTML("ui", [["tr", "Türkçe"], ["en", "English"]], ui)) +
       `<p class="pop-n" style="margin-top:22px">${esc(t().credit)}</p>`;
   }
@@ -2170,7 +2231,7 @@ body.zoomed .orn { opacity: 0; }
   /* ---------------------------------------------------------- eylemler */
   body.addEventListener("click", (e) => {
     const el = e.target.closest("[data-go],[data-l],[data-offl],[data-sort],[data-up],[data-sub]," +
-      "[data-close],[data-unknow],[data-paint],[data-lod],[data-theme],[data-ui],[data-exp]");
+      "[data-close],[data-unknow],[data-paint],[data-lod],[data-theme],[data-ui],[data-exp],[data-tone]");
     if (!el) return;
     const d = el.dataset;
     // ayarlar sekmesi
@@ -2178,6 +2239,11 @@ body.zoomed .orn { opacity: 0; }
     if (d.paint) { state.paint = d.paint; rampKey = ""; repaint(); render(); queueHash(); return; }
     if (d.lod) { state.lod = d.lod; applyLod(); render(); queueHash(); return; }
     if (d.theme) { setTheme(d.theme); render(); return; }
+    if (d.tone) {
+      tone = d.tone === "on";
+      localStorage.setItem("wl-tone", tone ? "on" : "off");
+      applyTone(); render(); queueHash(); return;
+    }
     if (d.ui) { setUi(d.ui); return; }
     if (d.unknow) { toggleKnown(d.unknow); return; }
     // gezinme
@@ -2277,6 +2343,7 @@ body.zoomed .orn { opacity: 0; }
   $("#capT").textContent = t().title;
   $("#capS").textContent = capSub();
   buildRamp("--g-ger");
+  applyTone();
   applyLabels();
   measureTabs();
   render();
@@ -2297,6 +2364,7 @@ body.zoomed .orn { opacity: 0; }
       // bağlantı görünümü belirler: km yoksa varsayılan kip
       knowMode = h.km === "home" ? "home" : "share";
       localStorage.setItem("wl-knowmode", knowMode);
+      if (h.tone === "1" && !tone) { tone = true; applyTone(); }
       if (["home", "scr", "off", "know"].includes(h.k)) setLayer(h.k);
       if (["fam", "pct", "ppl"].includes(h.p)) { state.paint = h.p; rampKey = ""; repaint(); }
       if (["auto", "off", "on"].includes(h.d)) { state.lod = h.d; applyLod(); }

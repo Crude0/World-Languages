@@ -10,6 +10,42 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.15.0 — 17 Ağustos 2026
+
+**Aynı renk artık aynı dil sanılmıyor: ton.** Aile rengi aynı kalıyor ama
+ailedeki her dil farklı bir açıklık basamağı alıyor — Brezilya, İspanyolca
+konuşan komşularından ayrılıyor; Portekiz İspanya'dan; Balkanlar tek mor blok
+olmaktan çıkıyor. **Ayarlar → Ton**, varsayılan kapalı.
+
+Kaç basamak gerektiği tahmin edilmedi, hesaplandı. Natural Earth'ün paylaşılan
+sınır yaylarından ülke komşuluk grafiği çıkarıldı (316 kara sınırı çifti) ve
+her ailenin içinde boyandı: **dört basamak dokuz ailenin hepsine yetiyor**,
+sıfır komşu ihlaliyle — yani aynı ailede kara sınırı olan iki ülke asla aynı
+tona düşmüyor. Ailenin en çok ülkeye yayılan ilk dört diline sabit basamak
+veriliyor, böylece İspanyolca/Fransızca/Portekizce/İtalyanca ve
+İngilizce/Almanca/Felemenkçe/İsveççe dünyanın her yerinde ayrı okunuyor.
+
+Merdiven OKLCH'de kuruldu: hue sabit, yalnız açıklık değişiyor, açılan
+basamakta chroma biraz kısılıyor. Komşu basamaklar arasındaki en küçük fark
+ΔEok 0,089. Haritadaki ayrı dolgu sayısı 9'dan 36'ya çıkıyor. Kurallar tek bir
+sınıfa bağlı, açıp kapamak haritayı yeniden çizdirmiyor. Seçim bağlantıya da
+giriyor.
+
+Tonun söylemediği şey: **basamak dili tanımlamıyor**, yalnız komşuların farklı
+olmasını garanti ediyor. İspanya ile Romanya aynı tonu paylaşır, çünkü komşu
+değiller. Haritada çoğunluk olan 121 dilin 98'i tek bir ülkede çoğunluk;
+hepsine ayrı ton vermek okunmaz bir harita demekti.
+
+**İngilizce arayüzde Türkçe metinler kalıyordu.** Düğme açıklamaları (title) ve
+erişilebilirlik etiketleri yalnız açılıştaki Türkçe iskeletten geliyordu; dili
+değiştirmek onlara hiç dokunmuyordu. Masaüstünde 27, telefonda 9 metin dile
+bağlandı. Ölçüm sıfıra indi — kalanlar dillerin kendi adları (Français,
+Türkçe, Sängö) ve öyle kalmalı.
+
+**Haritadaki seçim etiketi de Türkçe kalıyordu**, iki ayrı sebeple: masaüstünde
+ülke adı çeviri işlevinden hiç geçmiyordu (ham ad kullanılıyordu), telefonda
+ise dil değişince işaretler yeniden çizilmiyordu. İkisi de düzeltildi.
+
 ## v0.14.0 — 17 Ağustos 2026
 
 **Telefonda dışa aktarma yanlış haritanın resmini çekiyordu.** PNG/SVG yalnız
