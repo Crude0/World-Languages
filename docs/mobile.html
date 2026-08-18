@@ -743,6 +743,9 @@ body.zoomed .orn { opacity: 0; }
       paintOnlyHome: "Yoğunluk ve kişi ölçütü yalnız ana dil katmanında çalışır.",
       noteHomeKey: "Renk, ülkede evde en çok konuşulan dilin ailesini gösteriyor.",
       uiLang: "Dil · Language", credit: "© 2026 Crude · Açık veri · Natural Earth sınırları",
+      lblMap: "Dünya dil haritası", lblClear: "Süzgeci kaldır", lblIn: "Yakınlaş",
+      lblOut: "Uzaklaş", lblFit: "En geniş görünüm", lblClearQ: "Temizle",
+      lblTabs: "Bölümler", lblMode: "Okuma biçimi", lblSort: "Sıralama",
       speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
       mapHint: "Haritada bir ülkeye dokunun; ayrıntısı burada açılır.",
       kReach: "anlaşabildiğiniz pay", kReachPpl: "anlaşabildiğiniz kişi",
@@ -802,6 +805,9 @@ body.zoomed .orn { opacity: 0; }
       paintOnlyHome: "Density and people apply to the home-language layer only.",
       noteHomeKey: "Colour shows the family of the language most spoken at home.",
       uiLang: "Dil · Language", credit: "© 2026 Crude · Open data · Natural Earth borders",
+      lblMap: "World language map", lblClear: "Clear the filter", lblIn: "Zoom in",
+      lblOut: "Zoom out", lblFit: "Widest view", lblClearQ: "Clear",
+      lblTabs: "Sections", lblMode: "Reading", lblSort: "Sort",
       speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
       mapHint: "Tap a country on the map to see its details here.",
       kReach: "share you could talk to", kReachPpl: "people you could talk to",
@@ -1784,7 +1790,7 @@ body.zoomed .orn { opacity: 0; }
                            : total(b) - total(a) || trc(ln(LG[a]), ln(LG[b])));
     html += `<div class="sec"><div class="sec-h"><h2>${t().languages}</h2>
         <span>${t().nLangs(hits.length)}</span></div>
-      <div class="seg" role="group" aria-label="Sıralama" style="margin-bottom:8px">
+      <div class="seg" role="group" aria-label="${t().lblSort}" style="margin-bottom:8px">
         <button data-sort="spk" aria-pressed="${state.sort === "spk"}">${t().bySpk}</button>
         <button data-sort="cnt" aria-pressed="${state.sort === "cnt"}">${t().byCnt}</button>
       </div>`;
@@ -2141,13 +2147,29 @@ body.zoomed .orn { opacity: 0; }
     else document.documentElement.setAttribute("data-theme", v);
     rampKey = ""; repaint();
   }
+  // Erişilebilirlik etiketleri de dile bağlı; bunlar yalnız açılıştaki Türkçe
+  // iskeletten geliyordu.
+  function applyLabels() {
+    const lbl = (sel, v) => { const e = $(sel); if (e) e.setAttribute("aria-label", v); };
+    lbl("#map", t().lblMap); lbl("#btnClear", t().lblClear);
+    lbl("#btnIn", t().lblIn); lbl("#btnOut", t().lblOut); lbl("#btnFit", t().lblFit);
+    lbl("#btnShare", t().exportT); lbl("#shareM", t().exportT);
+    lbl("#q", t().search); lbl("#qClear", t().lblClearQ);
+    lbl("#hLayer", t().layerT); lbl("#hKnow", t().lblMode);
+    lbl("#tabs", t().lblTabs);
+  }
   function setUi(v) {
     ui = v;
     queueHash();
     localStorage.setItem("wl-ui", v);
     document.documentElement.lang = v;
     $("#q").placeholder = t().search;
+    applyLabels();
     setFilter(state.filter);          // başlık ve liste yeniden yazılır
+    // Harita üzerindeki seçim etiketi de yeniden çizilsin: dili değiştirince
+    // kart İngilizceye geçiyor ama haritada "Bulgaristan" yazmaya devam
+    // ediyordu.
+    if (state.sel) select(state.sel, state.selSub);
     render();
   }
 
@@ -2261,6 +2283,7 @@ body.zoomed .orn { opacity: 0; }
   $("#capT").textContent = t().title;
   $("#capS").textContent = capSub();
   buildRamp("--g-ger");
+  applyLabels();
   measureTabs();
   render();
   setDetent(detentOf[state.tab], true);

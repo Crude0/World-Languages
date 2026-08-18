@@ -1098,6 +1098,27 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       tipKnow: (p) => `halkın ${p}’i ile anlaşabilirsiniz`,
       tipKnowNone: "bildiğiniz diller burada kayda değer değil",
       kmShare: "Pay", kmHome: "Ana dil",
+      tipLayHome: "Evde konuşulan dil", tipLayScr: "Dilin yazıldığı alfabe",
+      tipLayOff: "Devletin resmî dili", tipLayKnow: "Bildiğiniz dillerle nerede anlaşabilirsiniz",
+      tipPaintFam: "Ülkeleri dil ailesine göre renklendir",
+      tipPaintPct: "Dilin nüfustaki payına göre koyulaştır",
+      tipPaintPpl: "Konuşan kişi sayısına göre koyulaştır",
+      tipLodAuto: "Uzakta ülke, yaklaşınca il/eyalet", tipLodOff: "Her zaman ülke düzeyi",
+      tipLodOn: "Veri olan 18 ülkede il/eyalet düzeyi",
+      tipSortFam: "Dil ailelerine göre grupla",
+      tipSortCnt: "Çoğunluğun dili olduğu ülke sayısına göre sırala",
+      tipSortSpk: "Ana dil olarak konuşan kişi sayısına göre sırala",
+      tipRankSpk: "Ana dil olarak konuşan kişi sayısı",
+      tipRankAll: "Ana dil ve ikinci dil olarak konuşanların toplamı",
+      tipRankCnt: "Çoğunluğun dili olduğu ülke sayısı",
+      tipPng: "Görünümü PNG olarak indir", tipSvg: "Görünümü SVG olarak indir",
+      lblIn: "Yakınlaş", lblOut: "Uzaklaş", lblFit: "Haritayı sığdır",
+      lblSearch: "Dil veya ülke ara", lblSearchClear: "Aramayı temizle",
+      lblDist: "Ülkelerin dil ailelerine dağılımı", lblSort: "Sıralama",
+      lblRankSort: "Sıralama ölçütü", lblMapCtl: "Harita denetimleri",
+      lblLang: "Arayüz dili", lblTheme: "Tema",
+      lblMap: "Dünya haritası: ülkelerde çoğunluğun konuştuğu dilin ailesi",
+      barPpl: (v) => `yaklaşık ${v} kişi`,
       speakT: "Dillerim", spkSearch: "Dil ara", savedTo: "İndirilenler'e kaydedildi", saveNoShell: "Bu sürüm kaydedemiyor",
       kReach: "anlaşabildiğiniz pay", kReachPpl: "anlaşabildiğiniz kişi",
       kWith: "Buradaki payı oluşturan diller", kNoneHere: "Bildiğiniz diller burada kayda değer değil.",
@@ -1205,6 +1226,27 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       tipKnow: (p) => `you could talk to ${p} of the population`,
       tipKnowNone: "none of your languages registers here",
       kmShare: "Share", kmHome: "Home language",
+      tipLayHome: "The language spoken at home", tipLayScr: "The alphabet the language is written in",
+      tipLayOff: "The state's official language", tipLayKnow: "Where you could get by in the languages you speak",
+      tipPaintFam: "Colour countries by language family",
+      tipPaintPct: "Darken by the language's share of the population",
+      tipPaintPpl: "Darken by the number of speakers",
+      tipLodAuto: "Countries when zoomed out, states or provinces when zoomed in",
+      tipLodOff: "Always country level", tipLodOn: "States or provinces in the 18 countries with data",
+      tipSortFam: "Group by language family",
+      tipSortCnt: "Sort by the number of countries where it is the majority language",
+      tipSortSpk: "Sort by the number of first-language speakers",
+      tipRankSpk: "First-language speakers",
+      tipRankAll: "First- and second-language speakers together",
+      tipRankCnt: "Countries where it is the majority language",
+      tipPng: "Download this view as PNG", tipSvg: "Download this view as SVG",
+      lblIn: "Zoom in", lblOut: "Zoom out", lblFit: "Fit the map",
+      lblSearch: "Search a language or country", lblSearchClear: "Clear the search",
+      lblDist: "Distribution of countries across language families", lblSort: "Sort",
+      lblRankSort: "Sort by", lblMapCtl: "Map controls",
+      lblLang: "Interface language", lblTheme: "Theme",
+      lblMap: "World map: the family of the majority language in each country",
+      barPpl: (v) => `about ${v} people`,
       speakT: "My languages", spkSearch: "Search a language", savedTo: "Saved to Downloads", saveNoShell: "This build cannot save",
       kReach: "share you could talk to", kReachPpl: "people you could talk to",
       kWith: "Your languages here", kNoneHere: "None of your languages registers here.",
@@ -2789,7 +2831,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
          <span class="bar-name" title="${esc(tx(name))}">${esc(tx(name))}</span>
          <span class="bar-track"><i style="width:${Math.min(100, pct)}%"></i></span>
          <span class="bar-pct">${pc(pct)}</span>
-         <span class="bar-ppl" title="${pop ? "yaklaşık " + esc(fmtK(pop * pct / 100)) + " kişi" : ""}">${
+         <span class="bar-ppl" title="${pop ? esc(t().barPpl(fmtK(pop * pct / 100))) : ""}">${
            pop ? fmtS(pop * pct / 100) : ""}</span>
        </div>`).join("") + `</div>` +
       (rest ? `<p class="d-hint">${t().more(rest, pc(show[show.length - 1][1]))}</p>` : "");
@@ -2846,7 +2888,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         bars(X.mix.slice(0, 10), col(l.g), 10, X.pop) + `</div>`;
     };
     detail.innerHTML =
-      `<button class="close" id="dClose" aria-label="Kapat">✕</button>` +
+      `<button class="close" id="dClose" aria-label="${t().close}">✕</button>` +
       `<div class="cmp">` + side(A) + side(B) + `</div>` +
       `<div class="d-sec"><h4>${t().cmpBoth}</h4>` +
         (both.length
@@ -2892,13 +2934,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const anchor = (c.c[1] > H - 40 ? -12 : 18) * u;
     marks.insertAdjacentHTML("beforeend",
       `<text class="map-label" x="${c.c[0]}" y="${c.c[1] + anchor}" text-anchor="middle"
-        font-size="${(13 * u).toFixed(2)}">${esc(c.n)}</text>`);
+        font-size="${(13 * u).toFixed(2)}">${
+          esc(sub ? sn(sub) : cn(C[id]))}</text>`);
 
     // Devletin dili: hukuken resmî diller, yoksa fiilî olan. Evin dili bu
     // listede hiç yoksa ayrıca işaretlenir — haritadaki çapraz tarama bu.
 
     detail.innerHTML =
-      `<button class="close" id="dClose" aria-label="Kapat">✕</button>` +
+      `<button class="close" id="dClose" aria-label="${t().close}">✕</button>` +
       `<div class="d-main">` +
         `<div class="d-country"><h3>${esc(c.sub ? sn(c) : cn(c))}</h3><span class="d-region">${
           esc(c.sub ? cn(C[id]) : (ui === "en" ? C[id].re : c.r))}${
@@ -3241,6 +3284,27 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     set("#lodAuto", t().dAuto); set("#lodOff", t().dOff); set("#lodOn", t().dOn);
     set("#rankSpk", t().rankSpk); set("#rankAll", t().rankAll); set("#rankCnt", t().rankCnt);
     set("#btnReset", t().reset); set("#btnTable", t().table); set("#btnLink", t().link);
+    // Başlıklar (title) ve erişilebilirlik etiketleri de dile bağlı. Bunlar
+    // yalnız açılıştaki Türkçe iskeletten geliyordu: İngilizce arayüzde
+    // düğmenin üstüne gelince açıklama Türkçe çıkıyordu.
+    const tip = (id, v) => { const e = $(id); if (e) e.title = v; };
+    const lbl = (id, v) => { const e = $(id); if (e) e.setAttribute("aria-label", v); };
+    tip("#layHome", t().tipLayHome); tip("#layScr", t().tipLayScr);
+    tip("#layOff", t().tipLayOff); tip("#layKnow", t().tipLayKnow);
+    tip("#paintFam", t().tipPaintFam); tip("#paintPct", t().tipPaintPct);
+    tip("#paintPpl", t().tipPaintPpl);
+    tip("#lodAuto", t().tipLodAuto); tip("#lodOff", t().tipLodOff); tip("#lodOn", t().tipLodOn);
+    tip("#sortFam", t().tipSortFam); tip("#sortCnt", t().tipSortCnt); tip("#sortSpk", t().tipSortSpk);
+    tip("#rankSpk", t().tipRankSpk); tip("#rankAll", t().tipRankAll); tip("#rankCnt", t().tipRankCnt);
+    tip("#btnPng", t().tipPng); tip("#btnSvg", t().tipSvg);
+    lbl("#btnIn", t().lblIn); lbl("#btnOut", t().lblOut); lbl("#btnFit", t().lblFit);
+    lbl("#q", t().lblSearch); lbl("#qClear", t().lblSearchClear);
+    lbl("#dist", t().lblDist); lbl("#map", t().lblMap);
+    document.querySelectorAll(".sheet-x, #dClose").forEach((b) =>
+      b.setAttribute("aria-label", t().close));
+    const grp = [[".hud .bar", t().lblMapCtl], [".ranked-head .seg", t().lblRankSort],
+                 [".index-head .seg", t().lblSort]];
+    grp.forEach(([q, v]) => { const e = document.querySelector(q); if (e) e.setAttribute("aria-label", v); });
     set("#btnModes", t().view); set("#modesTitle", t().view);
     set("#shareTitle", t().share);
     $("#btnShare").setAttribute("aria-label", t().share);
