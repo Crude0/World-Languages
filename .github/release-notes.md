@@ -30,3 +30,13 @@ There was nothing wrong with the anchor itself, and that was measured: in all
 nearest edge is a median 0.625 of the equivalent radius (Poland 0.742). A pole
 of inaccessibility is not a visual centre — in concave countries it moves to the
 widest place the label can sit, which is exactly what it is for.
+
+**The hover tooltip follows the layer too.** On the script layer, hovering a
+country gave you the language spoken at home rather than "Latin", and the same
+on the official-language layer. The tooltip now follows the same rule as the
+card: the script on the script layer, the state's language on the official
+layer, along with whether the home language is official at all.
+
+Fixing it turned up one more untranslated Turkish string inside the tooltip
+("· no majority"): it only shows for the 21 countries without a majority
+language, which is why the earlier sweep never caught it.

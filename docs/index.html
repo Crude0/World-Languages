@@ -1212,6 +1212,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       barPpl: (v) => `yaklaşık ${v} kişi`,
       speakT: "Dillerim", spkSearch: "Dil ara", savedTo: "İndirilenler'e kaydedildi", saveNoShell: "Bu sürüm kaydedemiyor",
       kReach: "anlaşabildiğiniz pay", kReachPpl: "anlaşabildiğiniz kişi",
+      noMajInline: "· çoğunluk yok", tipScrOf: (l) => `${l} bu yazıyla yazılıyor`,
+      tipOffDe: "fiilî devlet dili", tipOffMism: "evin dili resmî değil",
       kWith: "Buradaki payı oluşturan diller", kNoneHere: "Bildiğiniz diller burada kayda değer değil.",
       kHomeLang: "Ülkenin ana dili",
       speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
@@ -1343,6 +1345,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       barPpl: (v) => `about ${v} people`,
       speakT: "My languages", spkSearch: "Search a language", savedTo: "Saved to Downloads", saveNoShell: "This build cannot save",
       kReach: "share you could talk to", kReachPpl: "people you could talk to",
+      noMajInline: "· no majority", tipScrOf: (l) => `${l} is written in it`,
+      tipOffDe: "de facto state language", tipOffMism: "the home language is not official",
       kWith: "Your languages here", kNoneHere: "None of your languages registers here.",
       kHomeLang: "The country's home language",
       speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
@@ -2384,10 +2388,34 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         knowLine(c);
       place(e); return;
     }
+    // İpucu da katmanın sorduğu soruyu yanıtlıyor: yazı katmanında yazıyı,
+    // resmî dil katmanında devletin dilini önce söylüyor. Eskiden üçünde de
+    // evin dili yazıyordu — Polonya'nın üstünde "Latin" değil "Lehçe"
+    // çıkıyordu ve katmanla ilgisi kalmıyordu.
+    if (layer === "scr") {
+      const g = SCR[l.sc] && SCR[l.sc].g, sc = col(g ? SGCOL[g] : "oth");
+      tip.innerHTML =
+        `<b>${esc(cn(c))}</b>` +
+        `<span class="tl" style="--c:${sc}"><i></i>${esc(scName(l.sc))}${
+          l.sc2 ? " + " + esc(scName(l.sc2)) : ""}</span>` +
+        `<span class="tf">${esc(t().tipScrOf(ln(l)))}</span>`;
+      place(e); return;
+    }
+    if (layer === "off") {
+      const o = C[el.dataset.id], list = (o && o.o) || [];
+      const og = list.length && LG[list[0]] ? LG[list[0]].g : "oth";
+      tip.innerHTML =
+        `<b>${esc(cn(c))}</b>` +
+        `<span class="tl" style="--c:${col(og)}"><i class="${og === "oth" ? "oth" : ""}"></i>${
+          list.length ? list.map((k) => esc(LG[k] ? ln(LG[k]) : k)).join(" · ") : esc(t().offNoneChip)}</span>` +
+        `<span class="tf">${o.oj ? "" : esc(t().tipOffDe)}${
+          o.om ? (o.oj ? "" : " · ") + esc(t().tipOffMism) : ""}</span>`;
+      place(e); return;
+    }
     tip.innerHTML =
       `<b>${esc(cn(c))}</b>` +
       `<span class="tl" style="--c:${col(l.g)}"><i class="${l.g === "oth" ? "oth" : ""}"></i>${esc(ln(l))}` +
-      `${c.m ? "" : ' <span style="opacity:.7">· çoğunluk yok</span>'}</span>` +
+      `${c.m ? "" : ` <span style="opacity:.7">${esc(t().noMajInline)}</span>`}</span>` +
       `<span class="tf">${esc(lf(l))} · ~${pc(c.p)} · ${fmtK(c.pop * c.p / 100)}</span>` +
       minorLine(c);
     place(e);

@@ -35,6 +35,16 @@ iğne çizilmediği hâlde de uygulanıyordu, üstüne yazı taban çizgisine hi
 olduğu için gövdesi birkaç piksel daha aşağı düşüyordu. Artık kaydırma yalnız
 iğne varken uygulanıyor, yoksa ad çapanın tam üstünde ortalanıyor.
 
+**Fare ipucu da katmanı izliyor.** Yazı katmanında bir ülkenin üstüne
+gelince "Latin" değil evde konuşulan dil yazıyordu; resmî dil katmanında da
+öyle. Artık ipucu kartla aynı kuralı izliyor: yazı katmanında yazıyı, resmî
+dil katmanında devletin dilini (ve varsa evin dilinin resmî olmadığını) önce
+söylüyor.
+
+Bunu düzeltirken ipucunun içinde çevrilmemiş bir Türkçe dizge daha çıktı
+("· çoğunluk yok"): yalnız çoğunluğu olmayan 21 ülkede göründüğü için önceki
+taramaya yakalanmamıştı.
+
 Çapa algoritmasında sorun yoktu, ölçtüm: 177 ülkenin hepsinde çapa kendi
 çokgeninin içinde ve kenara uzaklığın eşdeğer yarıçapa oranı medyanda 0,625
 (Polonya 0,742). Erişilmezlik kutbu görsel merkez değildir — içbükey ülkelerde
