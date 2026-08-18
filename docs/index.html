@@ -139,6 +139,9 @@ body {
   color: var(--ink);
   font: 400 15px/1.5 "Plex Sans", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  /* Newsreader değişken bir font ve optik boyut ekseni var; büyük puntoda
+     harfler kendiliğinden inceliyor. Açık olması manşette gözle görülür. */
+  font-optical-sizing: auto;
 }
 h1, h2, h3 { margin: 0; font-family: "Newsreader", Georgia, serif; font-weight: 600; text-wrap: balance; }
 p { margin: 0; }
@@ -162,19 +165,33 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   border-bottom: 1px solid var(--rule-2);
 }
 @media (min-width: 900px) { .masthead { grid-template-columns: minmax(0, 1fr) minmax(280px, 460px); } }
-.masthead h1 { font-size: clamp(1.65rem, 3.1vw, 2.5rem); line-height: 1.08; letter-spacing: -.015em; margin-top: 6px; }
+.masthead h1 { font-size: clamp(1.75rem, 3.5vw, 3.1rem); line-height: 1.03; letter-spacing: -.032em; margin-top: 8px; }
 .masthead h1 em { font-style: italic; }
 .lede { color: var(--ink-2); font-size: .9375rem; max-width: 62ch; }
 .prefs { display: flex; gap: 8px; margin-top: 13px; flex-wrap: wrap; }
-.stats { display: flex; flex-wrap: wrap; gap: 10px 30px; margin: 14px 0 0; }
-.stats > div { display: flex; flex-direction: column; gap: 2px; }
-.stats dt { font: 400 1.5rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; }
-.stats dd { margin: 0; font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase;
-            color: var(--ink-3); white-space: nowrap; }
+.stats { display: flex; flex-wrap: wrap; margin: 18px 0 0; }
+/* Sayılar bant hâlinde, her biri kendi dikey cetveliyle: yan yana dizilmiş
+   üç rakam olmaktan çıkıp okunacak bir künye oluyor. */
+.stats { align-items: start; }
+.stats > div { display: flex; flex-direction: column; gap: 6px; padding: 0 16px;
+               border-left: 1px solid var(--rule); min-width: 0; }
+.stats > div:first-child { padding-left: 0; border-left: 0; }
+.stats dt { font: 400 1.7rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; letter-spacing: -.028em; }
+/* "NO MAJORITY LANGUAGE" tek satıra zorlanınca bant dörde bölünüp
+   sarıyordu ve sarkan satırın cetveli boşta kalıyordu. Etiket sarsın. */
+.stats dd { margin: 0; font-size: .625rem; letter-spacing: .09em; text-transform: uppercase;
+            color: var(--ink-3); line-height: 1.25; }
 
 /* ---------------------------------------------------------------- layout */
 .plate { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); align-items: start; }
 @media (min-width: 1000px) { .plate { grid-template-columns: 316px minmax(0, 1fr); gap: 22px; } }
+/* Geniş ekranda üçüncü sütun: seçim kartı haritanın yanında durur. Ara
+   genişlikte sütun yok, kart haritanın altına iner (grid-column: 2). */
+@media (min-width: 1360px) { .plate { grid-template-columns: 300px minmax(0, 1fr) 312px; } }
+.side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.side:empty { display: none; }
+@media (min-width: 1000px) and (max-width: 1359px) { .plate > .side { grid-column: 2; } }
+@media (min-width: 1360px) { .side { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; } }
 
 .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px; }
 
@@ -183,8 +200,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 1000px) { .rail { position: sticky; top: 16px; max-height: calc(100vh - 32px); } }
 /* dar ekranda harita önce gelsin, sonra anahtar ve dil dizini */
 @media (max-width: 999px) {
-  .plate > .rail { display: contents; }
-  .stage { order: 1; } .key { order: 2; } .search { order: 3; } .index { order: 4; }
+  .plate > .rail, .plate > .side { display: contents; }
+  .stage { order: 1; } .minor { order: 2; } .detail { order: 3; }
+  .key { order: 4; } .search { order: 5; } .index { order: 6; }
 }
 
 .search { position: relative; display: flex; align-items: center; }
@@ -206,13 +224,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .key h2 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
 .key-rows { display: flex; flex-direction: column; margin: 9px 0 11px; }
 .key-row {
-  display: grid; grid-template-columns: 13px minmax(0,1fr) auto; align-items: center;
+  display: grid; grid-template-columns: 11px minmax(0,1fr) auto; align-items: center;
   gap: 9px; padding: 4px 5px; margin: 0 -5px; border-radius: 2px; text-align: left; width: calc(100% + 10px);
 }
 .key-row:hover { background: var(--panel-2); }
 .key-row[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
 .key-row[aria-pressed="true"] .key-count { color: var(--panel); }
-.swatch { width: 13px; height: 13px; border-radius: 1px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); }
+.swatch { width: 11px; height: 11px; border-radius: 999px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); }
 .swatch.oth { background-image: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 4px); }
 .key-name { font-size: .8125rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .key-count { font-size: .75rem; color: var(--ink-3); }
@@ -248,7 +266,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .idx-row:hover { background: var(--panel-2); }
 .idx-row[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
 .idx-row[aria-pressed="true"] .idx-endo, .idx-row[aria-pressed="true"] .idx-n { color: var(--panel); opacity: .8; }
-.idx-dot { width: 9px; height: 9px; border-radius: 1px; background: var(--c); align-self: center; }
+.idx-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--c); align-self: center; }
 .idx-dot.oth { background-image: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 3px); }
 .idx-name { font-size: .8125rem; line-height: 1.25; }
 .idx-endo { color: var(--ink-3); font-size: .75rem; margin-left: 6px; }
@@ -407,7 +425,14 @@ body.busy .hud-panels > .minor {
    devam ediyordu. min-height:0 olmadan flex çocuğu içeriğinin altına
    inemiyor ve taşıyor. */
 .map-area.fs .hud-panels > .detail.on { flex: 0 1 auto; min-height: 0; max-height: none; }
+.map-area.fs .hud-panels > .key { flex: 0 0 auto; padding: 11px 13px 12px; }
+.map-area.fs .hud-panels > .key .key-note { display: none; }
+/* Gösterge tam ekranda da elde kalsın: yan panel görünmediği için renklerin
+   ne anlama geldiğini söyleyecek başka bir şey kalmıyordu. Kopya bir liste
+   üretmek yerine anahtarın kendisi taşınıyor — tıklayınca süzme davranışı da
+   geliyor. */
 .hud-panels > .detail.on,
+.hud-panels > .key,
 .hud-panels > .minor {
   display: block; width: 100%; border: 0; border-radius: 12px;
   max-height: min(72vh, 560px); overflow-y: auto; overscroll-behavior: contain;
@@ -417,19 +442,22 @@ body.busy .hud-panels > .minor {
   -webkit-backdrop-filter: blur(24px) saturate(140%);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .hud-panels > .detail.on, .hud-panels > .minor { background: var(--panel); }
+  .hud-panels > .detail.on, .hud-panels > .key, .hud-panels > .minor { background: var(--panel); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .hud-panels > .detail.on, .hud-panels > .minor {
+  .hud-panels > .detail.on, .hud-panels > .key, .hud-panels > .minor {
     background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none;
   }
 }
 /* Dar sütunda üç sütunluk ızgara tek sütuna iniyor; bölümler yine
    çizgiyle ayrılsın diye geniş ekran kuralları geri alınıyor. */
+.side .detail.on, .hud-panels > .detail.on { grid-template-columns: minmax(0, 1fr); }
+.side .detail.on .d-sec,
 .hud-panels > .detail.on .d-sec {
   margin-top: 13px; padding-top: 11px; padding-left: 0;
   border-top: 1px solid var(--glass-line); border-left: 0;
 }
+.side .detail.on .d-sec { border-top-color: var(--rule); }
 .hud-panels > .detail.on .d-act { grid-column: auto; }
 /* display kuralı [hidden]'ı eziyor — ölçek şeridinde de aynısı olmuştu.
    Azınlık listesi kapalıyken boş bir cam kutu olarak duruyordu. */
@@ -460,11 +488,10 @@ body.fs-on { overflow: hidden; }
 }
 
 .map-area { position: relative; }
-.map-wrap { position: relative; background: var(--ocean); border: 1px solid var(--rule-2); border-radius: 2px; }
-.map-wrap::after {
-  content: ""; position: absolute; inset: 4px; border: 1px solid var(--rule);
-  pointer-events: none; opacity: .8;
-}
+/* Basılı levha çerçevesi (1px kenarlık + içeride ikinci kılcal çizgi) yerini
+   yumuşak bir yükseltiye bıraktı: harita kâğıdın üstünde duran bir nesne. */
+.map-wrap { position: relative; background: var(--ocean); border: 0; border-radius: 8px;
+            box-shadow: var(--shadow); overflow: hidden; }
 /* Jest boyunca SVG görünenden büyük çiziliyor ve compositor'la kaydırılıyor;
    taşan kısmı bu kap kırpıyor. İpucu kabın dışında, yoksa kırpılırdı. */
 .map-clip { position: relative; overflow: hidden; }
@@ -689,7 +716,8 @@ body.fs-on { overflow: hidden; }
 .d-act button { font-size: .8125rem; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule-2); }
 .d-act button:hover { text-decoration-color: var(--ink); }
 
-.plate-note { font-size: .75rem; color: var(--ink-3); display: flex; gap: 6px 14px; flex-wrap: wrap; }
+.plate-note { font-size: .625rem; letter-spacing: .08em; text-transform: uppercase;
+              color: var(--ink-3); display: flex; gap: 6px 14px; flex-wrap: wrap; }
 
 /* ------------------------------------------------------------ renk ölçeği */
 .scale { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .6875rem; color: var(--ink-3); }
@@ -977,10 +1005,6 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         <span id="navHint">Tekerlekle yakınlaşıp sürükleyerek gezinebilirsiniz</span>
       </p>
 
-      <section class="card minor" id="minor" hidden aria-labelledby="minorTitle"></section>
-
-      <div class="card detail" id="detail"></div>
-
       <section class="card ranked" aria-labelledby="rankTitle">
         <div class="ranked-head">
           <h2 id="rankTitle">En çok konuşulan diller</h2>
@@ -994,6 +1018,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         <div class="ranked-rows" id="rankRows"></div>
       </section>
     </section>
+
+    <!-- Seçilen yerin kartı haritanın ALTINDA değil YANINDA: bir ülkeye
+         tıklayıp kartı görmek için aşağı inmek gerekmiyor. Dar ekranda
+         sütun çözülüp akışa geri giriyor. -->
+    <aside class="side">
+      <section class="card minor" id="minor" hidden aria-labelledby="minorTitle"></section>
+      <div class="card detail" id="detail"></div>
+    </aside>
   </main>
 
   <footer>
@@ -2111,8 +2143,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   function moveCards(toHud) {
     const panels = document.querySelector(".hud-panels");
     if (toHud) {
-      ["#minor", "#detail"].forEach((sel) => {
-        const n = $(sel);
+      [".key", "#minor", "#detail"].forEach((sel) => {
+        const n = document.querySelector(sel);
         if (!n) return;
         moved.push([n, n.parentNode, n.nextSibling]);
         panels.appendChild(n);
@@ -3004,12 +3036,18 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
           l2: C[sub.p].l2, l2country: !!C[sub.p].l2 }
       : C[id];
     const l = LG[c.l] || LG[C[id].l], u = unit();
-    if (c.a < 6) {
+    // İğne yalnız küçük ülkelerde çiziliyor; etiketin aşağı kaydırılması da
+    // onunla çakışmamak içindi. Kaydırma iğne olmadan da uygulanınca büyük
+    // ülkelerde ad çapanın ~18px altına, taban çizgisi hizalamasıyla birlikte
+    // daha da aşağı düşüyordu — "ortada değil" görüntüsünün sebebi buydu.
+    const pin = c.a < 6;
+    if (pin) {
       marks.innerHTML = `<circle class="pin" cx="${c.c[0]}" cy="${c.c[1]}" r="${(8 * u).toFixed(2)}"></circle>`;
     }
-    const anchor = (c.c[1] > H - 40 ? -12 : 18) * u;
+    const dy = pin ? (c.c[1] > H - 40 ? -12 : 18) * u : 0;
     marks.insertAdjacentHTML("beforeend",
-      `<text class="map-label" x="${c.c[0]}" y="${c.c[1] + anchor}" text-anchor="middle"
+      `<text class="map-label" x="${c.c[0]}" y="${c.c[1] + dy}" text-anchor="middle"
+        ${pin ? "" : 'dominant-baseline="central"'}
         font-size="${(13 * u).toFixed(2)}">${
           esc(sub ? sn(sub) : cn(C[id]))}</text>`);
 

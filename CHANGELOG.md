@@ -10,6 +10,36 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.16.0 — 18 Ağustos 2026
+
+**Seçilen yerin kartı artık haritanın altında değil yanında.** Bir ülkeye
+tıklayıp kartını görmek için aşağı inmek gerekiyordu; geniş ekranda üçüncü bir
+sütun açıldı ve kart oraya taşındı. 1360px altında sütun çözülüp kart eski
+yerine, haritanın altına iniyor — dar ekranda hiçbir şey değişmedi.
+
+Yanında masaüstü tipografisi ve levha elden geçti: Newsreader'ın optik boyut
+ekseni açıldı (büyük puntoda harfler kendiliğinden inceliyor), manşet
+3.1rem'e çıkıp harf aralığı −.032em'e sıkıldı, künye rakamları kendi dikey
+cetvelleriyle bir bant oldu. Haritanın basılı levha çerçevesi (1px kenarlık +
+içeride ikinci kılcal çizgi) yerini 8px köşeye ve yumuşak bir yükseltiye
+bıraktı; kaynak satırı küçük kapitallere geçti; gösterge noktaları yuvarlandı.
+
+**Gösterge tam ekranda da elde.** Yan panel görünmediği için renklerin ne
+anlama geldiğini söyleyecek bir şey kalmıyordu. Kopya bir liste üretmek yerine
+anahtarın kendisi cam sütuna taşınıyor, dolayısıyla tıklayınca süzme davranışı
+da geliyor; çıkışta eski yerine dönüyor.
+
+**Ülke adı haritada ortada durmuyordu.** Ad, çapasının 18 piksel altına
+konuyordu — o kaydırma küçük ülkelerdeki iğne dairesiyle çakışmamak içindi ama
+iğne çizilmediği hâlde de uygulanıyordu, üstüne yazı taban çizgisine hizalı
+olduğu için gövdesi birkaç piksel daha aşağı düşüyordu. Artık kaydırma yalnız
+iğne varken uygulanıyor, yoksa ad çapanın tam üstünde ortalanıyor.
+
+Çapa algoritmasında sorun yoktu, ölçtüm: 177 ülkenin hepsinde çapa kendi
+çokgeninin içinde ve kenara uzaklığın eşdeğer yarıçapa oranı medyanda 0,625
+(Polonya 0,742). Erişilmezlik kutbu görsel merkez değildir — içbükey ülkelerde
+etiketin sığdığı en geniş yere kayar, ki istenen de odur.
+
 ## v0.15.0 — 17 Ağustos 2026
 
 **Aynı renk artık aynı dil sanılmıyor: ton.** Aile rengi aynı kalıyor ama

@@ -2294,11 +2294,15 @@ body.zoomed .orn { opacity: 0; }
     if (sid) { const n = subNode(sid); if (n) n.classList.add("sel"); }
     else nodesOf(id).forEach((n) => n.classList.add("sel"));
     const o = sid ? SB[sid] : C[id], u = unit();
-    if ((o.a || 0) < 6) {
+    // Kaydırma yalnız iğne varken gerekiyor; iğnesiz büyük ülkelerde ad
+    // çapanın üstüne kayıp ortada durmuyordu.
+    const pin = (o.a || 0) < 6;
+    if (pin) {
       marks.innerHTML = `<circle class="pin" cx="${o.c[0]}" cy="${o.c[1]}" r="${(8 * u).toFixed(2)}"></circle>`;
     }
     marks.insertAdjacentHTML("beforeend",
-      `<text class="map-label" x="${o.c[0]}" y="${o.c[1] - 12 * u}" text-anchor="middle"
+      `<text class="map-label" x="${o.c[0]}" y="${o.c[1] - (pin ? 12 * u : 0)}" text-anchor="middle"
+        ${pin ? "" : 'dominant-baseline="central"'}
         font-size="${(14 * u).toFixed(2)}">${esc(sid ? sn(o) : cn(o))}</text>`);
     // Yer kartının yeri Harita ve Bildiğim sekmeleri; listeden ya da ayarlardan
     // bir yer seçilince oraya götürür. Sekme bir varış noktası: seçim onu izler.
