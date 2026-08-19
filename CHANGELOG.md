@@ -10,6 +10,34 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.18.0 — 19 Ağustos 2026
+
+**Göstergede bir ailenin üstüne gelmek onu haritada yalnız bırakıyor.**
+Tıklamak süzgeci kalıcı kuruyor, üstüne gelmek yalnız gösteriyor: kalan
+ülkeler sönük toprağa dönüyor, aile kendi renginde kalıyor, imleç ayrılınca
+hepsi geri geliyor. 0,22 saniyelik renk geçişiyle; "hareketi azalt" açıkken
+geçiş yok. Tam ekrandaki alt bantta da çalışıyor. Süzgeç zaten açıkken
+devreye girmiyor — harita o soruya çoktan cevap veriyor.
+
+Bu, birkaç sürümdür sözü verilip aslında hiç yayımlanmamış olan şeydi:
+denemesi yerel bir dalda, `#anim=1` arkasında kalmıştı ve `main`'e hiç
+geçmemişti. Sönme dolgu üzerinden ve `!important` ile yapılıyor; yoğunluk ve
+kişi boyamalarında renk `style` özniteliğine yazıldığı için başka türlü
+geçilemiyordu. Ölçüldü: Cermen'in üstünde 596, Roman'ın üstünde 655 düğüm
+sönüyor, imleç ayrılınca sıfır; kare ortancası 16,7 ms.
+
+**"Speakers" düğmesi kutunun dışında kalıyordu.** 300 piksellik sütunda
+başlık 86, üçlü anahtar 182, aralarındaki boşluk 8 piksel — kullanılabilir
+272'ye dört piksel kalmıyordu ve üçüncü düğme kırpılıyordu. Yan boşluk 13'ten
+11'e, düğme boşluğu 8'den 6'ya indi; artık on iki piksel pay var. Başlık
+satırı ayrıca sarabiliyor: yazı tipi büyüdüğünde kırpmak yerine anahtar alt
+satıra iniyor.
+
+**"Bildiğim diller" yaprağında iki düğmenin sağında boş bir çerçeve
+duruyordu.** Pay/Ana dil anahtarı dikey bir kutunun içindeyken satırın
+tamamını kaplıyor, içeriği 146 piksel olduğu hâlde kutusu 272 piksel
+oluyordu. Anahtar artık içeriği kadar geniş.
+
 ## v0.17.0 — 19 Ağustos 2026
 
 **Tam ekranda gösterge sol sütunu bırakıp alt banda taşındı.** Dokuz satırlık

@@ -277,11 +277,24 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .key-note { margin-top: 9px; font-size: .75rem; color: var(--ink-3); line-height: 1.4; }
 
 .index { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+/* Üçlü anahtar 300 piksellik sütuna başlıkla yan yana ancak sığıyordu ve
+   yazı tipi bir tık büyüdüğünde "Speakers" kenardan taşıp kırpılıyordu.
+   Sarmaya izin verildi: sığmadığında anahtar alt satıra iniyor, kırpılmıyor. */
 .index-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 11px 13px; border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+  padding: 11px; border-bottom: 1px solid var(--rule);
 }
-.seg { display: flex; border: 1px solid var(--rule-2); border-radius: 2px; overflow: hidden; }
+/* 300 piksellik sütunda başlık 86, anahtar 182, aralık 8 — kullanılabilir
+   272'ye dört piksel kalıyordu. Yan boşluk 13'ten 11'e, düğme boşluğu 8'den
+   6'ya inince on iki piksel pay kalıyor. Sarma yine de duruyor: punto
+   büyüdüğünde kırpmak yerine alt satıra insin. */
+.index-head .seg button { padding: 3px 6px; }
+/* width:fit-content — dikey bir kutunun içindeyken kutu içeriğini değil
+   satırın tamamını kaplıyordu: "Bildiğim diller" yaprağında iki düğmenin
+   sağında 126 piksellik boş, çerçeveli bir alan kalıyordu. */
+.seg { display: flex; width: fit-content; flex: 0 0 auto;
+       border: 1px solid var(--rule-2); border-radius: 2px; overflow: hidden; }
 .seg button { padding: 3px 8px; font-size: .6875rem; letter-spacing: .04em; color: var(--ink-2); }
 .seg button + button { border-left: 1px solid var(--rule-2); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
@@ -696,6 +709,13 @@ body.fs-on { overflow: hidden; }
 /* dilin azınlık olarak konuşulduğu ülkeler: soluk dolgu + belirgin dış çizgi */
 .is-filtering .cty.hit2, .is-filtering .dot.hit2 {
   stroke: var(--c-min, var(--ink-2)); stroke-width: 1.4;
+}
+/* Göstergede bir ailenin üstüne gelince yalnız o aile yanıyor. Tıklamalı
+   süzgeçten farkı: geçici, ve satır içi dolguyu da ezmesi gerekiyor —
+   yoğunluk/kişi boyamalarında renk style özniteliğine yazılıyor. */
+.previewing .dim { fill: var(--land-mute) !important; }
+@media (prefers-reduced-motion: no-preference) {
+  .previewing .cty, .previewing .sub, .previewing .dot { transition: fill .22s ease; }
 }
 .cty.sel, .dot.sel { stroke: var(--ring); stroke-width: 1.6; }
 .cty:hover, .dot:hover { stroke: var(--ring); stroke-width: 1.2; }
@@ -2802,6 +2822,44 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const g = b.dataset.g;
     setFilter(state.filter && state.filter.t === "g" && state.filter.k === g ? null : { t: "g", k: g });
   });
+
+  /* ----------------------------------------------------- gösterge önizleme
+     Bir ailenin üstüne gelmek onu haritada yalnız bırakıyor: tıklamak
+     süzgeci kalıcı kurar, üstüne gelmek yalnız gösterir. Süzgeç zaten
+     açıkken devreye girmiyor — harita o soruya çoktan cevap veriyor.
+
+     Sönme fill üzerinden yapılıyor ve !important gerekiyor: yoğunluk/kişi
+     boyamalarında dolgu satır içi yazılıyor, satır içi biçemi başka türlü
+     geçemezdik. Sınıf, önizleme bitince hemen değil geçiş süresi kadar
+     sonra kalkıyor; yoksa renkler geri gelirken sıçrardı. */
+  let previewG = null, previewT = 0;
+  function setPreview(g) {
+    if (state.filter || state.table) g = null;
+    if (previewG === g) return;
+    previewG = g;
+    clearTimeout(previewT);
+    if (!g) {
+      svg.querySelectorAll(".dim").forEach((n) => n.classList.remove("dim"));
+      previewT = setTimeout(() => svg.classList.remove("previewing"), 280);
+      return;
+    }
+    svg.classList.add("previewing");
+    svg.querySelectorAll(".cty, .dot").forEach((n) => {
+      const o = C[n.dataset.id];
+      n.classList.toggle("dim", !o || keyOf(o, n.dataset.id) !== g);
+    });
+    svg.querySelectorAll(".sub").forEach((n) => {
+      const sb = SB[n.dataset.sid];
+      n.classList.toggle("dim", !sb || keyOf(sb, sb.p) !== g);
+    });
+  }
+  // pointerover/out çift: satırdan satıra geçerken tek bir "ayrıldı"
+  // olayına güvenilemiyor, listenin kendisinden çıkışta sıfırlanıyor.
+  $("#keyRows").addEventListener("pointerover", (e) => {
+    const r = e.target.closest("[data-g]");
+    setPreview(r ? r.dataset.g : null);
+  });
+  $("#keyRows").addEventListener("pointerleave", () => setPreview(null));
 
   /* ------------------------------------------------------------- index */
   const idxList = $("#idxList");
