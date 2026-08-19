@@ -151,6 +151,180 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 900px) { .masthead { grid-template-columns: minmax(0, 1fr) minmax(280px, 460px); } }
 .masthead h1 { font-size: clamp(1.75rem, 3.5vw, 3.1rem); line-height: 1.03; letter-spacing: -.032em; margin-top: 8px; }
 .masthead h1 em { font-style: italic; }
+/* İki soru. Kutulu bir anahtar değil altı çizili sekme: manşetin devamı gibi
+   okunuyor, bir ayar gibi değil. Katman denetiminin (Görünüm → Katman)
+   üstünde duran daha kaba bir seçim — üç dünya katmanı ilk soruya, "Bildiğim"
+   ikinciye denk geliyor. */
+/* İki soru, manşetin serifiyle ve onun ölçüsüne yakın: künyenin sağındaki
+   dil ve tema anahtarları 11 punto sans, bunlar 19 punto serif — aynı türden
+   görünmesinler diye. Sekmelerin altında ince bir ray var, seçili olan onun
+   üstünde kalın bir çizgiyle duruyor. */
+.ask {
+  position: relative; display: flex; flex-wrap: wrap; gap: 0 34px;
+  margin-top: 18px; border-bottom: 1px solid var(--rule);
+}
+.ask .q {
+  position: relative; padding: 11px 0 13px; margin-bottom: -1px;
+  white-space: nowrap; color: var(--ink-2);
+  font-family: "Newsreader", Georgia, serif; font-size: 1.375rem; letter-spacing: -.014em;
+  border-bottom: 2px solid transparent;
+}
+/* Ok her iki sekmede de yer kaplıyor, yalnız görünürlüğü değişiyor: seçim
+   değişince yazıların yeri oynamasın. Seçili olmayanda duruyor ve görünüyor —
+   üstüne gelmeyi beklemiyor, "buraya gidilir" demesi gereken şey o. */
+.ask .q::after { content: "→"; display: inline-block; margin-left: 10px; opacity: .5; }
+/* Üstüne gelince alt çizgi soldan sağa çiziliyor: kutu ya da gölge eklemeden
+   "basılabilir" demenin sessiz yolu. Seçili sekmenin çizgisi zaten duruyor. */
+.ask .q::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  background: var(--ink-3); transform: scaleX(0); transform-origin: left;
+}
+.ask .q:hover { color: var(--ink); }
+.ask .q:hover::before { transform: scaleX(1); }
+.ask .q:hover::after { opacity: 1; transform: translateX(3px); }
+/* Seçili sekmenin çizgisi her sekmenin kendi kenarlığı değil, ikisinin
+   arasında kayan tek bir çubuk: geçişin nereden nereye gittiğini gösteren şey
+   o. Ölçüsü JS'ten geliyor çünkü etiket genişlikleri dile göre değişiyor. */
+.ask-ink {
+  position: absolute; bottom: -1px; left: 0; height: 2px; width: 0;
+  background: var(--ink); pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ask.ready .ask-ink { transition: transform .44s cubic-bezier(.32, .72, 0, 1),
+                                    width .44s cubic-bezier(.32, .72, 0, 1); }
+}
+.ask .q[aria-pressed="true"] { color: var(--ink); }
+.ask .q[aria-pressed="true"]::after { opacity: 0; }
+.ask .q[aria-pressed="true"]::before { content: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .ask .q { transition: color .18s ease; }
+  .ask .q::before { transition: transform .26s cubic-bezier(.32, .72, 0, 1); }
+  .ask .q::after { transition: opacity .18s ease, transform .22s cubic-bezier(.32, .72, 0, 1); }
+}
+/* İlk ziyaret balonu: ikinci soruyu işaret ediyor, bir kez görülüyor. Altta
+   değil sağda duruyor — altında arama kutusu var ve balon onu örtüyordu;
+   soruların sağı ise zaten boş. */
+.ask-slot { position: relative; display: inline-flex; }
+/* Kenarında dolaşan ışık: koni gradyanın açısı dönüyor, gradyan da yalnız
+   kenarlıkta görünüyor (dolgu padding-box'ta, ışık border-box'ta). Açının
+   canlandırılabilmesi için @property ile kaydı gerekiyor; kayıt yoksa
+   değişken yine tanımlı olduğu için gradyan geçerli kalıyor, sadece dönmüyor
+   ve tek kenarda duran sakin bir parlaklığa dönüşüyor. */
+@property --beam { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+.ask-tip {
+  --beam: 0deg;
+  position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+  margin-left: 14px; z-index: 5; white-space: normal;
+  display: flex; align-items: flex-start; gap: 10px; width: max-content; max-width: 38ch;
+  padding: 14px 13px 14px 17px; font-size: 1rem; line-height: 1.45;
+  color: var(--panel); border-radius: 7px; border: 2px solid transparent;
+  background:
+    linear-gradient(var(--ink), var(--ink)) padding-box,
+    conic-gradient(from var(--beam),
+      var(--ink) 0deg, var(--ink) 284deg,
+      rgba(255, 255, 255, .96) 330deg, var(--ink) 360deg) border-box;
+}
+.ask-tip-go { display: block; text-align: left; color: inherit; font: inherit; }
+.ask-tip-cta {
+  display: block; margin-top: 7px; font-size: .8125rem; font-weight: 600;
+  color: var(--panel); opacity: .72;
+}
+.ask-tip-go:hover .ask-tip-cta { opacity: 1; }
+/* display kuralı [hidden]'ı eziyor: bu kural olmadan balon herkese, her
+   ziyarette görünüyordu — "gizli mi" diye DOM'a bakan bir sınama da bunu
+   yakalayamıyor, hesaplanmış display'e bakmak gerekiyor. */
+.ask-tip[hidden] { display: none; }
+.ask-tip::before {
+  content: ""; position: absolute; right: 100%; top: 50%; margin-top: -7px;
+  border: 7px solid transparent; border-right-color: var(--ink);
+}
+.ask-tip .ask-x { font-size: 14px; }
+
+/* İkinci soru sade: dünyayı tarama araçları (dil dizini ve "en çok konuşulan"
+   bandı) ile haritanın çizim seçenekleri (katman / renk / ton) o soruya ait
+   değil. Birinci soruda ise "Bildiğim" hiçbir yerde geçmiyor; oraya giriş
+   yalnız sorunun kendisinden. */
+body.q-me .index, body.q-me .ranked { display: none; }
+body.q-me #mgLayer, body.q-me #mgPaint, body.q-me #mgTone { display: none; }
+/* Sütuna inen seçici cam bir yaprak değil, sıradan bir kart: haritanın
+   üstünde yüzerken gereken buzlu zemin ve gölge burada yersiz. Başlığı da
+   kalkıyor, çünkü hemen üstündeki kart zaten "Bildiğim diller" diyor. */
+body.spk-rail .rail #speakSheet {
+  width: auto; max-height: none; overflow: visible;
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+  box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+  padding: 11px 13px 13px;
+}
+body.spk-rail .rail #speakSheet .sheet-head { display: none; }
+body.spk-rail .rail #spkQ { margin-top: 0; }
+body.spk-rail .rail #spkList { max-height: 42vh; overflow-y: auto; overscroll-behavior: contain; }
+/* Pencere kipinde girişi manşetin altındaki soru veriyor; tam ekranda manşet
+   görünmediği için düğme orada tek giriş noktası olarak kalıyor. */
+.map-area:not(.fs) #btnSpeak { display: none; }
+/* Dar ekranda sorular sarıyor ve sağda yer kalmıyor: balon alta iniyor. */
+@media (max-width: 899px) {
+  .ask-tip { left: 0; top: 100%; transform: none; margin: 9px 0 0; }
+  .ask-tip::before {
+    right: auto; left: 18px; top: auto; bottom: 100%; margin: 0;
+    border-right-color: transparent; border-bottom-color: var(--ink);
+  }
+}
+.ask-tip .ask-x { color: var(--panel); opacity: .6; font-size: 12px; padding: 0 2px; }
+.ask-tip .ask-x:hover { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .ask-tip { animation: tipIn .34s cubic-bezier(.32, .72, 0, 1) both,
+                        beam 3.4s linear .5s infinite; }
+}
+@keyframes beam { to { --beam: 360deg; } }
+
+/* ---------------------------------------------------------------- tanıtım */
+.tour { position: fixed; inset: 0; z-index: 90; }
+.tour[hidden] { display: none; }
+/* Karartma bu kutunun dev gölgesi; deliğin kendisi saydam kalıyor. */
+.tour-hole {
+  position: absolute; border-radius: 7px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(8, 9, 12, .62), 0 0 0 2px rgba(255, 255, 255, .55);
+}
+.tour-box {
+  position: absolute; width: min(34ch, calc(100vw - 32px));
+  background: var(--panel); color: var(--ink); border: 1px solid var(--rule);
+  border-radius: 6px; padding: 14px 16px 13px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .34);
+}
+.tour-n { margin: 0 0 6px; font-size: .625rem; letter-spacing: .12em;
+          text-transform: uppercase; color: var(--ink-3); font-family: "Plex Mono", monospace; }
+.tour-t { margin: 0; font-size: .9375rem; line-height: 1.5; color: var(--ink); }
+.tour-act { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 13px; }
+.tour-act button { font-size: .8125rem; color: var(--ink-3); padding: 6px 4px; }
+.tour-act button:hover { color: var(--ink); }
+.tour-act .tour-go {
+  padding: 7px 15px; border-radius: 3px; background: var(--ink); color: var(--panel);
+}
+.tour-act .tour-go:hover { opacity: .88; color: var(--panel); }
+@media (prefers-reduced-motion: no-preference) {
+  .tour-hole { transition: top .42s cubic-bezier(.32, .72, 0, 1), left .42s cubic-bezier(.32, .72, 0, 1),
+                           width .42s cubic-bezier(.32, .72, 0, 1), height .42s cubic-bezier(.32, .72, 0, 1); }
+  .tour-box { transition: top .42s cubic-bezier(.32, .72, 0, 1), left .42s cubic-bezier(.32, .72, 0, 1); }
+  .tour-box.step { animation: askSwap .34s cubic-bezier(.32, .72, 0, 1) both; }
+}
+/* Dikey ortalama transform ile yapıldığı için animasyon da onu korumalı. */
+@keyframes tipIn {
+  from { opacity: 0; transform: translateY(-50%) translateX(-6px); }
+  to { opacity: 1; transform: translateY(-50%); }
+}
+/* Soru değişince sayfa da cevap değiştirdiğini göstersin: manşet, giriş
+   cümlesi ve sol sütundaki kart tazelenirken hafifçe yükselerek beliriyor,
+   harita da yeni renklerine eriyor (dolgu geçişi yalnız o yarım saniye
+   boyunca açık — sürekli açık olsa her süzgeç ve katman değişimi de
+   yavaşlardı). */
+@media (prefers-reduced-motion: no-preference) {
+  .swap { animation: askSwap .44s cubic-bezier(.32, .72, 0, 1) both; }
+  #map.q-switch .cty, #map.q-switch .sub, #map.q-switch .dot { transition: fill .5s ease; }
+}
+@keyframes askSwap { from { opacity: 0; transform: translateY(7px); } }
+@media (max-width: 899px) {
+  @keyframes tipIn { from { opacity: 0; transform: translateY(-5px); } }
+}
 .lede { color: var(--ink-2); font-size: .9375rem; max-width: 62ch; }
 .prefs { display: flex; gap: 8px; margin-top: 13px; flex-wrap: wrap; }
 /* Sayılar bant hâlinde, her biri kendi dikey cetveliyle: yan yana dizilmiş
@@ -279,6 +453,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    sağında 126 piksellik boş, çerçeveli bir alan kalıyordu. */
 .seg { display: flex; width: fit-content; flex: 0 0 auto;
        border: 1px solid var(--rule-2); border-radius: 2px; overflow: hidden; }
+/* display kuralı [hidden]'ı eziyor — ölçek şeridinde ve azınlık listesinde de
+   aynısı olmuştu. Yaprak, geniş ekranda anahtarı sol sütuna bırakıyor. */
+.seg[hidden] { display: none; }
 .seg button { padding: 3px 8px; font-size: .6875rem; letter-spacing: .04em; color: var(--ink-2); }
 .seg button + button { border-left: 1px solid var(--rule-2); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
@@ -933,6 +1110,25 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     <div>
       <p class="eyebrow" id="eyebrow">Dil Atlası · 2026</p>
       <h1 id="h1">Dünyanın çoğunluğu <em>hangi dilleri</em> konuşuyor?</h1>
+      <!-- Atlas iki soruya cevap veriyor; ikincisi haritanın üstündeki cam
+           çubukta iki kelimelik bir düğmeydi ve kimse bulamıyordu. Soru
+           olarak, manşetin hemen altında duruyor. -->
+      <div class="ask" id="ask" role="group" aria-label="Haritanın cevapladığı soru">
+        <button class="q" id="askWorld" aria-pressed="true">Dünya ne konuşuyor?</button>
+        <!-- Balon ikinci soruya bağlı: sarmalayıcı olmadan ok, soru
+             etiketlerinin dile göre değişen genişliğini takip edemiyordu. -->
+        <span class="ask-slot">
+          <button class="q" id="askMe" aria-pressed="false">Sen kimlerle konuşabilirsin?</button>
+          <div class="ask-tip" id="askTip" hidden>
+            <button class="ask-tip-go" id="askTipGo">
+              <span id="askTipText">Konuştuğunuz dilleri buradan seçin.</span>
+              <span class="ask-tip-cta" id="askTipCta">Nasıl çalışır? →</span>
+            </button>
+            <button class="ask-x" id="askTipX" aria-label="Kapat">✕</button>
+          </div>
+        </span>
+        <span class="ask-ink" id="askInk" aria-hidden="true"></span>
+      </div>
     </div>
     <div>
       <p class="lede" id="lede">Her ülkede nüfusun çoğunluğunun günlük hayatta konuştuğu dil. Renkler dil ailelerini gösterir; listeden bir dil seçerek haritayı süzebilirsiniz.</p>
@@ -950,6 +1146,21 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       </div>
     </div>
   </header>
+
+  <!-- Kısa tanıtım: sayfayı karartıp sırayla dört yeri aydınlatıyor.
+       Delik, dev bir kutu gölgesiyle açılıyor — clip-path'e göre hem daha
+       uyumlu hem de yeri geçişle kayabiliyor. -->
+  <div class="tour" id="tour" hidden aria-live="polite">
+    <div class="tour-hole" id="tourHole"></div>
+    <div class="tour-box" id="tourBox" role="dialog" aria-labelledby="tourT">
+      <p class="tour-n" id="tourN"></p>
+      <p class="tour-t" id="tourT"></p>
+      <div class="tour-act">
+        <button id="tourSkip">Atla</button>
+        <button id="tourNext" class="tour-go">Sonraki</button>
+      </div>
+    </div>
+  </div>
 
   <main class="plate">
     <aside class="rail">
@@ -1019,17 +1230,19 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
                 <h3 id="modesTitle" class="eyebrow">Görünüm</h3>
                 <button class="sheet-x" data-close="modes" aria-label="Kapat">✕</button>
               </div>
-              <div class="mgroup">
+              <!-- "Bildiğim" bu listeden çıktı: artık manşetin altındaki iki
+                   sorudan ikincisi. Buradaki üç seçenek birinci sorunun alt
+                   soruları — dünya hangi açıdan gösterilsin. -->
+              <div class="mgroup" id="mgLayer">
                 <h4 id="mLayT">Katman</h4>
                 <p id="mLayD">Haritanın yanıtladığı soru.</p>
                 <div class="opts" role="group" aria-labelledby="mLayT">
                   <button id="layHome" aria-pressed="true" title="Evde konuşulan dil">Ana dil</button>
                   <button id="layScr" aria-pressed="false" title="Dilin yazıldığı alfabe">Yazı</button>
                   <button id="layOff" aria-pressed="false" title="Devletin resmî dili">Resmî dil</button>
-                  <button id="layKnow" aria-pressed="false" title="Bildiğiniz dillerle nerede anlaşabilirsiniz">Bildiğim</button>
                 </div>
               </div>
-              <div class="mgroup">
+              <div class="mgroup" id="mgPaint">
                 <h4 id="mPaiT">Renk</h4>
                 <p id="mPaiD">Ülkelerin neye göre koyulaşacağı.</p>
                 <div class="opts" role="group" aria-labelledby="mPaiT" id="paintSeg">
@@ -1038,7 +1251,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
                   <button id="paintPpl" aria-pressed="false" title="Konuşan kişi sayısına göre koyulaştır">Kişi</button>
                 </div>
               </div>
-              <div class="mgroup">
+              <div class="mgroup" id="mgTone">
                 <h4 id="mTonT">Ton</h4>
                 <p id="mTonD">Aynı ailedeki diller farklı açıklıkta.</p>
                 <div class="opts" role="group" aria-labelledby="mTonT">
@@ -1293,6 +1506,19 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       eyebrow: "Dil Atlası · 2026",
       h1: 'Dünyanın çoğunluğu <em>hangi dilleri</em> konuşuyor?',
       lede: "Her ülkede nüfusun çoğunluğunun günlük hayatta konuştuğu dil. Renkler dil ailelerini gösterir; listeden bir dil seçerek haritayı süzebilirsiniz.",
+      askWorld: "Dünya ne konuşuyor?", askMe: "Sen kimlerle konuşabilirsin?",
+      h1Me: 'Dünyanın <em>ne kadarıyla</em> konuşabilirsin?',
+      ledeMe: "Konuştuğunuz dilleri seçin; harita her ülkeyi, o dillerle anlaşabileceğiniz nüfus payına göre boyasın.",
+      askTip: "Konuştuğunuz dilleri buradan seçin.",
+      askTipCta: "Nasıl çalışır? →",
+      tourNext: "Sonraki", tourDone: "Denemeye başla", tourSkip: "Atla",
+      tourN: (i, n) => `${i} / ${n}`,
+      tour: [
+        "Atlas iki soruya cevap veriyor. Buradan birinden diğerine geçiyorsun; manşet de hangi soruya baktığını söylüyor.",
+        "Renkler dil ailelerini gösteriyor. Bir ailenin üstüne gelince haritada yalnız o kalıyor, tıklayınca sabitleniyor.",
+        "Bir ülkeye tıkla, kartı haritanın yanında açılsın. Tekerlekle yakınlaş, sürükleyerek gez. \u201cGörünüm\u201d katmanı ve ayrıntı düzeyini değiştiriyor.",
+        "Ve asıl mesele: konuştuğun dilleri seç, dünyanın ne kadarıyla anlaşabildiğini gör.",
+      ],
       stats: ["ülke", "bağımlı bölge", "farklı dil", "çoğunluk dili yok"],
       search: "Dil veya ülke ara…", families: "Dil aileleri",
       keyNote: "Bir satıra tıklayarak o aileyi haritada yalnız bırakabilirsiniz.",
@@ -1304,7 +1530,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         ? `${n} dil seçili · dünyada ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2).replace(".", ",") + " milyar" : Math.round(v / 1000) + " milyon"} kişiyle anlaşılabilir`
         : "Bildiğiniz dilleri seçin.",
       noteKnow: "Renk, o ülkede seçtiğiniz dillerden en az birini konuşan nüfusun payı — ana dil ya da ikinci dil olarak. Paylar toplandığı için iki dili birden bilenler iki kez sayılır: rakam bir üst sınırdır.",
-      noteKnowEmpty: "Bildiğiniz dillere dokunun \u2014 buradaki listeden ya da soldaki dizinden. Seçim tarayıcıda saklanır ve bağlantıya girer.",
+      noteKnowEmpty: "Konuştuğunuz dilleri listeden işaretleyin. Seçim tarayıcıda saklanır ve bağlantıya girer.",
       knowScale: "anlaşılabilen nüfusun payı",
       binsKnow: ["<%5", "%5–20", "%20–45", "%45–70", "%70–90", ">%90"],
       knowLive: (n) => `${n} dil seçili.`,
@@ -1426,6 +1652,19 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       eyebrow: "Language Atlas · 2026",
       h1: 'Which languages does <em>most of the world</em> speak?',
       lede: "The language spoken by most of the population in each country. Colours show language families; pick a language from the list to filter the map.",
+      askWorld: "What does the world speak?", askMe: "Who could you talk to?",
+      h1Me: 'How much of the world <em>can you talk to</em>?',
+      ledeMe: "Pick the languages you speak; the map shades every country by the share of its population you could hold a conversation with.",
+      askTip: "Pick the languages you speak here.",
+      askTipCta: "How does this work? →",
+      tourNext: "Next", tourDone: "Try it", tourSkip: "Skip",
+      tourN: (i, n) => `${i} / ${n}`,
+      tour: [
+        "The atlas answers two questions. Switch between them here \u2014 the headline tells you which one you are looking at.",
+        "Colours are language families. Hover one and only it stays on the map; click to keep it there.",
+        "Click a country and its card opens beside the map. Scroll to zoom, drag to pan. \u201cView\u201d changes the layer and the level of detail.",
+        "And the point of it all: pick the languages you speak and see how much of the world you could hold a conversation with.",
+      ],
       stats: ["countries", "dependencies", "languages", "no majority language"],
       search: "Search a language or country…", families: "Language families",
       keyNote: "Click a row to show only that family on the map.",
@@ -1437,7 +1676,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
         ? `${n} selected · you could talk to ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2) + " billion" : Math.round(v / 1000) + " million"} people`
         : "Pick the languages you speak.",
       noteKnow: "Colour shows the share of the population that speaks at least one of your languages — as a first or second language. Shares are added together, so people who speak two of them are counted twice: read the figure as an upper bound.",
-      noteKnowEmpty: "Pick the languages you speak \u2014 from the list here or the index on the left. The choice is stored in your browser and goes into the link.",
+      noteKnowEmpty: "Tick the languages you speak in the list. The choice is stored in your browser and goes into the link.",
       knowScale: "share of the population you could talk to",
       binsKnow: ["<5%", "5–20%", "20–45%", "45–70%", "70–90%", ">90%"],
       knowLive: (n) => `${n} languages selected.`,
@@ -1945,6 +2184,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     $("#btnSpeak").setAttribute("aria-pressed", String(v === "know"));
     if (v === "know") { if (!known.size) openSheet("speakSheet"); else renderSpeak(); }
     else if (!$("#speakSheet").hidden) closeSheets();
+    syncAsk();
     renderKey();
     // Gösterge anahtarları katmanlar arasında ortak değil (aile "rom",
     // yazı "lat"): eski grup süzgeci hiçbir ülkeyle eşleşmezdi.
@@ -1952,7 +2192,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (state.sel) select(state.sel, state.selSub);
     queueHash();
   }
-  ["Home", "Scr", "Off", "Know"].forEach((k) => {
+  // "Know" listede yok: ikinci soruya giriş manşetin altındaki anahtardan.
+  ["Home", "Scr", "Off"].forEach((k) => {
     $("#lay" + k).onclick = () => setLayer(k.toLowerCase());
   });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
@@ -2203,8 +2444,32 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const area = $("#mapArea");
   const SHEETS = ["modes", "speakSheet", "shareMenu"];
   const opener = { modes: "btnModes", speakSheet: "btnSpeak", shareMenu: "btnShare" };
+  /* Dil seçici geniş ekranda haritanın üstünde yüzmüyor, sol sütuna iniyor:
+     ikinci soruda o sütun zaten kısalıyor ve altında boşluk kalıyordu,
+     haritanın yarısını kapatan bir panele de gerek yok. Tam ekranda ve dar
+     ekranda sütun görünmediği için yaprak olarak geri dönüyor. */
+  let spkRailed = false, spkHome = null;
+  function syncSpkHome() {
+    const sheet = $("#speakSheet"), rail = document.querySelector(".rail");
+    if (!sheet || !rail) return;
+    const want = layer === "know" && !fsOn && matchMedia("(min-width: 1000px)").matches;
+    if (want === spkRailed) return;
+    spkRailed = want;
+    if (want) {
+      spkHome = [sheet.parentNode, sheet.nextSibling];
+      rail.insertBefore(sheet, rail.querySelector(".index"));
+      sheet.hidden = false;
+    } else {
+      if (spkHome) spkHome[0].insertBefore(sheet, spkHome[1]);
+      sheet.hidden = true;
+    }
+    document.body.classList.toggle("spk-rail", want);
+    renderSpeak();
+  }
   function openSheet(id) {
     SHEETS.forEach((s) => {
+      // Sütuna inmiş seçici artık bir yaprak değil: açılıp kapanmıyor.
+      if (s === "speakSheet" && spkRailed) return;
       const on = s === id;
       $("#" + s).hidden = !on;
       $("#" + opener[s]).setAttribute("aria-expanded", String(on));
@@ -2218,7 +2483,141 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // Bildiğim düğmesi tek tıkla katmanı açıp dil seçimini getiriyor; ikinci
   // tıkta yaprağı kapatıp önceki katmana dönüyor. Genel bağlamanın üzerine
   // yazılıyor, çünkü bu düğme yalnız bir yaprak açmıyor.
+  /* ------------------------------------------------------------ iki soru
+     Manşetin altındaki anahtar katman denetiminin üstünde duruyor: üç dünya
+     katmanı (ana dil / yazı / resmî) birinci soruya, "Bildiğim" ikinciye
+     denk geliyor. Seçime göre manşet ve giriş cümlesi de değişiyor — sayfa
+     hangi soruyu cevapladığını kendi söylüyor. */
+  let askWas = null, askT = 0;
+  // Kayan çizgi: seçili sekmenin altına oturuyor. Etiket genişlikleri dile
+  // göre değiştiği için ölçü her seferinde okunuyor.
+  function moveAskInk() {
+    const on = $(layer === "know" ? "#askMe" : "#askWorld"), ink = $("#askInk"), box = $("#ask");
+    if (!on || !ink || !box) return;
+    const a = box.getBoundingClientRect(), r = on.getBoundingClientRect();
+    if (!r.width) return;
+    ink.style.width = r.width + "px";
+    ink.style.transform = `translateX(${(r.left - a.left).toFixed(1)}px)`;
+  }
+  // Yeniden başlatılabilir animasyon: sınıf duruyorsa kaldırıp bir yerleşim
+  // okumasıyla tarayıcıyı sıfırlamaya zorluyoruz, yoksa ikinci geçişte
+  // animasyon hiç oynamaz.
+  function replay(el) {
+    if (!el || reduce) return;
+    el.classList.remove("swap"); void el.offsetWidth; el.classList.add("swap");
+  }
+  function syncAsk() {
+    const me = layer === "know";
+    // Her soru yalnız kendi araçlarını göstersin: birinde dünya listeleri ve
+    // katman/renk/ton seçenekleri, öbüründe yalnız senin dillerin. İkisinin
+    // aynı anda durması sayfayı gereksiz karmaşık gösteriyordu.
+    document.body.classList.toggle("q-me", me);
+    syncSpkHome();
+    $("#askWorld").setAttribute("aria-pressed", String(!me));
+    $("#askMe").setAttribute("aria-pressed", String(me));
+    $("#h1").innerHTML = me ? t().h1Me : t().h1;
+    const l = $("#lede"); if (l) l.textContent = me ? t().ledeMe : t().lede;
+    moveAskInk();
+    // Yalnız soru gerçekten değiştiyse oynat: applyUi dil değişiminde de
+    // buraya uğruyor, orada sayfanın devrilmesi yersiz olurdu.
+    if (askWas !== null && askWas !== me) {
+      replay($("#h1")); replay(l); replay(document.querySelector(".rail .key"));
+      svg.classList.add("q-switch");
+      clearTimeout(askT);
+      askT = setTimeout(() => svg.classList.remove("q-switch"), 560);
+    }
+    askWas = me;
+  }
+  addEventListener("resize", moveAskInk);
+  $("#askWorld").onclick = () => {
+    if (layer !== "know") return;
+    closeSheets(); setLayer(lastNonKnow);
+  };
+  $("#askMe").onclick = () => {
+    hideAskTip();
+    if (layer !== "know") setLayer("know");
+    openSheet("speakSheet");
+  };
+  /* İlk ziyaret balonu. Yalnız hiç dil seçilmemişken ve bir kez: kapatınca ya
+     da soruya basınca bir daha çıkmıyor. Kalıcı çözüm sorunun kendisi,
+     balon yalnız ilk beş saniyeyi kurtarıyor. */
+  const ASK_SEEN = "wl-seen-ask";
+  function hideAskTip() {
+    const n = $("#askTip");
+    if (!n || n.hidden) return;
+    n.hidden = true;
+    try { localStorage.setItem(ASK_SEEN, "1"); } catch (e) { /* özel kip */ }
+  }
+  function maybeAskTip() {
+    let seen = false;
+    try { seen = !!localStorage.getItem(ASK_SEEN); } catch (e) { seen = true; }
+    if (seen || known.size) return;
+    $("#askTip").hidden = false;
+  }
+  $("#askTipX").onclick = hideAskTip;
+
+  /* ------------------------------------------------------------- tanıtım
+     Dört adım: iki soru, gösterge, harita, ve asıl mesele. Her adımda sayfa
+     kararıyor ve yalnız anlatılan yer aydınlık kalıyor. Delik ile kutu
+     yerlerini geçişle değiştirdiği için adımlar arası akıyor. */
+  const TOUR = ["#ask", ".rail .key", "#mapWrap", "#askMe"];
+  let tourAt = -1;
+  function tourPlace() {
+    const el = document.querySelector(TOUR[tourAt]);
+    const hole = $("#tourHole"), box = $("#tourBox");
+    if (!el) return;
+    const r = el.getBoundingClientRect(), pad = 8;
+    const top = Math.max(6, r.top - pad), left = Math.max(6, r.left - pad);
+    const w = Math.min(innerWidth - left - 6, r.width + pad * 2);
+    const h = Math.min(innerHeight - top - 6, r.height + pad * 2);
+    hole.style.top = top + "px"; hole.style.left = left + "px";
+    hole.style.width = w + "px"; hole.style.height = h + "px";
+    // Kutu deliğin altına, sığmıyorsa üstüne; yatayda ekranın içinde kalıyor.
+    const bw = box.offsetWidth || 320, bh = box.offsetHeight || 150;
+    const below = top + h + 12, above = top - bh - 12;
+    box.style.top = (below + bh < innerHeight - 8 ? below : Math.max(8, above)) + "px";
+    box.style.left = Math.min(Math.max(8, left), innerWidth - bw - 8) + "px";
+  }
+  function tourGo(i) {
+    if (i >= TOUR.length) { tourEnd(true); return; }
+    tourAt = i;
+    const el = document.querySelector(TOUR[i]);
+    if (el) el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    $("#tourN").textContent = t().tourN(i + 1, TOUR.length);
+    $("#tourT").textContent = t().tour[i];
+    $("#tourNext").textContent = i === TOUR.length - 1 ? t().tourDone : t().tourNext;
+    replay($("#tourBox"));
+    // Kaydırma yerine oturduktan sonra ölçmek gerekiyor; iki kare yetiyor,
+    // yumuşak kaydırmada da sonunda bir kez daha yerleştiriliyor.
+    requestAnimationFrame(() => requestAnimationFrame(tourPlace));
+    clearTimeout(tourT2); tourT2 = setTimeout(tourPlace, 420);
+  }
+  let tourT2 = 0;
+  function tourEnd(go) {
+    $("#tour").hidden = true;
+    tourAt = -1;
+    removeEventListener("scroll", tourPlace);
+    removeEventListener("resize", tourPlace);
+    if (go && layer !== "know") { setLayer("know"); openSheet("speakSheet"); }
+  }
+  function tourStart() {
+    hideAskTip();
+    $("#tour").hidden = false;
+    addEventListener("scroll", tourPlace, { passive: true });
+    addEventListener("resize", tourPlace);
+    tourGo(0);
+  }
+  $("#askTipGo").onclick = tourStart;
+  $("#tourNext").onclick = () => tourGo(tourAt + 1);
+  $("#tourSkip").onclick = () => tourEnd(false);
+  addEventListener("keydown", (e) => {
+    if ($("#tour").hidden) return;
+    if (e.key === "Escape") { tourEnd(false); e.stopPropagation(); }
+    else if (e.key === "ArrowRight" || e.key === "Enter") tourGo(tourAt + 1);
+  });
+
   $("#btnSpeak").onclick = () => {
+    hideAskTip();
     if (layer !== "know") { setLayer("know"); openSheet("speakSheet"); return; }
     if ($("#speakSheet").hidden) { openSheet("speakSheet"); return; }
     closeSheets();
@@ -2227,7 +2626,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   document.querySelectorAll(".sheet-x").forEach((b) => { b.onclick = closeSheets; });
   // dışarı tıklayınca kapansın; yaprağın kendi içindeki tıklamalar sayılmaz
   addEventListener("pointerdown", (e) => {
-    if (SHEETS.every((s) => $("#" + s).hidden)) return;
+    // Sütundaki seçici hep açık; "açık yaprak var mı" sorusunda sayılmıyor.
+    if (SHEETS.every((s) => $("#" + s).hidden || (s === "speakSheet" && spkRailed))) return;
     if (e.target.closest(".sheet, .hud .bar")) return;
     closeSheets();
   }, true);
@@ -2335,6 +2735,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     $("#hudCap").hidden = !on;
     syncHudCap();
     closeSheets();
+    syncSpkHome();          // tam ekranda sütun yok: seçici yaprağa döner
     sizeFs();
     syncKeyBar();
     if (first) flipFs(wrap, first);
@@ -2404,7 +2805,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   addEventListener("resize", () => { if (fsOn) sizeFs(); });
   addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (!SHEETS.every((s) => $("#" + s).hidden)) { closeSheets(); return; }
+    if (!SHEETS.every((s) => $("#" + s).hidden || (s === "speakSheet" && spkRailed))) { closeSheets(); return; }
     if (fsOn && !document.fullscreenElement) setFs(false);
   });
   // Harita klavyeyle de gezilebilmeli: fare olmadan yakınlaşmanın yolu yoktu.
@@ -2926,6 +3327,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     // içinde yazılıyor; buradan çağrılmadığı için dil eklenip çıkarılınca
     // olduğu yerde kalıyor, hep "dillerinizi seçin" görünüyordu.
     setFilter(state.filter); queueHash();
+    // Seçili ülkenin kartı da bu listeye bağlı: ilk rakamı "o ülkede kaç
+    // kişiyle konuşabilirsin" olmalı. Kart yeniden çizilmediği için, önce
+    // ülkeye sonra dile tıklandığında eski hâlinde kalıyor ve ülkenin ana
+    // dilini öne çıkarmaya devam ediyordu.
+    if (state.sel) select(state.sel, state.selSub);
     live(t().knowLive(known.size));
   }
 
@@ -2952,9 +3358,16 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   const spkQ = $("#spkQ");
   function renderSpeak() {
     if ($("#speakSheet").hidden) return;      // kapalıyken yazmaya gerek yok
+    /* Geniş ekranda sol sütundaki kart zaten Pay/Ana dil anahtarını, üç
+       rakamı ve açıklamayı gösteriyor; yaprak da aynılarını yazınca ekranda
+       iki özdeş kopya duruyordu. Yaprak orada yalnız seçim listesi oluyor.
+       Tam ekranda ve 1000px altında o kart görünmüyor, rakamlar geri
+       geliyor — bilgi hiçbir durumda kaybolmuyor. */
+    const railHas = !fsOn && matchMedia("(min-width: 1000px)").matches;
+    $("#spkMode").hidden = railHas;
     $("#spkMode").querySelectorAll("[data-km]").forEach((b) =>
       b.setAttribute("aria-pressed", String(b.dataset.km === knowMode)));
-    $("#spkStats").innerHTML = spkFigsHTML();
+    $("#spkStats").innerHTML = railHas ? "" : spkFigsHTML();
     const q = norm(spkQ.value.trim());
     // Seçtiğin diller her zaman en üstte, arama süzgecinden bağımsız: bir dil
     // arayınca seçimlerin listeden düşüp ulaşılmaz olmasın. Ayrı bir rozet
@@ -2976,8 +3389,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
              <span class="key-count num">${known.has(s) ? "✓" : fmtS(l.s)}</span></button>`;
         }).join("")
       : `<p class="spk-empty">${esc(t().spkNoHit)}</p>`;
-    $("#spkNote").textContent = !known.size ? t().noteKnowEmpty
-      : knowMode === "home" ? t().noteHome : t().noteKnow;
+    $("#spkNote").textContent = railHas ? "" : (!known.size ? t().noteKnowEmpty
+      : knowMode === "home" ? t().noteHome : t().noteKnow);
+    $("#spkNote").hidden = railHas;
   }
   spkQ.addEventListener("input", renderSpeak);
   $("#speakSheet").addEventListener("click", (e) => {
@@ -3654,15 +4068,19 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     document.documentElement.lang = ui;
     const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
     set("#eyebrow", t().eyebrow);
-    $("#h1").innerHTML = t().h1;
-    set("#lede", t().lede);
+    // Manşet ve giriş cümlesi seçili soruya bağlı; syncAsk ikisini de
+    // aşağıda doğru karşılığıyla yazıyor.
+    set("#askWorld", t().askWorld); set("#askMe", t().askMe);
+    set("#askTipText", t().askTip); set("#askTipCta", t().askTipCta);
+    set("#tourSkip", t().tourSkip);
+    if (tourAt >= 0) tourGo(tourAt);
     set("#keyTitle", t().families);
     set("#keyNote", t().keyNote);
     set("#idxTitle", t().languages);
     set("#sortFam", t().sFam); set("#sortCnt", t().sCnt); set("#sortSpk", t().sSpk);
     set("#paintFam", t().pFam); set("#paintPct", t().pPct); set("#paintPpl", t().pPpl);
     set("#layHome", t().lHome); set("#layScr", t().lScr);
-    set("#layOff", t().lOff); set("#layKnow", t().lKnow);
+    set("#layOff", t().lOff);
     set("#lodAuto", t().dAuto); set("#lodOff", t().dOff); set("#lodOn", t().dOn);
     set("#rankSpk", t().rankSpk); set("#rankAll", t().rankAll); set("#rankCnt", t().rankCnt);
     set("#btnReset", t().reset); set("#btnTable", t().table); set("#btnLink", t().link);
@@ -3672,7 +4090,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const tip = (id, v) => { const e = $(id); if (e) e.title = v; };
     const lbl = (id, v) => { const e = $(id); if (e) e.setAttribute("aria-label", v); };
     tip("#layHome", t().tipLayHome); tip("#layScr", t().tipLayScr);
-    tip("#layOff", t().tipLayOff); tip("#layKnow", t().tipLayKnow);
+    tip("#layOff", t().tipLayOff);
     tip("#paintFam", t().tipPaintFam); tip("#paintPct", t().tipPaintPct);
     tip("#paintPpl", t().tipPaintPpl);
     tip("#lodAuto", t().tipLodAuto); tip("#lodOff", t().tipLodOff); tip("#lodOn", t().tipLodOn);
@@ -3724,6 +4142,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (!FOOT_TR) FOOT_TR = [1,2,3,4,5].map((i) => [$("#fh"+i).innerHTML, $("#fp"+i).innerHTML]);
     const F = ui === "en" ? t().footer : FOOT_TR;
     F.forEach(([h, b], i) => { $("#fh"+(i+1)).innerHTML = h; $("#fp"+(i+1)).innerHTML = b; });
+    syncAsk();
     renderStats();
     renderKey();
     renderHead();
@@ -3788,6 +4207,15 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   renderIndex();
   applyVB();
   applyHash(H0);
+  // Bağlantıyla gelinmişse (hash'te dil seçimi vardır) balona gerek yok;
+  // o yüzden applyHash'ten sonra.
+  maybeAskTip();
+  // Çizgi açılışta yerine kaysın istemiyoruz: önce konumlanıyor, geçiş
+  // bir sonraki karede açılıyor. Yazı tipi geç yüklenirse ölçü değişir,
+  // o yüzden fontlar oturunca bir kez daha ölçülüyor.
+  moveAskInk();
+  requestAnimationFrame(() => { $("#ask").classList.add("ready"); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveAskInk);
   // Kaba geometri ilk kareden sonra hesaplanıyor: açılışı geciktirmesin.
   setTimeout(() => { buildGeo(); applyGeoLod(); }, 0);
   document.addEventListener("keydown", (e) => {

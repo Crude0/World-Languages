@@ -10,6 +10,61 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.19.0 — 19 Ağustos 2026
+
+**Atlas artık iki soruya cevap veriyor ve bunu manşetin altında söylüyor.**
+"Bildiğim diller" haritanın üstünde yüzen cam çubukta iki kelimelik bir
+düğmeydi; uygulamayı ilk kez gören biri bulamadı bile. Manşetin altında iki
+sekme var: *Dünya ne konuşuyor?* ve *Sen kimlerle konuşabilirsin?* İkincisine
+geçince manşet ve giriş cümlesi de değişiyor — sayfa hangi soruyu
+cevapladığını kendi söylüyor. Özellik bir kip ayarı olmaktan çıkıp atlasın
+yaptığı iki şeyden biri oldu.
+
+Sekmeler manşetin serifiyle ve 22 punto; künyedeki dil ve tema anahtarları 11
+punto sans, aynı türden görünmesinler diye ölçüden ayrıldılar. Seçili olmayan
+sekmede ok her zaman duruyor, üstüne gelince üç piksel kayıyor ve alt çizgi
+soldan sağa çiziliyor. Ok iki sekmede de yer kaplıyor: seçim değişince
+yazıların yeri oynamıyor.
+
+**Her soru yalnız kendi araçlarını gösteriyor.** İkinci soruda dil dizini,
+"en çok konuşulan diller" bandı ve Görünüm yaprağındaki katman/renk/ton
+grupları kalkıyor; geriye senin dillerin, erişim haritası ve rampa kalıyor.
+Birinci soruda "Bildiğim" hiçbir yerde geçmiyor — katman listesinden çıktı,
+haritanın üstündeki düğme de yalnız tam ekranda görünüyor, çünkü orada manşet
+yok. Her bağlamda tek giriş noktası kaldı.
+
+**Dil seçici haritanın üstünden sol sütuna indi.** İkinci soruda o sütun zaten
+kısalıyordu; seçici oraya inince haritanın üstü hiç kapanmıyor. 1000px altında
+ve tam ekranda yaprak olarak geri dönüyor. Bu arada iki özdeş temsil de
+ayıklandı: sol sütundaki kart ile yaprak aynı üç rakamı, aynı Pay/Ana dil
+anahtarını ve aynı açıklamayı iki kez gösteriyordu.
+
+**Geçiş animasyonu.** Sekmelerin altındaki çizgi artık her sekmenin kendi
+kenarlığı değil, ikisi arasında kayan tek bir çubuk (0,44 sn; ölçüsü etiket
+genişliğinden, yedi genişlik × iki dilde sapma 0 piksel). Manşet, giriş
+cümlesi ve sol sütundaki kart yedi piksel yükselerek beliriyor. Harita da yeni
+renklerine eriyor: dolgu geçişi yalnız o yarım saniye boyunca açık — sürekli
+açık olsa her süzgeç ve katman değişimi de yavaşlardı.
+
+**İlk ziyarette bir balon ve kısa bir tanıtım.** Balon yalnız hiç dil
+seçilmemişken ve bir kez çıkıyor, ikinci soruyu işaret ediyor. Kenarında bir
+ışık dolaşıyor: koni gradyanın açısı 3,4 saniyede bir tur atıyor ve gradyan
+yalnız kenarlıkta görünüyor. Balona tıklayınca dört adımlık tanıtım açılıyor —
+sayfa kararıyor, yalnız anlatılan yer aydınlık kalıyor, delik ve kutu adımlar
+arası kayarak geçiyor. Son adımın düğmesi ikinci soruya geçirip seçiciyi
+açıyor. Esc çıkıyor, → ve Enter ilerletiyor.
+
+**Seçili ülkenin kartı dil listesine bağlıydı ama onu dinlemiyordu.** Önce bir
+ülkeye, sonra bir dile tıklandığında kart eski hâlinde kalıyor ve "o ülkede
+kaç kişiyle konuşabilirsin" yerine ülkenin ana dilini öne çıkarmaya devam
+ediyordu. Dil listesi değişince kart da yeniden çiziliyor artık.
+
+Küçük düzeltmeler: "Speakers" düğmesi 300 piksellik sütunda kırpılıyordu (yan
+boşluk 13'ten 11'e, düğme boşluğu 8'den 6'ya; on iki piksel pay kaldı, başlık
+satırı gerekirse sarıyor). "Bildiğim diller" yaprağındaki Pay/Ana dil anahtarı
+dikey kutunun içinde satırın tamamını kaplayıp 146 piksellik içeriğin
+çevresinde 272 piksellik boş çerçeve bırakıyordu.
+
 ## v0.18.0 — 19 Ağustos 2026
 
 **Göstergede bir ailenin üstüne gelmek onu haritada yalnız bırakıyor.**
