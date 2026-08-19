@@ -436,22 +436,101 @@ body.busy .hud-panels > .minor {
    Kart sayfada haritanın altında duruyor; tam ekranda orası görünmediği
    için tıklamak hiçbir şey yapmıyormuş gibi oluyordu. Kip açılırken
    düğüm panel sütununa taşınıyor, kapanırken eski yerine dönüyor. */
-.map-area.fs .hud-panels { width: min(360px, calc(100% - 20px)); bottom: 10px; }
+.map-area.fs .hud-panels { width: min(360px, calc(100% - 20px)); bottom: calc(var(--keyh, 0px) + 10px); }
 /* Ölçek şeridi de aynı köşede; görünürken sütun onun üstünde bitiyor.
    :has() yerine sınıf: renderScale zaten görünürlüğü biliyor ve
    macOS 10.15'teki WebKit :has() bilmiyor. */
-.map-area.fs.has-scale .hud-panels { bottom: 62px; }
+.map-area.fs.has-scale .hud-panels { bottom: calc(var(--keyh, 0px) + 62px); }
+/* Alt köşedeki her şey gösterge bandının üstünde duruyor. Bandın yüksekliği
+   rozetler sarınca değiştiği için ölçülüp --keyh olarak yazılıyor. */
+.map-area.fs .hud-ctl, .map-area.fs .scale { bottom: calc(var(--keyh, 0px) + 10px); }
 /* Kart içeriği kadar uzun; sütunda yer varsa uzamıyor, yer yoksa küçülüp
    kendi içinde kayıyor. flex:1 verilince metnin bittiği yerde cam kutu
    devam ediyordu. min-height:0 olmadan flex çocuğu içeriğinin altına
    inemiyor ve taşıyor. */
 .map-area.fs .hud-panels > .detail.on { flex: 0 1 auto; min-height: 0; max-height: none; }
-.map-area.fs .hud-panels > .key { flex: 0 0 auto; padding: 11px 13px 12px; }
-.map-area.fs .hud-panels > .key .key-note { display: none; }
-/* Gösterge tam ekranda da elde kalsın: yan panel görünmediği için renklerin
+
+/* ------------------------------------------------- tam ekran gösterge bandı
+   Gösterge tam ekranda da elde kalsın: yan panel görünmediği için renklerin
    ne anlama geldiğini söyleyecek başka bir şey kalmıyordu. Kopya bir liste
    üretmek yerine anahtarın kendisi taşınıyor — tıklayınca süzme davranışı da
-   geliyor. */
+   geliyor.
+
+   Sütun yerine alt bant: sol kenar haritanın en okunaklı yeri ve dokuz
+   satırlık bir liste orayı boydan boya kapatıyordu. Bant ekranın eninde,
+   satırlar yuvarlak rozetlere dönüyor; dağılım şeridi de bandın üst kenarına
+   ince bir tayf olarak oturuyor. */
+.hud-key { left: 0; right: 0; bottom: 0; display: none; }
+.map-area.fs .hud-key { display: block; }
+/* Kip değişirken harita kutusu FLIP ile büyüyor; üstündeki denetimler de
+   birden belirmesin. Geçiş değil animasyon: bu düğümler tam ekranda
+   display:none'dan geliyor, geçiş hiç başlamazdı. */
+@media (prefers-reduced-motion: no-preference) {
+  .map-area.fs .hud-panels > *, .map-area.fs .hud-ctl > * { animation: hudIn .38s ease-out both; }
+  .map-area.fs .hud-key > * { animation: hudBar .42s cubic-bezier(.32, .72, 0, 1) both; }
+}
+@keyframes hudIn { from { opacity: 0; } }
+@keyframes hudBar { from { opacity: 0; transform: translateY(100%); } }
+/* Bandın üstünde kısa bir geçiş: bulanıklık kutunun tamamına eşit uygulandığı
+   için üst kenarı keskin bir dikişe dönüyordu; tint'i yukarı doğru söndüren
+   bu şerit onu yumuşatıyor (kendisi bulanıklaştırmıyor). */
+.map-area.fs .hud-key::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 34px;
+  background: linear-gradient(to top, var(--glass), transparent);
+  pointer-events: none;
+}
+.map-area.fs .hud-key > .key {
+  position: relative; pointer-events: auto;
+  display: flex; flex-wrap: nowrap; align-items: center;
+  padding: 9px 10px calc(9px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--glass-line);
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .map-area.fs .hud-key > .key { background: var(--panel); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .map-area.fs .hud-key > .key {
+    background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+}
+/* Başlık banttan çıkıyor. Dokuz rozet tek satıra ancak sığıyor ve başlık
+   1500px'lik bir ekranda o satırı ikiye bölen 155 pikselin kendisiydi;
+   "DİL AİLELERİ" yazmadan da bir renk göstergesine baktığı belli. Ekran
+   okuyucu için duruyor: bölümün erişilebilir adı bu başlıktan geliyor,
+   display:none onu da götürürdü. */
+.map-area.fs .hud-key .key h2 {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.map-area.fs .hud-key .key-rows {
+  flex: 1 1 auto; flex-direction: row; flex-wrap: wrap; justify-content: center;
+  align-items: center; gap: 2px 3px; margin: 0;
+}
+.map-area.fs .hud-key .key-row {
+  width: auto; margin: 0; grid-template-columns: 9px auto auto;
+  gap: 6px; padding: 5px 8px; border-radius: 999px;
+}
+.map-area.fs .hud-key .key-row .swatch { width: 9px; height: 9px; }
+.map-area.fs .hud-key .key-name { font-size: .6875rem; }
+.map-area.fs .hud-key .key-count { font-size: .625rem; }
+/* İngilizce adlar Türkçe olanlardan ~%19 daha geniş ("Romance languages"
+   karşılığı "Roman dilleri"): 1500px'te tek satır tam sığıyor, 1440'ta 43
+   piksel taşıyordu. Dar ekranda punto ve iç boşluk bir tık kısılıyor —
+   satırı ikiye bölmektense harfleri bir punto küçültmek daha az göze
+   batıyor. */
+@media (max-width: 1499px) {
+  .map-area.fs .hud-key .key-rows { gap: 2px; }
+  .map-area.fs .hud-key .key-row { gap: 5px; padding: 5px 7px; }
+  .map-area.fs .hud-key .key-name { font-size: .625rem; }
+}
+/* Dağılım şeridi bandın üst kenarında, kenardan kenara. */
+.map-area.fs .hud-key .dist {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px; gap: 0;
+}
+.map-area.fs .hud-key .key-note { display: none; }
 .hud-panels > .detail.on,
 .hud-panels > .key,
 .hud-panels > .minor {
@@ -1006,6 +1085,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
           </div>
 
           <div class="scale glass" id="scale" hidden></div>
+
+          <!-- Tam ekranda gösterge buraya taşınıyor: sol taraf haritanın en
+               okunaklı yeri, renkleri açıklamak için onu harcamak yerine alt
+               kenara karartılmış buzlu bir bant geliyor. -->
+          <div class="hud-key" id="hudKey"></div>
         </div>
       </div>
 
@@ -2182,12 +2266,15 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   }
   function moveCards(toHud) {
     const panels = document.querySelector(".hud-panels");
+    const keyBar = document.querySelector(".hud-key");
     if (toHud) {
-      [".key", "#minor", "#detail"].forEach((sel) => {
+      // Gösterge alta, kartlar sola. İkisi ayrı yuvada: gösterge ekranın
+      // eninde bir bant, kart sütunu ise dar ve uzun.
+      [[".key", keyBar], ["#minor", panels], ["#detail", panels]].forEach(([sel, host]) => {
         const n = document.querySelector(sel);
-        if (!n) return;
+        if (!n || !host) return;
         moved.push([n, n.parentNode, n.nextSibling]);
-        panels.appendChild(n);
+        host.appendChild(n);
       });
     } else {
       while (moved.length) {
@@ -2197,11 +2284,26 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     }
     syncSide();
   }
+  // Bandın yüksekliği içeriğe bağlı: dokuz rozet geniş ekranda tek satıra
+  // sığıyor, dar ekranda ikiye sarıyor. Alt köşedeki denetimler ve ölçek
+  // şeridi onun üstünde duracaksa ölçüyü bilmek gerekiyor.
+  const keyBarEl = document.querySelector(".hud-key");
+  function syncKeyBar() {
+    const h = fsOn && keyBarEl ? keyBarEl.getBoundingClientRect().height : 0;
+    area.style.setProperty("--keyh", Math.round(h) + "px");
+  }
+  if (keyBarEl && window.ResizeObserver) new ResizeObserver(syncKeyBar).observe(keyBarEl);
   function setFs(on) {
     if (on === fsOn) return;
     // Tablo açıkken harita gizli; tam ekrana o hâlde girilirse boş bir
     // kaplama çıkardı. Tam ekran her zaman haritayı gösterir.
     if (on && state.table) setTable(false);
+    const wrap = $("#mapWrap");
+    // Düğme, tam ekran isteğinden ÖNCE ölçmüş olabilir: tarayıcı isteği
+    // karşılar karşılamaz kaplamayı ekrana yayıyor, yani setFs'e gelindiğinde
+    // "önceki yer" çoktan yeni yer olmuş oluyordu.
+    const first = reduce ? null : (fsFirst || wrap.getBoundingClientRect());
+    fsFirst = null;
     fsOn = on;
     moveCards(on);
     area.classList.toggle("fs", on);
@@ -2214,6 +2316,41 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     syncHudCap();
     closeSheets();
     sizeFs();
+    syncKeyBar();
+    if (first) flipFs(wrap, first);
+  }
+  // Tam ekrana giriş ve çıkış tak diye olmasın. Harita kutusunun kip
+  // değişmeden önceki ve sonraki yeri ölçülüyor, aradaki fark ters dönüşüm
+  // olarak uygulanıp kimliğe doğru oynatılıyor — FLIP. Yalnız transform
+  // değiştiği için her kare compositor'da kalıyor, yeniden yerleşim yok.
+  //
+  // Ölçüm iki yolda da doğru: tarayıcının kendi tam ekranı kullanıldığında
+  // pencere zaten büyümüş oluyor ve setFs ondan sonra çağrılıyor, yani
+  // "önce" hâli de yeni pencerenin içinde ölçülüyor.
+  let fsAnim = null, fsFirst = null, fsVW = 0, fsVH = 0;
+  function flipFs(wrap, first) {
+    const last = wrap.getBoundingClientRect();
+    if (!first.width || !last.width || !first.height || !last.height) return;
+    const sx = first.width / last.width, sy = first.height / last.height;
+    // Gerçek tam ekran görünüm alanını da büyütüyor: ölçüm o değişimin bir
+    // yanında yapıldıysa "önceki yer" artık aynı koordinat uzayında değil ve
+    // oradan büyütmek haritayı yanlış köşeden başlatırdı. Öteleme o durumda
+    // bırakılıyor, oran korunuyor: yerinde yumuşak bir yakınlaşma kalıyor.
+    const sameView = fsVW === innerWidth && fsVH === innerHeight;
+    const dx = sameView ? first.left - last.left : 0;
+    const dy = sameView ? first.top - last.top : 0;
+    const org = sameView ? "0 0" : "50% 50%";
+    if (Math.abs(dx) + Math.abs(dy) < 2 && Math.abs(1 - sx) < .01) return;
+    if (fsAnim) fsAnim.cancel();
+    fsAnim = wrap.animate([
+      { transformOrigin: org, transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` },
+      { transformOrigin: org, transform: "none" },
+    ], { duration: 420, easing: "cubic-bezier(.32, .72, 0, 1)" });
+    // Dönüşüm kutunun yerini değiştiriyor: imleç–harita çevriminin dayandığı
+    // önbellek geçiş bitince tazelenmeli, yoksa tıklamalar kayar.
+    fsAnim.onfinish = fsAnim.oncancel = () => { rectCache = null; fsAnim = null; };
+    // Kaplamanın arkası (okyanus rengi) da birden belirmesin.
+    area.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: "ease-out" });
   }
   // Tam ekranda başlık şeridi görünmüyor; ne baktığınız haritanın üstünde
   // küçük bir şeritte yazıyor.
@@ -2222,7 +2359,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (!c || c.hidden) return;
     c.innerHTML = `<b>${$("#capTitle").innerHTML}</b> <span>${esc($("#capSub").textContent)}</span>`;
   }
+  // Ölçüm düğmede, tam ekran isteğinden önce: istek karşılandığı anda
+  // kaplama zaten ekrana yayılmış oluyor.
+  function markFs() {
+    fsFirst = reduce ? null : $("#mapWrap").getBoundingClientRect();
+    fsVW = innerWidth; fsVH = innerHeight;
+  }
   $("#btnFull").onclick = () => {
+    markFs();
     if (fsOn) {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => setFs(false));
       else setFs(false);

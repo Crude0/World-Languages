@@ -19,6 +19,28 @@ const stats = await p.evaluate(() => ({
   fonts: [...document.fonts].filter(f => f.status === "loaded").map(f => f.family + " " + f.weight).slice(0, 3),
 }));
 console.log(stats);
+
+// Biçem sayfası bütün mü? Bir kuralda fazladan açılan tek bir süslü parantez,
+// ondan sonraki bütün kuralları sessizce yutuyor: harita bembeyaz değil,
+// bomboş siyah çıkıyordu ve ne konsolda hata vardı ne de sayfa çöküyordu.
+// Ölçüt kural sayısı değil, işe yarayan bir sonuç: bilinen bir ülke bilinen
+// ailenin rengini almalı, ve tam ekran bandı kendi yerinde olmalı.
+const css = await p.evaluate(() => {
+  const br = document.querySelector('#map [data-id="076"]');   // Brezilya · Roman
+  const key = document.querySelector(".key-row");
+  const sheet = [...document.styleSheets].find((s) => {
+    try { return s.cssRules.length > 50; } catch (e) { return false; }
+  });
+  return {
+    kural: sheet ? sheet.cssRules.length : 0,
+    brezilya: br ? getComputedStyle(br).fill : "yok",
+    gösterge: key ? getComputedStyle(key).display : "yok",
+  };
+});
+const kara = /^rgb\(0, ?0, ?0\)$/.test(css.brezilya);
+console.log(`biçem: ${css.kural} kural · Brezilya ${css.brezilya}${kara ? "  ← KURALLAR DÜŞMÜŞ" : ""}`);
+if (kara || css.kural < 200) errs.push("CSS " + JSON.stringify(css));
+
 // yatay taşma kontrolü (dar ekran)
 await p.setViewportSize({ width: 360, height: 800 });
 await p.waitForTimeout(400);

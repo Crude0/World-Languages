@@ -10,6 +10,45 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.17.0 — 19 Ağustos 2026
+
+**Tam ekranda gösterge sol sütunu bırakıp alt banda taşındı.** Dokuz satırlık
+liste ekranın en okunaklı kenarını boydan boya kapatıyordu. Bant ekranın
+eninde ve 47 piksel: üst kenarında ailelerin ülke payını gösteren ince bir
+tayf, altında rozetler. Kararma ve buzlu cam yerinde, rozete tıklamak eskisi
+gibi süzüyor — bantla Cermen'e basınca 50 ülke mavi kalıyor, 178'i griye
+düşüyor.
+
+Tek satıra sığması hesapla oldu, denemeyle değil: dokuz rozet İngilizce
+adlarla 1483 piksel istiyor ve "DİL AİLELERİ" başlığı tam da o satırı ikiye
+bölen 155 pikseldi. Başlık görsel olarak kalktı (bölümün erişilebilir adı
+ondan geldiği için ekran okuyucuda duruyor), punto ve iç boşluklar bir tık
+kısıldı. Sonuç: İngilizcede 1366 pikselden, Türkçede 1180'den itibaren tek
+satır; altında ikiye sarıyor ve alt köşedeki denetimlerle ölçek şeridi bandın
+yeni yüksekliğine göre kayıyor.
+
+**Tam ekrana giriş ve çıkış artık tak diye olmuyor.** Harita kutusunun kip
+değişmeden önceki ve sonraki yeri ölçülüp aradaki fark ters dönüşüm olarak
+uygulanıyor, sonra kimliğe doğru oynatılıyor. 420 ms, yalnız `transform`,
+yani her kare compositor'da: kare ortancası 16,7 ms. Denetimler soluk
+açılıyor, gösterge bandı aşağıdan yükseliyor.
+
+Buradaki tuzak ölçümün ne zaman yapıldığıydı: düğme `requestFullscreen()`
+çağırıyor ve tarayıcı isteği karşılar karşılamaz kaplamayı ekrana yayıyor, yani
+kipi kuran koda gelindiğinde "önceki yer" çoktan yeni yer olmuş oluyordu ve
+animasyon hiç başlamıyordu. Ölçüm artık istekten önce. Gerçek tam ekran görünüm
+alanını da büyüttüğü için, ölçümün iki yanı farklı pencerelere denk geldiyse
+öteleme bırakılıp yalnız oran korunuyor — yanlış köşeden başlamaktansa yerinde
+yumuşak bir yakınlaşma.
+
+**Yayım denetimi biçem sayfasının bütünlüğüne de bakıyor.** Bu turda bir
+kuralda seçiciyi iki kez yazdım; fazladan açılan tek bir süslü parantez ondan
+sonraki bütün kuralları yuttu ve harita bomboş siyah çıktı — ne konsolda hata
+vardı, ne sayfa çöktü, yani sessizce yayımlanabilirdi. `check-desktop.mjs`
+artık kural sayısına ve bilinen bir sonuca bakıyor: Brezilya Roman kırmızısı
+mı. Kasten bozulmuş bir kopyayla sınandı, 410 kural yerine 58 gördü ve
+düşürdü.
+
 ## v0.16.0 — 18 Ağustos 2026
 
 **Ülke seçili değilken harita kart sütununa doğru büyüyor.** Sütun gösterecek
