@@ -1,55 +1,32 @@
-<!-- title: The atlas asks two questions now -->
-**The atlas answers two questions, and it now says so under the headline.**
-"I speak" was a two-word button in a glass bar floating over the map — someone
-seeing the app for the first time could not find it at all. Two tabs sit under
-the headline instead: *What does the world speak?* and *Who could you talk
-to?* Switching to the second changes the headline and the standfirst too, so
-the page states which question it is answering. The feature stopped being a
-mode setting and became one of the two things the atlas does.
+<!-- title: The walkthrough gets a permanent door -->
+**The walkthrough can now be opened at any time: View → Walkthrough.** The
+first-visit bubble appears once and only when no languages have been picked —
+so anyone already using the app never saw it. On the desktop app this is even
+sharper: `localStorage` is tied to the bundle, so replacing the .app keeps the
+old state, and an existing user installing the new version never meets the
+bubble at all. The walkthrough is always reachable now; started from
+fullscreen it returns to windowed mode first, because two of the things it
+points at live in the left column.
 
-The tabs are set in the headline's serif at 22px; the language and theme
-switches in the masthead are 11px sans, so the two never read as the same kind
-of control. The inactive tab always carries an arrow, which slides three
-pixels on hover while the underline draws itself left to right. The arrow
-occupies space on both tabs, so nothing shifts when the selection changes.
+**When the walkthrough ends it keeps pointing.** After "Try it" a soft
+two-stop highlight follows: first the language picker, then — once the first
+language is ticked — the fullscreen button. The dimming is light and the
+overlay lets clicks through, so the highlighted thing can actually be pressed.
+A ring pulses around it with a one-line caption, and it lifts by itself once
+the target is used or the time is up.
 
-**Each question shows only its own tools.** In the second one the language
-index, the "most spoken languages" band and the layer/colour/shade groups in
-the View sheet all step aside; what remains is your languages, the reach map
-and its ramp. In the first one "I speak" appears nowhere — it left the layer
-list, and the button over the map now shows only in fullscreen, where there is
-no masthead. One entry point per context.
+**The light around the bubble was invisible in the dark theme.** Its background
+was `--ink`, which turns white in the dark theme — a white bubble under a white
+light. The bubble carries its own colours now and stays dark in both themes.
+The light itself got stronger too: a wider arc with a halo breathing on the
+same beat. Measured — in the light theme the edge sits at 65 and the light
+peaks at 252; in the dark theme 81 → 199, and the peak travels from the top
+edge to the right, then to the bottom.
 
-**The language picker moved off the map and into the left column.** That column
-was already getting short in the second question; with the picker there, the
-map is never covered. Below 1000px and in fullscreen it goes back to being a
-sheet. Two identical representations were removed along the way: the column's
-card and the sheet were both printing the same three figures, the same
-Share/Home switch and the same note.
-
-**Transitions.** The line under the tabs is no longer each tab's own border but
-a single bar that slides between them (0.44s; its width comes from the label,
-and across seven widths in two languages it lands within 0 pixels). The
-headline, the standfirst and the column card rise seven pixels as they change.
-The map melts into its new colours: the fill transition is switched on only for
-that half second — leaving it on would slow every filter and layer change too.
-
-**A first-visit bubble, and a short walkthrough.** The bubble appears once, only
-when no languages have been picked, and points at the second question. A light
-travels around its edge: the angle of a conic gradient turns once every 3.4
-seconds and the gradient shows only in the border. Clicking the bubble opens a
-four-step walkthrough — the page dims, only the part being explained stays lit,
-and the hole and the caption slide between steps. The last step's button
-switches to the second question and opens the picker. Esc leaves, arrow and
-Enter advance.
-
-**The selected country's card depended on the language list but wasn't
-listening to it.** Click a country first and a language second, and the card
-stayed as it was, still leading with the country's home language instead of how
-many people you could talk to there. It is redrawn when the list changes now.
-
-Smaller fixes: the "Speakers" button was clipped in the 300px column (side
-padding 13 → 11, button padding 8 → 6, twelve pixels of slack, and the header
-row wraps if it needs to). The Share / Home language switch in the "I speak"
-sheet stretched across the full line inside a vertical box, leaving 272 pixels
-of frame around 146 pixels of content.
+**Hovering the bubble brings up a holographic surface.** A glare under the
+pointer, foil bands whose angle turns with it, and star dust over them — the
+three drift at three different rates, and that difference is what reads as
+depth. The bubble also leans a few degrees toward the pointer. All of it is
+confined to a mask that follows the cursor: in the first attempt the foil
+covered the whole box and its tiling seams showed, now it is a patch that
+travels.

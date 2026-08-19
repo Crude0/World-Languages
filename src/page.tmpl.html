@@ -14,6 +14,11 @@ __FONTS__
   --ink-2:      #4d535d;
   --ink-3:      #7d848e;
   --rule:       #d6dade;
+  /* Balon her iki temada da koyu kalıyor: zemini --ink olsaydı koyu temada
+     beyaza döner, üstündeki beyaz ışık da görünmez olurdu. */
+  --tip-bg:     #17181c;
+  --tip-fg:     #fbfbfa;
+  --tip-dim:    #3a3f4a;
   --rule-2:     #b6bcc4;
   --ring:       #171a20;
   --shadow:     0 1px 2px rgba(20,24,32,.08), 0 8px 24px -12px rgba(20,24,32,.22);
@@ -54,6 +59,9 @@ __FONTS__
     --ink-2:      #a8aeb9;
     --ink-3:      #767d89;
     --rule:       #2a2f38;
+    --tip-bg:     #212633;
+    --tip-fg:     #eceef2;
+    --tip-dim:    #454d60;
     --rule-2:     #3e444f;
     --ring:       #eceef2;
     --shadow:     0 1px 2px rgba(0,0,0,.5), 0 10px 28px -12px rgba(0,0,0,.7);
@@ -90,6 +98,9 @@ __FONTS__
   --ink-2:      #a8aeb9;
   --ink-3:      #767d89;
   --rule:       #2a2f38;
+  --tip-bg:     #212633;
+  --tip-fg:     #eceef2;
+  --tip-dim:    #454d60;
   --rule-2:     #3e444f;
   --ring:       #eceef2;
   --shadow:     0 1px 2px rgba(0,0,0,.5), 0 10px 28px -12px rgba(0,0,0,.7);
@@ -213,21 +224,70 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @property --beam { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
 .ask-tip {
   --beam: 0deg;
-  position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+  position: absolute; left: 100%; top: 50%;
+  /* Derinlik: imlece doğru birkaç derece yatıyor. Perspektif kutunun
+     kendisinde, yani folyo ve yıldızlar da onunla eğiliyor. */
+  transform: translateY(-50%) perspective(720px)
+             rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
   margin-left: 14px; z-index: 5; white-space: normal;
   display: flex; align-items: flex-start; gap: 10px; width: max-content; max-width: 38ch;
   padding: 14px 13px 14px 17px; font-size: 1rem; line-height: 1.45;
-  color: var(--panel); border-radius: 7px; border: 2px solid transparent;
+  color: var(--tip-fg); border-radius: 8px; border: 2px solid transparent;
   background:
-    linear-gradient(var(--ink), var(--ink)) padding-box,
+    linear-gradient(var(--tip-bg), var(--tip-bg)) padding-box,
     conic-gradient(from var(--beam),
-      var(--ink) 0deg, var(--ink) 284deg,
-      rgba(255, 255, 255, .96) 330deg, var(--ink) 360deg) border-box;
+      var(--tip-dim) 0deg, var(--tip-dim) 250deg,
+      rgba(255, 255, 255, .55) 300deg, #fff 332deg,
+      rgba(255, 255, 255, .55) 350deg, var(--tip-dim) 360deg) border-box;
+  /* Kuyruklu yıldızın arkasından gelen hâle: ışığın kendisi kenarlıkta,
+     bu da onun etrafa vuran yumuşak parıltısı. Aynı ritimde nefes alıyor. */
+  box-shadow: 0 0 0 rgba(255, 255, 255, 0);
 }
-.ask-tip-go { display: block; text-align: left; color: inherit; font: inherit; }
+/* Holografik yüzey: imleç balonun üstündeyken beliriyor ve onu izliyor.
+   İki katman — imlecin olduğu yerden çıkan gökkuşağı ve onun üstünden geçen
+   dar bir parlama şeridi. Konum --mx/--my ile geliyor (0–1), ikisini de
+   pointermove yazıyor. Karışım kipi "overlay": altındaki koyu zemini
+   boyamak yerine onunla karışıyor, yani yazı okunur kalıyor. */
+.ask-tip::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  pointer-events: none; opacity: 0; mix-blend-mode: screen;
+  background:
+    /* yıldızlar: folyonun üstünde parlayan ince toz */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46'%3E%3Cpath d='M12 4c.7 4.6 2 5.9 6.6 6.6-4.6.7-5.9 2-6.6 6.6-.7-4.6-2-5.9-6.6-6.6C10 9.9 11.3 8.6 12 4z' fill='%23fff' opacity='.95'/%3E%3Cpath d='M34 21c.5 3.4 1.5 4.4 4.9 4.9-3.4.5-4.4 1.5-4.9 4.9-.5-3.4-1.5-4.4-4.9-4.9 3.4-.5 4.4-1.5 4.9-4.9z' fill='%23fff' opacity='.8'/%3E%3Cpath d='M21 34c.35 2.4 1.05 3.1 3.45 3.45-2.4.35-3.1 1.05-3.45 3.45-.35-2.4-1.05-3.1-3.45-3.45 2.4-.35 3.1-1.05 3.45-3.45z' fill='%23fff' opacity='.65'/%3E%3C/svg%3E"),
+    /* imlecin altındaki parlama */
+    radial-gradient(46% 110% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
+      rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 64%),
+    /* folyo bantları: açısı imlece bağlı */
+    repeating-linear-gradient(calc(var(--mx, .5) * 46deg + 96deg),
+      #ff5f8f 0px, #ffd76b 11px, #7bff9e 22px, #6bd7ff 33px, #b58bff 44px, #ff5f8f 55px);
+  /* Desen kutudan büyük ve imleçle kayıyor; büyük olması döşeme dikişini
+     görüş alanının dışında tutuyor. */
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: 46px 46px, 100% 100%, 320% 320%;
+  /* Üç katman üç ayrı hızda kayıyor: yıldızlar imlecin tersine ve az,
+     folyo imleçle ve çok. Aradaki fark derinlik hissini veren şey. */
+  background-position:
+    calc(var(--mx, .5) * -30px) calc(var(--my, .5) * -20px),
+    0 0,
+    calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%);
+  /* Asıl mesele maske: folyo her yeri kaplamıyor, imlecin çevresinde bir
+     yama olarak duruyor ve onunla geziniyor. */
+  -webkit-mask-image: radial-gradient(52% 125% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
+    #000 0%, rgba(0, 0, 0, .6) 42%, transparent 76%);
+  mask-image: radial-gradient(52% 125% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
+    #000 0%, rgba(0, 0, 0, .6) 42%, transparent 76%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ask-tip::after { transition: opacity .28s ease; }
+  /* Eğim de yumuşasın; imleç ayrılınca sıfıra dönüşü aynı eğriyle. */
+  .ask-tip { transition: transform .22s cubic-bezier(.32, .72, 0, 1); }
+}
+.ask-tip:hover::after { opacity: .78; }
+.ask-tip-go { position: relative; display: block; text-align: left; color: inherit; font: inherit; }
 .ask-tip-cta {
   display: block; margin-top: 7px; font-size: .8125rem; font-weight: 600;
-  color: var(--panel); opacity: .72;
+  color: var(--tip-fg); opacity: .72;
 }
 .ask-tip-go:hover .ask-tip-cta { opacity: 1; }
 /* display kuralı [hidden]'ı eziyor: bu kural olmadan balon herkese, her
@@ -236,7 +296,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ask-tip[hidden] { display: none; }
 .ask-tip::before {
   content: ""; position: absolute; right: 100%; top: 50%; margin-top: -7px;
-  border: 7px solid transparent; border-right-color: var(--ink);
+  border: 7px solid transparent; border-right-color: var(--tip-bg);
 }
 .ask-tip .ask-x { font-size: 14px; }
 
@@ -263,19 +323,27 @@ body.spk-rail .rail #spkList { max-height: 42vh; overflow-y: auto; overscroll-be
 .map-area:not(.fs) #btnSpeak { display: none; }
 /* Dar ekranda sorular sarıyor ve sağda yer kalmıyor: balon alta iniyor. */
 @media (max-width: 899px) {
-  .ask-tip { left: 0; top: 100%; transform: none; margin: 9px 0 0; }
+  .ask-tip { left: 0; top: 100%; margin: 9px 0 0;
+             transform: perspective(720px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); }
   .ask-tip::before {
     right: auto; left: 18px; top: auto; bottom: 100%; margin: 0;
-    border-right-color: transparent; border-bottom-color: var(--ink);
+    border-right-color: transparent; border-bottom-color: var(--tip-bg);
   }
 }
-.ask-tip .ask-x { color: var(--panel); opacity: .6; font-size: 12px; padding: 0 2px; }
+.ask-tip .ask-x { color: var(--tip-fg); opacity: .6; font-size: 12px; padding: 0 2px; }
 .ask-tip .ask-x:hover { opacity: 1; }
 @media (prefers-reduced-motion: no-preference) {
-  .ask-tip { animation: tipIn .34s cubic-bezier(.32, .72, 0, 1) both,
-                        beam 3.4s linear .5s infinite; }
+  /* "both" değil "backwards": bitiş karesini tutsaydı transform'u kalıcı
+     olarak animasyona bağlar, imlece göre eğilme hiç uygulanamazdı. */
+  .ask-tip { animation: tipIn .34s cubic-bezier(.32, .72, 0, 1) backwards,
+                        beam 3.2s linear .4s infinite,
+                        beamGlow 3.2s ease-in-out .4s infinite; }
 }
 @keyframes beam { to { --beam: 360deg; } }
+@keyframes beamGlow {
+  0%, 100% { box-shadow: 0 0 14px -4px rgba(255, 255, 255, .18); }
+  50%      { box-shadow: 0 0 22px -2px rgba(255, 255, 255, .42); }
+}
 
 /* ---------------------------------------------------------------- tanıtım */
 .tour { position: fixed; inset: 0; z-index: 90; }
@@ -301,6 +369,20 @@ body.spk-rail .rail #spkList { max-height: 42vh; overflow-y: auto; overscroll-be
   padding: 7px 15px; border-radius: 3px; background: var(--ink); color: var(--panel);
 }
 .tour-act .tour-go:hover { opacity: .88; color: var(--panel); }
+/* Yumuşak kip: tanıtım bittikten sonra "şimdi buraya" demek için. Karartma
+   hafif ve kaplama tıklamaları geçiriyor — insan vurgulanan yere gerçekten
+   basabilmeli. Halka yanıp sönüyor, kutu da yalnız tek satırlık bir cümle. */
+.tour.soft { pointer-events: none; }
+.tour.soft .tour-hole {
+  box-shadow: 0 0 0 9999px rgba(8, 9, 12, .3), 0 0 0 2px rgba(255, 255, 255, .3);
+  animation: nudgeRing 1.7s ease-in-out infinite;
+}
+.tour.soft .tour-n, .tour.soft .tour-act { display: none; }
+.tour.soft .tour-box { box-shadow: 0 10px 30px rgba(0, 0, 0, .26); }
+@keyframes nudgeRing {
+  0%, 100% { box-shadow: 0 0 0 9999px rgba(8, 9, 12, .3), 0 0 0 2px rgba(255, 255, 255, .28); }
+  50%      { box-shadow: 0 0 0 9999px rgba(8, 9, 12, .3), 0 0 0 5px rgba(255, 255, 255, .9); }
+}
 @media (prefers-reduced-motion: no-preference) {
   .tour-hole { transition: top .42s cubic-bezier(.32, .72, 0, 1), left .42s cubic-bezier(.32, .72, 0, 1),
                            width .42s cubic-bezier(.32, .72, 0, 1), height .42s cubic-bezier(.32, .72, 0, 1); }
@@ -1268,6 +1350,16 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
                   <button id="lodOn" aria-pressed="false" title="Veri olan 18 ülkede il/eyalet düzeyi">Bölge</button>
                 </div>
               </div>
+              <!-- Tanıtımın kalıcı kapısı. İlk ziyaret balonu bir kez çıkıp
+                   kayboluyor; dillerini çoktan seçmiş biri onu hiç görmüyor.
+                   Buradan her zaman açılabilir. -->
+              <div class="mgroup" id="mgTour">
+                <h4 id="mTouT">Tanıtım</h4>
+                <p id="mTouD">Neyin nerede olduğunu dört adımda gösterir.</p>
+                <div class="opts">
+                  <button id="btnTour">Nasıl çalışır?</button>
+                </div>
+              </div>
             </div>
 
             <!-- "Bildiğim diller" katmanının kendi yaprağı. Dil seçimi eskiden
@@ -1511,6 +1603,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       ledeMe: "Konuştuğunuz dilleri seçin; harita her ülkeyi, o dillerle anlaşabileceğiniz nüfus payına göre boyasın.",
       askTip: "Konuştuğunuz dilleri buradan seçin.",
       askTipCta: "Nasıl çalışır? →",
+      mTour: "Tanıtım", mTourD: "Neyin nerede olduğunu dört adımda gösterir.",
+      tourOpen: "Nasıl çalışır?",
+      nudge: "Konuştuğun dilleri buradan işaretle.",
+      nudge2: "Haritayı buradan tam ekran yapabilirsin.",
       tourNext: "Sonraki", tourDone: "Denemeye başla", tourSkip: "Atla",
       tourN: (i, n) => `${i} / ${n}`,
       tour: [
@@ -1657,6 +1753,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       ledeMe: "Pick the languages you speak; the map shades every country by the share of its population you could hold a conversation with.",
       askTip: "Pick the languages you speak here.",
       askTipCta: "How does this work? →",
+      mTour: "Walkthrough", mTourD: "Four steps through what is where.",
+      tourOpen: "How does this work?",
+      nudge: "Tick the languages you speak here.",
+      nudge2: "And this puts the map full screen.",
       tourNext: "Next", tourDone: "Try it", tourSkip: "Skip",
       tourN: (i, n) => `${i} / ${n}`,
       tour: [
@@ -2555,6 +2655,23 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     $("#askTip").hidden = false;
   }
   $("#askTipX").onclick = hideAskTip;
+  // Holografik yüzeyin imleci izlemesi: oran olarak yazılıyor, ölçü
+  // değişince de doğru kalsın.
+  $("#askTip").addEventListener("pointermove", (e) => {
+    const n = e.currentTarget, r = n.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const mx = (e.clientX - r.left) / r.width, my = (e.clientY - r.top) / r.height;
+    n.style.setProperty("--mx", mx.toFixed(3));
+    n.style.setProperty("--my", my.toFixed(3));
+    // Eğim imlecin merkeze uzaklığından: sağa gidince sağa, yukarı gidince
+    // yukarı yatıyor. Altı derece yetiyor; fazlası yazıyı bozuyor.
+    n.style.setProperty("--tilt-y", ((mx - .5) * 12).toFixed(2) + "deg");
+    n.style.setProperty("--tilt-x", ((.5 - my) * 8).toFixed(2) + "deg");
+  });
+  $("#askTip").addEventListener("pointerleave", (e) => {
+    e.currentTarget.style.setProperty("--tilt-x", "0deg");
+    e.currentTarget.style.setProperty("--tilt-y", "0deg");
+  });
 
   /* ------------------------------------------------------------- tanıtım
      Dört adım: iki soru, gösterge, harita, ve asıl mesele. Her adımda sayfa
@@ -2562,8 +2679,9 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
      yerlerini geçişle değiştirdiği için adımlar arası akıyor. */
   const TOUR = ["#ask", ".rail .key", "#mapWrap", "#askMe"];
   let tourAt = -1;
+  let holeSel = "";
   function tourPlace() {
-    const el = document.querySelector(TOUR[tourAt]);
+    const el = document.querySelector(holeSel);
     const hole = $("#tourHole"), box = $("#tourBox");
     if (!el) return;
     const r = el.getBoundingClientRect(), pad = 8;
@@ -2581,7 +2699,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   function tourGo(i) {
     if (i >= TOUR.length) { tourEnd(true); return; }
     tourAt = i;
-    const el = document.querySelector(TOUR[i]);
+    holeSel = TOUR[i];
+    const el = document.querySelector(holeSel);
     if (el) el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
     $("#tourN").textContent = t().tourN(i + 1, TOUR.length);
     $("#tourT").textContent = t().tour[i];
@@ -2595,19 +2714,71 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   let tourT2 = 0;
   function tourEnd(go) {
     $("#tour").hidden = true;
+    $("#tour").classList.remove("soft");
+    $("#tourBox").hidden = false;
     tourAt = -1;
+    clearTimeout(nudgeT);
     removeEventListener("scroll", tourPlace);
     removeEventListener("resize", tourPlace);
-    if (go && layer !== "know") { setLayer("know"); openSheet("speakSheet"); }
+    if (!go) return;
+    if (layer !== "know") setLayer("know");
+    openSheet("speakSheet");
+    nudge(0);
+  }
+  /* "Denemeye başla"dan sonra insan ikinci soruda kalıyor ama nereye
+     tıklayacağını bilmiyor. Aynı kaplama, yumuşak kipte: karartma hafif,
+     kaplama tıklamaları geçiriyor (pointer-events: none) ve seçicinin
+     çevresindeki halka yanıp sönüyor. Bir dil seçilince ya da yedi saniye
+     sonra kendiliğinden kalkıyor. */
+  // İki durak: önce dilini nereden seçeceğin, sonra haritayı nereden tam
+  // ekran yapacağın. İkincisine ilk dil seçilince geçiliyor.
+  const NUDGE = [["#speakSheet", () => t().nudge], ["#btnFull", () => t().nudge2]];
+  let nudgeT = 0, nudgeAt = -1;
+  function nudge(i) {
+    if (reduce || i >= NUDGE.length) { nudgeEnd(); return; }
+    // Değişken adı "t" olamaz: dışarıdaki t() sözlük fonksiyonunu gölgeliyor
+    // ve metin satırı "t is not a function" ile düşüyordu.
+    const ov = $("#tour");
+    nudgeAt = i;
+    holeSel = NUDGE[i][0];
+    if (!document.querySelector(holeSel)) { nudgeEnd(); return; }
+    ov.hidden = false; ov.classList.add("soft");
+    $("#tourN").textContent = "";
+    $("#tourT").textContent = NUDGE[i][1]();
+    replay($("#tourBox"));
+    requestAnimationFrame(() => requestAnimationFrame(tourPlace));
+    addEventListener("scroll", tourPlace, { passive: true });
+    addEventListener("resize", tourPlace);
+    clearTimeout(nudgeT);
+    nudgeT = setTimeout(nudgeEnd, i ? 8000 : 12000);
+  }
+  // İlk dil seçilince ikinci durağa geç; sonrakilerde vurgu zaten bitmiş olur.
+  function nudgeStep() {
+    if (nudgeAt === 0) { clearTimeout(nudgeT); setTimeout(() => nudge(1), 450); }
+    else nudgeEnd();
+  }
+  function nudgeEnd() {
+    const ov = $("#tour");
+    if (!ov.classList.contains("soft")) return;
+    clearTimeout(nudgeT);
+    nudgeAt = -1;
+    ov.hidden = true; ov.classList.remove("soft");
+    removeEventListener("scroll", tourPlace);
+    removeEventListener("resize", tourPlace);
   }
   function tourStart() {
     hideAskTip();
+    closeSheets();
+    // Adımların ikisi sayfadaki sol sütunu gösteriyor; tam ekranda o sütun
+    // yok, o yüzden tanıtım pencere kipinde anlatıyor.
+    if (fsOn) setFs(false);
     $("#tour").hidden = false;
     addEventListener("scroll", tourPlace, { passive: true });
     addEventListener("resize", tourPlace);
     tourGo(0);
   }
   $("#askTipGo").onclick = tourStart;
+  $("#btnTour").onclick = tourStart;
   $("#tourNext").onclick = () => tourGo(tourAt + 1);
   $("#tourSkip").onclick = () => tourEnd(false);
   addEventListener("keydown", (e) => {
@@ -2787,6 +2958,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     fsVW = innerWidth; fsVH = innerHeight;
   }
   $("#btnFull").onclick = () => {
+    nudgeEnd();
     markFs();
     if (fsOn) {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => setFs(false));
@@ -3332,6 +3504,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     // ülkeye sonra dile tıklandığında eski hâlinde kalıyor ve ülkenin ana
     // dilini öne çıkarmaya devam ediyordu.
     if (state.sel) select(state.sel, state.selSub);
+    nudgeStep();                // aradığı yeri buldu: sıradaki durağa
     live(t().knowLive(known.size));
   }
 
@@ -4119,6 +4292,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     set("#mLayT", t().mLayer); set("#mLayD", t().mLayerD);
     set("#mPaiT", t().mPaint); set("#mPaiD", t().mPaintD);
     set("#mDetT", t().mDetail); set("#mDetD", t().mDetailD);
+    set("#mTouT", t().mTour); set("#mTouD", t().mTourD); set("#btnTour", t().tourOpen);
     set("#mTonT", t().mTone); set("#mTonD", t().mToneD);
     set("#toneOff", t().toneOff); set("#toneOn", t().toneOn);
     tip("#toneOff", t().tipToneOff); tip("#toneOn", t().tipToneOn);

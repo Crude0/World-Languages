@@ -10,6 +10,37 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.20.0 — 19 Ağustos 2026
+
+**Tanıtımın kalıcı bir kapısı var artık: Görünüm → Tanıtım.** İlk ziyaret
+balonu bir kez çıkıp kayboluyor ve yalnız hiç dil seçilmemişken görünüyor —
+yani uygulamayı zaten kullanan biri onu hiç görmüyordu. Masaüstü uygulamasında
+bu daha da belirgin: `localStorage` bundle kimliğine bağlı olduğu için .app'i
+değiştirmek eski durumu silmiyor, dolayısıyla yeni sürümü kuran eski kullanıcı
+balonla hiç karşılaşmıyor. Tanıtım artık her zaman açılabiliyor; tam ekranda
+başlatılırsa pencere kipine dönüyor, çünkü anlattığı yerlerin ikisi sol
+sütunda.
+
+**Tanıtım bitince yol göstermeye devam ediyor.** "Denemeye başla"dan sonra iki
+duraklı yumuşak bir vurgu geliyor: önce dil seçici, ilk dil seçilince de tam
+ekran düğmesi. Karartma hafif ve kaplama tıklamaları geçiriyor — vurgulanan
+yere gerçekten basılabiliyor. Halka yanıp sönüyor, tek satırlık bir cümle
+eşlik ediyor, hedefe basılınca ya da süre dolunca kendiliğinden kalkıyor.
+
+**Balonun ışığı koyu temada hiç görünmüyordu.** Zemini `--ink` idi; koyu temada
+`--ink` beyaza döndüğü için balon beyaz oluyor, üstündeki beyaz ışık da
+kayboluyordu. Balonun kendi renkleri var artık, iki temada da koyu kalıyor.
+Işık da güçlendi: yay genişledi, arkasına aynı ritimde nefes alan bir hâle
+eklendi. Ölçüldü — açık temada kenar 65'te duruyor, ışığın tepesi 252; koyu
+temada 81 → 199, ve tepe üstten sağa, sağdan alta kayıyor.
+
+**Balonun üstüne gelince holografik bir yüzey beliriyor.** İmlecin altında bir
+parlama, açısı imlece göre dönen folyo bantları ve üstlerinde yıldız tozu; üçü
+üç ayrı hızda kayıyor, aradaki fark derinlik hissini veriyor. Balon da imlece
+doğru birkaç derece yatıyor. Hepsi imleci izleyen bir maskeyle sınırlı: ilk
+denemede folyo bütün kutuyu kaplıyor ve döşeme dikişleri görünüyordu, artık
+gezinen bir yama.
+
 ## v0.19.0 — 19 Ağustos 2026
 
 **Atlas artık iki soruya cevap veriyor ve bunu manşetin altında söylüyor.**
