@@ -323,10 +323,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     rgba(255, 255, 255, .03) 62%, rgba(255, 255, 255, 0) 100%);
 }
 .tip-prism > i {
+  /* Çukurlar saydam, tepeler parlak. Ara renkleri koyu-açık yapınca genlik
+     için ödenen bedel ortalamanın da yükselmesi oluyordu: balon hover'da
+     ışıyor ve beyaz yazının karşıtlığı 3,1'e düşüyordu. Saydam çukurla
+     genlik aynı kalıyor, ortalama yarıya iniyor. */
   background: repeating-linear-gradient(101deg,
-    rgba(203, 212, 230, .55) 0 7px, rgba(150, 166, 200, .30) 14px,
-    rgba(224, 230, 242, .60) 21px, rgba(168, 152, 205, .34) 28px,
-    rgba(203, 212, 230, .55) 35px);
+    rgba(222, 232, 252, .92) 0 4px, rgba(255, 255, 255, 0) 12px,
+    rgba(238, 244, 255, .8) 19px, rgba(255, 255, 255, 0) 27px,
+    rgba(176, 158, 220, .5) 31px, rgba(255, 255, 255, 0) 38px,
+    rgba(222, 232, 252, .92) 42px);
 }
 .tip-glare > i {
   background: linear-gradient(114deg, transparent 43%, rgba(255, 255, 255, .35) 49.4%,
@@ -338,6 +343,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background: linear-gradient(180deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, .04) 28%,
     rgba(255, 255, 255, 0) 46%, rgba(0, 0, 0, .04) 60%, rgba(0, 0, 0, .12) 86%, rgba(0, 0, 0, .18) 100%);
 }
+/* Yazı plakası. Folyoyu balonun altına sığdırmaya çalışmak yerine
+   koleksiyon kartlarının çözümü: folyo serbestçe parlıyor, yazı kendi opak
+   zemininde duruyor. Soldan sağa sönüyor — yazının olduğu yan korunuyor,
+   boş kalan sağ yan folyoyu tam gösteriyor. */
+.tip-plate {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+  opacity: var(--hv, 0);
+  background: linear-gradient(96deg,
+    rgba(8, 9, 13, .82) 0%, rgba(8, 9, 13, .72) 36%,
+    rgba(8, 9, 13, .42) 60%, rgba(8, 9, 13, .1) 80%, rgba(8, 9, 13, 0) 94%);
+}
 /* Kesim kenarı: sabit, her karede yeniden boyanmıyor. */
 .tip-rim {
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
@@ -346,12 +362,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 /* Şiddet. --hv imlecin üstünde olup olmadığı (0–1), --pd merkeze uzaklığı;
    ikisini de aşağıdaki rAF döngüsü yumuşatarak yazıyor. */
-.tip-env   { opacity: calc(.5 + var(--hv, 0) * .5); }
-.tip-base  { opacity: calc(.7 + var(--hv, 0) * .5); }
-.tip-prism { opacity: calc(.09 + var(--hv, 0) * .075); }
-.tip-glare { opacity: calc(var(--hv, 0) * (.16 + var(--pd, 0) * .07)); }
+/* Dururken HEPSİ sıfır: balon tek renk, düz bir yüzey. Dokuyu dururken de
+   bırakmıştım; ölçünce balonun üstünde 13 parlaklık birimlik bir dalgalanma
+   çıktı — kımıldamayan, sebebi anlaşılmayan bir kirlilik gibi duruyordu.
+   Ölçüt: dururken tepe-çukur farkı < 3 birim.
+
+   Hover'da ise belirgin olmalı. İlk denemede prizma %16,5'te kalıyordu ve
+   iki imleç konumu arasındaki değişim ortalama 9,3 birimdi; bu, gözün fark
+   etme eşiğinin dibi — 309×81 piksellik bir balonda kaçıyor. Demo kartları
+   336 piksellikti ve kontakt sayfasında iki kat büyük bakıyordum, o yüzden
+   orada yeterli görünmüştü. */
+.tip-env   { opacity: calc(var(--hv, 0) * .5); }
+.tip-base  { opacity: calc(var(--hv, 0) * .45); }
+.tip-prism { opacity: calc(var(--hv, 0) * .42); }
+.tip-glare { opacity: calc(var(--hv, 0) * (.4 + var(--pd, 0) * .15)); }
 /* Balonun içeriği folyonun üstünde kalsın. */
-.ask-tip-go, .ask-tip .ask-x { position: relative; z-index: 2; }
+.ask-tip-go, .ask-tip .ask-x { position: relative; z-index: 3; }
 /* Hareketi kapatanlarda eğim ve parlama tamamen düşüyor; prizma dokusu
    kımıldamadığı için kalabilir. */
 @media (prefers-reduced-motion: reduce) {
@@ -1319,6 +1345,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
               <span class="tip-lay tip-env"><i></i></span>
               <span class="tip-lay tip-glare"><i></i></span>
             </span>
+            <i class="tip-plate" aria-hidden="true"></i>
             <i class="tip-rim" aria-hidden="true"></i>
             <button class="ask-tip-go" id="askTipGo">
               <span id="askTipText">Konuştuğunuz dilleri buradan seçin.</span>
@@ -2785,7 +2812,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
      balon yalnız ilk beş saniyeyi kurtarıyor. */
   const ASK_SEEN = "wl-seen-ask";
   // Derleme sırasında yerleştiriliyor; balon her yeni sürümde bir kez çıksın.
-  const VER = "0.23.0";
+  const VER = "0.23.1";
   function hideAskTip() {
     const n = $("#askTip");
     if (!n || n.hidden) return;

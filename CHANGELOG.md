@@ -10,6 +10,31 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.23.1 — 20 Ağustos 2026
+
+**0.23.0'daki folyo çalışıyordu ama görünmüyordu.** Efekt mekanik olarak
+yerindeydi — imleç değişkenleri yazılıyor, katmanlar kayıyordu — yalnız görünür
+olma eşiğinin altındaydı: iki imleç konumu arasındaki değişim ortalama 9,3
+parlaklık birimiydi. 309×81 piksellik balonda bu fark edilmiyor. Sayıları
+336 piksellik demo kartlarında ve kontakt sayfasında iki kat büyük bakarak
+seçmiştim; gerçek boyutta karşılığı olmadı. Prizma hover'da %16,5'ten %42'ye
+çıktı ve çizgilerin kendi karşıtlığı artırıldı — aynı ölçüm şimdi ortalama 14,7,
+en büyük 83,6 birim veriyor; desenin tepe-çukur farkı 100 birimin üstünde.
+
+**Dururken balon artık gerçekten tek renk.** Prizma dokusunu dururken de
+bırakmıştım; ölçünce üstünde 13,1 birimlik, kımıldamayan bir dalgalanma olduğu
+çıktı — sebebi anlaşılmayan bir kirlilik gibi duruyordu. Şimdi bütün katmanlar
+imleç payıyla çarpılıyor, yani boşta tepe-çukur farkı 0,0.
+
+Şiddet artınca yazının karşıtlığı 3,1'e düştü. İki şey yapıldı: prizma
+çizgilerinin çukurları saydama çevrildi (genlik aynı kalıyor, ortalama yarıya
+iniyor — koyu-açık ara renklerde genlik için ödenen bedel ortalamanın da
+yükselmesiydi), ve yazının arkasına soldan sağa sönen bir plaka kondu. Folyo
+sağ yanda serbestçe parlıyor, yazı kendi zemininde duruyor. Karşıtlık koyu
+temada 8,2, açık temada 9,7.
+
+Hız değişmedi: hover'da 0/219 uzun kare, orta kare süresi 16,7 ms.
+
 ## v0.23.0 — 20 Ağustos 2026
 
 **Balonun folyosu baştan yazıldı: gümüş prizma, gerçek paralaks, 60 fps.**
