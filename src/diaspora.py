@@ -21,7 +21,11 @@ DIASPORA = {
         ("Mandarin Çincesi", 0.2), ("Filipince", 0.1),
     ],
     "250": [  # Fransa
+        # Kürtçe Almanya'dan sonraki en büyük topluluk (150–240 bin) olmasına
+        # rağmen tabloda hiç yoktu; Fransa'ya bakan biri haritada sıfır
+        # görüyordu. 150 bin alt uçtan alındı.
         ("Berberice", 1.5), ("Almanca", 0.6), ("İspanyolca", 0.6),
+        ("Kürtçe", 0.2),
         ("Türkçe", 0.6), ("İtalyanca", 0.5), ("Mandarin Çincesi", 0.4),
         ("Romence", 0.3), ("Vietnamca", 0.3), ("Ermenice", 0.3), ("İngilizce", 0.3),
         ("Lehçe", 0.2), ("Rusça", 0.2), ("Tamilce", 0.2), ("Volofça", 0.2),
@@ -32,12 +36,16 @@ DIASPORA = {
         ("Türkçe", 1.3), ("Lehçe", 0.7), ("Romence", 0.6), ("İngilizce", 0.5),
         ("İspanyolca", 0.5), ("Portekizce", 0.3), ("Lingala", 0.3),
         ("Rusça", 0.3), ("Yunanca", 0.2),
+    
+        ("Kürtçe", 0.3),
     ],
     "528": [  # Hollanda
         ("Arapça", 1.5), ("Berberice", 1.2), ("İngilizce", 1),
         ("Lehçe", 0.7), ("Ukraynaca", 0.5), ("Sranan Tongo", 0.5),
         ("Almanca", 0.4), ("Papiamentu", 0.3), ("Mandarin Çincesi", 0.2),
         ("Endonezce", 0.2), ("Somalice", 0.1),
+    
+        ("Kürtçe", 0.4),
     ],
     "756": [  # İsviçre
         ("İngilizce", 5.4), ("Portekizce", 3.5), ("Arnavutça", 3.1),
@@ -77,6 +85,8 @@ DIASPORA = {
         ("Lehçe", 0.9), ("Romence", 0.7), ("İngilizce", 0.6), ("Ukraynaca", 0.5),
         ("Almanca", 0.4), ("Somalice", 0.3), ("Farsça", 0.3),
         ("Sırp-Hırvatça", 0.3), ("Litvanca", 0.2), ("Urduca", 0.2),
+    
+        ("Kürtçe", 0.2),
     ],
     "578": [  # Norveç
         ("Ukraynaca", 1.2), ("İngilizce", 0.9), ("Litvanca", 0.8), ("Arapça", 0.8),

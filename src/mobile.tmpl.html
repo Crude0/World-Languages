@@ -604,6 +604,10 @@ body.zoomed .orn { opacity: 0; }
   // Çin ile Afganistan ayırt edilemiyordu. Bu şeritte en kötü komşu farkı
   // 9,5; normal görme ve üç renk körlüğü türünün hepsinde ölçüldü.
   const KNOW_RAMP = ["#752110", "#8d4700", "#9c6f08", "#a29738", "#9fc06b", "#95e8a7"];
+  // Sıfır kendi rengini alıyor: hiç kimseyle konuşamadığın ülke ile
+  // %0,9 konuşabildiğin ülke aynı kutuya düşüyordu (bkz. masaüstü).
+  const KNOW_ZERO = "#4a1226";
+  const knowCol = (v) => (v < .05 ? KNOW_ZERO : KNOW_RAMP[binOf(v, KNOW_BINS)]);
   const known = new Set((localStorage.getItem("wl-known") || "").split(",").filter(Boolean));
   // İki okuma biçimi: pay (nüfusun oranı) ve yalnız evin dili olduğu yerler.
   let knowMode = localStorage.getItem("wl-knowmode") === "home" ? "home" : "share";
@@ -622,7 +626,7 @@ body.zoomed .orn { opacity: 0; }
     const top = rows.length
       ? rows.slice(0, 3).map(([l, q]) => `${esc(ln(l))} ${pc(q)}`).join(" · ")
       : t().tipKnowNone;
-    return `<p class="note know-line"><i style="background:${KNOW_RAMP[binOf(v, KNOW_BINS)]}"></i>` +
+    return `<p class="note know-line"><i style="background:${knowCol(v)}"></i>` +
       `<b>${t().tipKnow(pc(Math.round(v * 10) / 10))}</b>` +
       (c.pop ? ` · ≈ ${fmtK(c.pop * v / 100)} / ${fmtK(c.pop)}` : "") +
       `<span>${top}</span></p>`;
@@ -1475,7 +1479,7 @@ body.zoomed .orn { opacity: 0; }
       }
       if (rampKey !== "know") { ramp = KNOW_RAMP.slice(); rampKey = "know"; }
       const put = (n, cid) => {
-        n.style.fill = known.size ? ramp[binOf(reach(cid), KNOW_BINS)] : "";
+        n.style.fill = known.size ? knowCol(reach(cid)) : "";
         n.style.fillOpacity = "";
       };
       svg.querySelectorAll(".cty, .dot").forEach((n) => put(n, n.dataset.id));
@@ -1764,6 +1768,7 @@ body.zoomed .orn { opacity: 0; }
 
   /* ------------------------------------------------------- bildiğim sekmesi */
   const knowScale = () => `<div class="scale"><span>${t().scaleLo}</span>` +
+    `<i style="background:${KNOW_ZERO}"></i>` +
     KNOW_RAMP.map((c) => `<i style="background:${c}"></i>`).join("") +
     `<span>${t().scaleHi}</span></div>`;
   function knowHTML() {

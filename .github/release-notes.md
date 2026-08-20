@@ -1,32 +1,47 @@
-<!-- title: The walkthrough gets a permanent door -->
-**The walkthrough can now be opened at any time: View → Walkthrough.** The
-first-visit bubble appears once and only when no languages have been picked —
-so anyone already using the app never saw it. On the desktop app this is even
-sharper: `localStorage` is tied to the bundle, so replacing the .app keeps the
-old state, and an existing user installing the new version never meets the
-bubble at all. The walkthrough is always reachable now; started from
-fullscreen it returns to windowed mode first, because two of the things it
-points at live in the left column.
+<!-- title: Zero gets its own colour -->
+**Zero now has a colour of its own.** Pick Kurdish and you can talk to 0.9% of
+Sweden and to nobody at all in Norway — yet both fell into the ramp's first bin
+and the map said "neither". True zero is a deep maroon now; the threshold is
+0.05 because everything below it already prints as "0.0%". The scale gained a
+zero swatch at its head, on the phone too.
 
-**When the walkthrough ends it keeps pointing.** After "Try it" a soft
-two-stop highlight follows: first the language picker, then — once the first
-language is ticked — the fullscreen button. The dimming is light and the
-overlay lets clicks through, so the highlighted thing can actually be pressed.
-A ring pulses around it with a one-line caption, and it lifts by itself once
-the target is used or the time is up.
+**Kurdish was missing entirely from France, the Netherlands, Belgium and
+Denmark.** The migrant-community table is hand-built, and Kurdish had only been
+entered for Germany, Sweden, Austria and Switzerland — while France hosts the
+largest community after Germany (150,000–240,000). All four were added. Norway
+was deliberately left out: no reliable figure turned up, and a gap is better
+than an invented number.
 
-**The light around the bubble was invisible in the dark theme.** Its background
-was `--ink`, which turns white in the dark theme — a white bubble under a white
-light. The bubble carries its own colours now and stays dark in both themes.
-The light itself got stronger too: a wider arc with a halo breathing on the
-same beat. Measured — in the light theme the edge sits at 65 and the light
-peaks at 252; in the dark theme 81 → 199, and the peak travels from the top
-edge to the right, then to the bottom.
+The table was swept as a whole — a matrix of 20 destination countries against
+24 migrant languages — and it showed further gaps (Persian in France, Belgium
+and the Netherlands; Filipino in the UK, Italy and Spain, among others). Those
+are not in this release: each needs a source, and they will be handled in a
+round of their own.
 
-**Hovering the bubble brings up a holographic surface.** A glare under the
-pointer, foil bands whose angle turns with it, and star dust over them — the
-three drift at three different rates, and that difference is what reads as
-depth. The bubble also leans a few degrees toward the pointer. All of it is
-confined to a mask that follows the cursor: in the first attempt the foil
-covered the whole box and its tiling seams showed, now it is a patch that
-travels.
+**The card's three figures overlapped in Turkish.** "anlaşabildiğiniz" is a
+single unbreakable word that wants 99 pixels in an 85-pixel column, so it ran
+over its neighbour. The labels were shortened, the column gap opened up, and
+long words are now allowed to break — better hyphenated than clipped in some
+other language or at a larger type size.
+
+**The walkthrough's door moved out of the View sheet and next to the
+questions:** a small question mark to the right of the second one. The
+first-visit bubble now hangs off that button — anchored to the question it was
+covering the very button it advertises, and both offer the same thing. The
+highlight chain after the walkthrough grew to three stops: the language picker,
+the fullscreen button, and — once you leave fullscreen — "you can open the
+walkthrough again from here". The third one waits for the exit on purpose,
+because the button it points at lives in the masthead, which fullscreen hides.
+
+**The bubble returns once after every update.** The "seen" flag stores the
+version now, and since telling someone who already picked their languages to
+pick their languages is pointless, they get "the atlas has been updated" and
+the walkthrough instead. The version is planted into the page at build time.
+
+**Changing layer now looks like changing question.** Home ↔ Script ↔ Official
+melts the map into its new colours and lifts the caption and the column card as
+they refresh — the same half-second fill transition.
+
+On a narrow screen the bubble was making the page scroll sideways: left-aligned,
+its right edge sat at 587 pixels on a 360-pixel screen. It is right-aligned now,
+with its width tied to the viewport.

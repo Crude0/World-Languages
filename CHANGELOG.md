@@ -10,6 +10,53 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.21.0 — 20 Ağustos 2026
+
+**Sıfır artık kendi rengine sahip.** Kürtçeyi seçtiğinizde İsveç'te nüfusun
+%0,9'uyla anlaşabiliyorsunuz, Norveç'te hiç kimseyle — ama ikisi de şeridin ilk
+kutusuna düşüyor ve harita "ikisinde de yok" diyordu. Gerçek sıfır bordoya
+ayrıldı; eşik 0,05 çünkü altındaki her şey zaten "%0,0" olarak yazılıyor.
+Şeridin başına da bir sıfır kutusu eklendi, telefonda da aynısı.
+
+**Kürtçe Fransa, Hollanda, Belçika ve Danimarka'da hiç yoktu.** Göçmen
+toplulukları tablosu elle derlenmiş ve Kürtçe yalnız Almanya, İsveç, Avusturya
+ve İsviçre'ye işlenmiş; oysa Fransa Almanya'dan sonraki en büyük topluluğa ev
+sahipliği yapıyor (150–240 bin). Dördü de eklendi. Norveç için güvenilir bir
+rakam bulunamadığı için o bilerek boş bırakıldı — uydurmaktansa eksik kalması
+daha iyi.
+
+Tablo bir bütün olarak tarandı: 20 varış ülkesi × 24 göçmen dili matrisi
+çıkarıldı ve başka boşluklar da görüldü (Fransa, Belçika ve Hollanda'da
+Farsça; İngiltere, İtalya ve İspanya'da Filipince gibi). Onlar bu sürüme
+girmedi; her biri kaynak gerektiriyor ve ayrı bir turda ele alınacak.
+
+**Kartın üç rakamı Türkçede üst üste biniyordu.** "anlaşabildiğiniz" tek parça
+bir sözcük ve 85 piksellik sütunda 99 piksel yer kaplıyor, yani komşusunun
+üstüne taşıyordu. Etiketler kısaldı ("anlaşma payı", "anlaşılan kişi"), sütun
+aralığı açıldı ve uzun sözcüklerin kırılmasına izin verildi — başka bir dilde
+ya da büyük puntoda kırpmak yerine hecelensin.
+
+**Tanıtımın kapısı Görünüm yaprağından çıkıp soruların yanına geldi:** ikinci
+sorunun sağında küçük bir soru işareti. İlk ziyaret balonu da ona bağlandı —
+ikinci soruya bağlıyken tam da o düğmenin üstünü örtüyordu, üstelik ikisi aynı
+şeyi öneriyor. Tanıtım bittikten sonraki vurgu zinciri üç durağa çıktı: dil
+seçici, tam ekran düğmesi, ve tam ekrandan çıkınca "tanıtımı buradan tekrar
+açabilirsin". Üçüncüsü bilerek çıkışa bağlı, çünkü işaret ettiği düğme manşette
+ve tam ekranda manşet görünmüyor.
+
+**Balon her yeni sürümde bir kez çıkıyor.** "Görüldü" işareti artık sürüm
+numarasını saklıyor; dillerini çoktan seçmiş birine "dillerini seç" demek
+anlamsız olduğu için ona "Atlas güncellendi" yazıp tanıtımı öneriyor. Sürüm
+numarası derleme sırasında sayfaya yerleştiriliyor.
+
+**Katman değişimi de soru değişimi gibi görünüyor.** Ana dil ↔ Yazı ↔ Resmî
+dil geçişinde harita yeni renklerine eriyor, altyazı ve sol sütundaki kart
+yükselerek tazeleniyor — aynı yarım saniyelik dolgu geçişi.
+
+Dar ekranda balon sayfayı yatay kaydırılır yapıyordu: soldan hizalıyken
+360 piksellik ekranda sağ kenarı 587 pikselde kalıyordu. Artık sağa hizalı ve
+genişliği görünüm alanına bağlı.
+
 ## v0.20.0 — 19 Ağustos 2026
 
 **Tanıtımın kalıcı bir kapısı var artık: Görünüm → Tanıtım.** İlk ziyaret

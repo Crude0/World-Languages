@@ -216,6 +216,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    değil sağda duruyor — altında arama kutusu var ve balon onu örtüyordu;
    soruların sağı ise zaten boş. */
 .ask-slot { position: relative; display: inline-flex; }
+/* Soru işareti sekmelerin bir parçası değil, yanlarında duran küçük bir
+   kapı: aynı hizada ama daha küçük ve sessiz. */
+.ask .ask-slot { align-self: center; margin-left: 6px; }
+.ask-help {
+  display: block; width: 26px; height: 26px; border-radius: 999px;
+  font-family: "Newsreader", Georgia, serif; font-size: .9375rem; line-height: 1;
+  color: var(--ink-3); border: 1px solid var(--rule-2);
+}
+.ask-help:hover { color: var(--ink); border-color: var(--ink-3); background: var(--panel-2); }
 /* Kenarında dolaşan ışık: koni gradyanın açısı dönüyor, gradyan da yalnız
    kenarlıkta görünüyor (dolgu padding-box'ta, ışık border-box'ta). Açının
    canlandırılabilmesi için @property ile kaydı gerekiyor; kayıt yoksa
@@ -323,10 +332,14 @@ body.spk-rail .rail #spkList { max-height: 42vh; overflow-y: auto; overscroll-be
 .map-area:not(.fs) #btnSpeak { display: none; }
 /* Dar ekranda sorular sarıyor ve sağda yer kalmıyor: balon alta iniyor. */
 @media (max-width: 899px) {
-  .ask-tip { left: 0; top: 100%; margin: 9px 0 0;
+  /* Sağa hizalı ve genişliği görünüm alanına bağlı: soldan hizalıyken
+     360px'lik ekranda kutunun sağ kenarı 587 pikselde kalıp sayfayı yatay
+     kaydırılır yapıyordu. */
+  .ask-tip { left: auto; right: 0; top: 100%; margin: 9px 0 0;
+             max-width: min(38ch, calc(100vw - 28px));
              transform: perspective(720px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); }
   .ask-tip::before {
-    right: auto; left: 18px; top: auto; bottom: 100%; margin: 0;
+    right: 10px; left: auto; top: auto; bottom: 100%; margin: 0;
     border-right-color: transparent; border-bottom-color: var(--tip-bg);
   }
 }
@@ -1042,11 +1055,15 @@ body.fs-on { overflow: hidden; }
 /* Üçü hep tek satırda: dar panelde sarınca üçüncü rakam tek başına alt
    satıra düşüyor ve blok dağılmış gibi duruyor. Etiketler sarabilir. */
 .d-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 2px 12px; margin: 0 0 8px; }
+          gap: 2px 14px; margin: 0 0 8px; }
 .d-figs > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .d-figs dt { font: 400 1.375rem/1 "Newsreader", Georgia, serif; font-variant-numeric: tabular-nums; }
-.d-figs dd { margin: 0; font-size: .625rem; letter-spacing: .05em; text-transform: uppercase;
-             color: var(--ink-3); line-height: 1.2; }
+/* Uzun tek parça sözcük sütunundan taşıp komşusunun üstüne biniyordu
+   ("anlaşabildiğiniz" 85 piksellik kutuda 99 piksel). Kırılmasına izin var:
+   metin kısaltıldığı için normalde gerekmiyor, ama başka bir dilde ya da
+   büyük puntoda kırpmak yerine hecelenmesi doğrusu. */
+.d-figs dd { margin: 0; font-size: .625rem; letter-spacing: .04em; text-transform: uppercase;
+             color: var(--ink-3); line-height: 1.2; overflow-wrap: anywhere; }
 .meter-top { display: flex; align-items: baseline; justify-content: space-between; font-size: .75rem; color: var(--ink-3); }
 .meter-top b { font-family: "Plex Mono", monospace; font-size: .8125rem; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
 .meter-track { height: 6px; background: var(--panel-2); border: 1px solid var(--rule); margin-top: 4px; border-radius: 1px; overflow: hidden; }
@@ -1197,10 +1214,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
            olarak, manşetin hemen altında duruyor. -->
       <div class="ask" id="ask" role="group" aria-label="Haritanın cevapladığı soru">
         <button class="q" id="askWorld" aria-pressed="true">Dünya ne konuşuyor?</button>
-        <!-- Balon ikinci soruya bağlı: sarmalayıcı olmadan ok, soru
-             etiketlerinin dile göre değişen genişliğini takip edemiyordu. -->
+        <button class="q" id="askMe" aria-pressed="false">Sen kimlerle konuşabilirsin?</button>
+        <!-- Tanıtımın kapısı soruların yanında: Görünüm yaprağının içinde
+             kimsenin bakmayacağı bir yerdeydi. Balon da ona bağlı — ikinci
+             soruya bağlıyken tam da bu düğmenin üstünü örtüyordu, üstelik
+             ikisi de aynı şeyi öneriyor. Sarmalayıcı gerekiyor: ok, etiket
+             genişlikleri dile göre değiştiği için mutlak konumlanmalı. -->
         <span class="ask-slot">
-          <button class="q" id="askMe" aria-pressed="false">Sen kimlerle konuşabilirsin?</button>
+          <button class="ask-help" id="btnTour" title="Nasıl çalışır?" aria-label="Nasıl çalışır?">?</button>
           <div class="ask-tip" id="askTip" hidden>
             <button class="ask-tip-go" id="askTipGo">
               <span id="askTipText">Konuştuğunuz dilleri buradan seçin.</span>
@@ -1350,16 +1371,6 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
                   <button id="lodOn" aria-pressed="false" title="Veri olan 18 ülkede il/eyalet düzeyi">Bölge</button>
                 </div>
               </div>
-              <!-- Tanıtımın kalıcı kapısı. İlk ziyaret balonu bir kez çıkıp
-                   kayboluyor; dillerini çoktan seçmiş biri onu hiç görmüyor.
-                   Buradan her zaman açılabilir. -->
-              <div class="mgroup" id="mgTour">
-                <h4 id="mTouT">Tanıtım</h4>
-                <p id="mTouD">Neyin nerede olduğunu dört adımda gösterir.</p>
-                <div class="opts">
-                  <button id="btnTour">Nasıl çalışır?</button>
-                </div>
-              </div>
             </div>
 
             <!-- "Bildiğim diller" katmanının kendi yaprağı. Dil seçimi eskiden
@@ -1501,6 +1512,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // en kötü komşu farkı ΔE 9,5, uçlar arası 50,7. Düz kırmızı–yeşil şerit
   // protanopide ΔE 1,1'e düşüyordu: uçlar bile birbirine karışıyordu.
   const KNOW_RAMP = ["#752110", "#8d4700", "#9c6f08", "#a29738", "#9fc06b", "#95e8a7"];
+  /* Sıfır kendi rengini hak ediyor: İsveç'te seçtiğin dille %0,9 anlaşabiliyorsun,
+     Norveç'te hiç kimseyle. İkisi de şeridin ilk kutusuna düşünce harita "ikisi de
+     yok" diyordu. Bordo, şeridin en koyu kırmızısından da koyu ve daha mora çalıyor;
+     eşik 0,05 çünkü altındaki her şey zaten "%0,0" olarak yazılıyor. */
+  const KNOW_ZERO = "#4a1226";
+  const knowCol = (v) => (v < .05 ? KNOW_ZERO : KNOW_RAMP[binOf(v, KNOW_BINS)]);
   const GORDER = ["rom", "ger", "ine", "trk", "afa", "nkg", "asi", "aus", "oth"];
   // Katmanlar: aynı ülkelere üç ayrı soru. Renkler ortak — katman değişince
   // gösterge de değiştiği için karışmıyor, karşılığında ikinci bir paletin
@@ -1607,6 +1624,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       tourOpen: "Nasıl çalışır?",
       nudge: "Konuştuğun dilleri buradan işaretle.",
       nudge2: "Haritayı buradan tam ekran yapabilirsin.",
+      nudge3: "Tanıtımı buradan istediğin zaman tekrar açabilirsin.",
+      askTipAgain: "Atlas güncellendi.",
       tourNext: "Sonraki", tourDone: "Denemeye başla", tourSkip: "Atla",
       tourN: (i, n) => `${i} / ${n}`,
       tour: [
@@ -1628,7 +1647,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       noteKnow: "Renk, o ülkede seçtiğiniz dillerden en az birini konuşan nüfusun payı — ana dil ya da ikinci dil olarak. Paylar toplandığı için iki dili birden bilenler iki kez sayılır: rakam bir üst sınırdır.",
       noteKnowEmpty: "Konuştuğunuz dilleri listeden işaretleyin. Seçim tarayıcıda saklanır ve bağlantıya girer.",
       knowScale: "anlaşılabilen nüfusun payı",
-      binsKnow: ["<%5", "%5–20", "%20–45", "%45–70", "%70–90", ">%90"],
+      binsKnow: ["<%5", "%5–20", "%20–45", "%45–70", "%70–90", ">%90"], binZero: "%0",
       knowLive: (n) => `${n} dil seçili.`,
       tipKnow: (p) => `halkın ${p}’i ile anlaşabilirsiniz`,
       tipKnowNone: "bildiğiniz diller burada kayda değer değil",
@@ -1658,7 +1677,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       lblMap: "Dünya haritası: ülkelerde çoğunluğun konuştuğu dilin ailesi",
       barPpl: (v) => `yaklaşık ${v} kişi`,
       speakT: "Dillerim", spkSearch: "Dil ara", savedTo: "İndirilenler'e kaydedildi", saveNoShell: "Bu sürüm kaydedemiyor",
-      kReach: "anlaşabildiğiniz pay", kReachPpl: "anlaşabildiğiniz kişi",
+      kReach: "anlaşma payı", kReachPpl: "anlaşılan kişi",
       noMajInline: "· çoğunluk yok", tipScrOf: (l) => `${l} bu yazıyla yazılıyor`,
       tipOffDe: "fiilî devlet dili", tipOffMism: "evin dili resmî değil",
       kWith: "Buradaki payı oluşturan diller", kNoneHere: "Bildiğiniz diller burada kayda değer değil.",
@@ -1757,6 +1776,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       tourOpen: "How does this work?",
       nudge: "Tick the languages you speak here.",
       nudge2: "And this puts the map full screen.",
+      nudge3: "You can open the walkthrough again from here, any time.",
+      askTipAgain: "The atlas has been updated.",
       tourNext: "Next", tourDone: "Try it", tourSkip: "Skip",
       tourN: (i, n) => `${i} / ${n}`,
       tour: [
@@ -1778,7 +1799,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       noteKnow: "Colour shows the share of the population that speaks at least one of your languages — as a first or second language. Shares are added together, so people who speak two of them are counted twice: read the figure as an upper bound.",
       noteKnowEmpty: "Tick the languages you speak in the list. The choice is stored in your browser and goes into the link.",
       knowScale: "share of the population you could talk to",
-      binsKnow: ["<5%", "5–20%", "20–45%", "45–70%", "70–90%", ">90%"],
+      binsKnow: ["<5%", "5–20%", "20–45%", "45–70%", "70–90%", ">90%"], binZero: "0%",
       knowLive: (n) => `${n} languages selected.`,
       tipKnow: (p) => `you could talk to ${p} of the population`,
       tipKnowNone: "none of your languages registers here",
@@ -2166,7 +2187,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       }
       if (rampKey !== "know") { ramp = KNOW_RAMP.slice(); rampKey = "know"; }
       const put = (n, cid) => {
-        n.style.fill = known.size ? ramp[binOf(reach(cid), KNOW_BINS)] : "";
+        n.style.fill = known.size ? knowCol(reach(cid)) : "";
         n.style.fillOpacity = "";
       };
       svg.querySelectorAll(".cty, .dot").forEach((n) => put(n, n.dataset.id));
@@ -2202,8 +2223,12 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     const box = $("#scale");
     if (layer === "know") {
       if (!known.size || knowMode === "home") { box.hidden = true; box.innerHTML = ""; return; }
+      // Şeridin başında sıfır kutusu: haritadaki bordonun ne demek olduğunu
+      // söyleyen tek yer orası.
       box.innerHTML = `<span class="scale-t">${t().knowScale}</span>` +
-        `<span class="scale-bins">` + ramp.map((c, i) =>
+        `<span class="scale-bins">` +
+        `<span class="scale-bin"><i style="background:${KNOW_ZERO}"></i><span>${t().binZero}</span></span>` +
+        ramp.map((c, i) =>
           `<span class="scale-bin"><i style="background:${c}"></i><span>${t().binsKnow[i]}</span></span>`).join("") +
         `</span>`;
       box.hidden = false;
@@ -2285,6 +2310,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     if (v === "know") { if (!known.size) openSheet("speakSheet"); else renderSpeak(); }
     else if (!$("#speakSheet").hidden) closeSheets();
     syncAsk();
+    flashSwitch();
     renderKey();
     // Gösterge anahtarları katmanlar arasında ortak değil (aile "rom",
     // yazı "lat"): eski grup süzgeci hiçbir ülkeyle eşleşmezdi.
@@ -2620,13 +2646,22 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     moveAskInk();
     // Yalnız soru gerçekten değiştiyse oynat: applyUi dil değişiminde de
     // buraya uğruyor, orada sayfanın devrilmesi yersiz olurdu.
-    if (askWas !== null && askWas !== me) {
-      replay($("#h1")); replay(l); replay(document.querySelector(".rail .key"));
-      svg.classList.add("q-switch");
-      clearTimeout(askT);
-      askT = setTimeout(() => svg.classList.remove("q-switch"), 560);
-    }
+    const döndü = askWas !== null && askWas !== me;
+    if (döndü) { replay($("#h1")); replay(l); }
     askWas = me;
+    return döndü;
+  }
+  /* Katman değişimi de soru değişimi gibi görünsün: harita yeni renklerine
+     eriyor, altyazı ve sol sütundaki kart yükselerek tazeleniyor. Dolgu
+     geçişi yalnız o yarım saniye açık — sürekli açık olsaydı her süzgeç de
+     yavaşlardı. */
+  function flashSwitch() {
+    if (reduce) return;
+    svg.classList.add("q-switch");
+    clearTimeout(askT);
+    askT = setTimeout(() => svg.classList.remove("q-switch"), 560);
+    replay(document.querySelector(".rail .key"));
+    replay($("#capTitle")); replay($("#capSub"));
   }
   addEventListener("resize", moveAskInk);
   $("#askWorld").onclick = () => {
@@ -2642,16 +2677,21 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
      da soruya basınca bir daha çıkmıyor. Kalıcı çözüm sorunun kendisi,
      balon yalnız ilk beş saniyeyi kurtarıyor. */
   const ASK_SEEN = "wl-seen-ask";
+  // Derleme sırasında yerleştiriliyor; balon her yeni sürümde bir kez çıksın.
+  const VER = "__VERSION__";
   function hideAskTip() {
     const n = $("#askTip");
     if (!n || n.hidden) return;
     n.hidden = true;
-    try { localStorage.setItem(ASK_SEEN, "1"); } catch (e) { /* özel kip */ }
+    try { localStorage.setItem(ASK_SEEN, VER); } catch (e) { /* özel kip */ }
   }
   function maybeAskTip() {
-    let seen = false;
-    try { seen = !!localStorage.getItem(ASK_SEEN); } catch (e) { seen = true; }
-    if (seen || known.size) return;
+    let seen = "";
+    try { seen = localStorage.getItem(ASK_SEEN) || ""; } catch (e) { seen = VER; }
+    if (seen === VER) return;
+    // Dillerini çoktan seçmiş birine "dillerini seç" demenin anlamı yok;
+    // ona sürümün yenilendiğini söyleyip tanıtımı öneriyoruz.
+    $("#askTipText").textContent = known.size ? t().askTipAgain : t().askTip;
     $("#askTip").hidden = false;
   }
   $("#askTipX").onclick = hideAskTip;
@@ -2732,7 +2772,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
      sonra kendiliğinden kalkıyor. */
   // İki durak: önce dilini nereden seçeceğin, sonra haritayı nereden tam
   // ekran yapacağın. İkincisine ilk dil seçilince geçiliyor.
-  const NUDGE = [["#speakSheet", () => t().nudge], ["#btnFull", () => t().nudge2]];
+  const NUDGE = [["#speakSheet", () => t().nudge], ["#btnFull", () => t().nudge2],
+                 ["#btnTour", () => t().nudge3]];
   let nudgeT = 0, nudgeAt = -1;
   function nudge(i) {
     if (reduce || i >= NUDGE.length) { nudgeEnd(); return; }
@@ -2756,6 +2797,16 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   function nudgeStep() {
     if (nudgeAt === 0) { clearTimeout(nudgeT); setTimeout(() => nudge(1), 450); }
     else nudgeEnd();
+  }
+  /* Üçüncü durak tam ekrandan ÇIKINCA geliyor: işaret ettiği soru işareti
+     manşette, tam ekranda ise manşet görünmüyor — orada gösterilseydi
+     görünmeyen bir şeyi işaret ediyor olurdu. */
+  let nudgeOwed = false;
+  function nudgeFs(on) {
+    if (on) { nudgeOwed = nudgeAt === 1; if (nudgeAt >= 0) nudgeEnd(); return; }
+    if (!nudgeOwed) return;
+    nudgeOwed = false;
+    setTimeout(() => nudge(2), 520);
   }
   function nudgeEnd() {
     const ov = $("#tour");
@@ -2906,6 +2957,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     $("#hudCap").hidden = !on;
     syncHudCap();
     closeSheets();
+    nudgeFs(on);
     syncSpkHome();          // tam ekranda sütun yok: seçici yaprağa döner
     sizeFs();
     syncKeyBar();
@@ -2958,7 +3010,6 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     fsVW = innerWidth; fsVH = innerHeight;
   }
   $("#btnFull").onclick = () => {
-    nudgeEnd();
     markFs();
     if (fsOn) {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => setFs(false));
@@ -3156,7 +3207,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       const v = reach(el.dataset.id);
       tip.innerHTML =
         `<b>${esc(cn(c))}</b>` +
-        `<span class="tl" style="--c:${KNOW_RAMP[binOf(v, KNOW_BINS)]}"><i></i>` +
+        `<span class="tl" style="--c:${knowCol(v)}"><i></i>` +
         `${t().tipKnow(pc(Math.round(v * 10) / 10))}</span>` +
         `<span class="tf">${c.pop ? "≈ " + fmtK(c.pop * v / 100) + " / " + fmtK(c.pop) : ""}</span>` +
         knowLine(c);
@@ -3238,7 +3289,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       const rows = [...known].filter((k) => LG[k])
         .map((k) => [LG[k], Math.max(m.get(LG[k].n) || 0, s2.get(LG[k].n) || 0)])
         .filter(([, q]) => q > 0).sort((x, y) => y[1] - x[1]);
-      return `<div class="meter" style="--c:${KNOW_RAMP[binOf(v, KNOW_BINS)]}">
+      return `<div class="meter" style="--c:${knowCol(v)}">
            <dl class="d-figs">
              <div><dt class="num">${pc(Math.round(v * 10) / 10)}</dt><dd>${t().kReach}</dd></div>
              <div><dt class="num">${c.pop ? fmtS(c.pop * v / 100) : "—"}</dt><dd>${t().kReachPpl}</dd></div>
@@ -4292,7 +4343,8 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     set("#mLayT", t().mLayer); set("#mLayD", t().mLayerD);
     set("#mPaiT", t().mPaint); set("#mPaiD", t().mPaintD);
     set("#mDetT", t().mDetail); set("#mDetD", t().mDetailD);
-    set("#mTouT", t().mTour); set("#mTouD", t().mTourD); set("#btnTour", t().tourOpen);
+    tip("#btnTour", t().tourOpen);
+    $("#btnTour").setAttribute("aria-label", t().tourOpen);
     set("#mTonT", t().mTone); set("#mTonD", t().mToneD);
     set("#toneOff", t().toneOff); set("#toneOn", t().toneOn);
     tip("#toneOff", t().tipToneOff); tip("#toneOn", t().tipToneOn);

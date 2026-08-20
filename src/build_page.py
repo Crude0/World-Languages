@@ -32,7 +32,11 @@ for family, weight, stem in FACES:
 
 data = json.load(open(ROOT / "data.json"))
 tmpl = (HERE / "page.tmpl.html").read_text()
+# Sürüm numarası sayfaya giriyor: tanıtım balonu her yeni sürümde bir kez
+# çıksın diye "görüldü" işareti sürümle birlikte saklanıyor.
+version = (ROOT / "VERSION").read_text().strip()
 html = tmpl.replace("__FONTS__", "\n".join(css)) \
+           .replace("__VERSION__", version) \
            .replace("__DATA__", json.dumps(data, separators=(",", ":"), ensure_ascii=False))
 
 # Tam bir HTML belgesi kur. Eskiden ham şablon çıktısı (doctype'sız,
