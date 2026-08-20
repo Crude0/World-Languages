@@ -236,8 +236,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   position: absolute; left: 100%; top: 50%;
   /* Derinlik: imlece doğru birkaç derece yatıyor. Perspektif kutunun
      kendisinde, yani folyo ve yıldızlar da onunla eğiliyor. */
-  transform: translateY(-50%) perspective(720px)
-             rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform: translateY(-50%) perspective(460px)
+             rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+             scale(var(--lift, 1));
   transform-style: preserve-3d;
   margin-left: 14px; z-index: 5; white-space: normal;
   display: flex; align-items: flex-start; gap: 10px; width: max-content; max-width: 38ch;
@@ -254,45 +255,76 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   box-shadow: 0 0 0 rgba(255, 255, 255, 0);
 }
 /* Holografik yüzey: imleç balonun üstündeyken beliriyor ve onu izliyor.
-   İki katman — imlecin olduğu yerden çıkan gökkuşağı ve onun üstünden geçen
-   dar bir parlama şeridi. Konum --mx/--my ile geliyor (0–1), ikisini de
-   pointermove yazıyor. Karışım kipi "overlay": altındaki koyu zemini
-   boyamak yerine onunla karışıyor, yani yazı okunur kalıyor. */
+   Beş katman, üstten alta: ışık bandı, onun sönük ikizi, yıldız tozu,
+   imlecin altındaki hâle ve en altta folyo bantları. Konum --mx/--my ile
+   geliyor (0–1), ikisini de pointermove yazıyor. Karışım kipi "screen":
+   zemini boyamak yerine ona ışık ekliyor, yani yazı okunur kalıyor. */
 .ask-tip::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit;
   pointer-events: none; opacity: 0; mix-blend-mode: screen;
+  /* Bandın kart üzerinde nereye düştüğü. Yalnız tek eksende süzülüyor:
+     ışığın yönü sabit, eğilen şey kartın kendisi. Payın küçük bir kısmı
+     dikey imleçten geliyor, çünkü bant tam dik değil. */
+  --sweep: calc(var(--mx, .5) * .82 + (1 - var(--my, .5)) * .18);
   background:
-    /* yıldızlar: folyonun üstünde parlayan ince toz */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46'%3E%3Cpath d='M12 4c.7 4.6 2 5.9 6.6 6.6-4.6.7-5.9 2-6.6 6.6-.7-4.6-2-5.9-6.6-6.6C10 9.9 11.3 8.6 12 4z' fill='%23fff' opacity='.95'/%3E%3Cpath d='M34 21c.5 3.4 1.5 4.4 4.9 4.9-3.4.5-4.4 1.5-4.9 4.9-.5-3.4-1.5-4.4-4.9-4.9 3.4-.5 4.4-1.5 4.9-4.9z' fill='%23fff' opacity='.8'/%3E%3Cpath d='M21 34c.35 2.4 1.05 3.1 3.45 3.45-2.4.35-3.1 1.05-3.45 3.45-.35-2.4-1.05-3.1-3.45-3.45 2.4-.35 3.1-1.05 3.45-3.45z' fill='%23fff' opacity='.65'/%3E%3C/svg%3E"),
-    /* imlecin altındaki parlama */
-    radial-gradient(46% 110% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
-      rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 64%),
-    /* folyo bantları: açısı imlece bağlı */
+    /* Işık bandı: ortada dar ve sıcak bir çekirdek, iki yanında geniş ve
+       yumuşak bir etek — gerçek bir parlama böyle dağılıyor, düz bir şerit
+       gibi değil. Giren kenar hafif sarıya, çıkan kenar maviye kaçıyor;
+       cam kaplamanın kırılması. */
+    linear-gradient(116deg,
+      rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, .03) 43%,
+      rgba(255, 250, 236, .10) 46.4%, rgba(255, 243, 220, .24) 48.4%,
+      rgba(255, 255, 255, .42) 49.6%, rgba(255, 255, 255, .46) 50%,
+      rgba(255, 255, 255, .42) 50.4%, rgba(222, 237, 255, .24) 51.6%,
+      rgba(232, 244, 255, .10) 53.6%, rgba(255, 255, 255, .03) 57%,
+      rgba(255, 255, 255, 0) 62%),
+    /* İkinci, sönük yansıma: kaplamanın alt yüzünden dönen ışık. Asıl
+       bandın birkaç adım gerisinde ve ondan çok daha geniş; iki yüzeyli
+       bir cilanın altında olduğunu belli eden şey bu ikinci hâle. */
+    linear-gradient(116deg,
+      rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .085) 50%,
+      rgba(255, 255, 255, 0) 70%),
+    /* yıldızlar: folyonun üstünde ince toz */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46'%3E%3Cpath d='M12 4c.7 4.6 2 5.9 6.6 6.6-4.6.7-5.9 2-6.6 6.6-.7-4.6-2-5.9-6.6-6.6C10 9.9 11.3 8.6 12 4z' fill='%23fff' opacity='.085'/%3E%3Cpath d='M34 21c.5 3.4 1.5 4.4 4.9 4.9-3.4.5-4.4 1.5-4.9 4.9-.5-3.4-1.5-4.4-4.9-4.9 3.4-.5 4.4-1.5 4.9-4.9z' fill='%23fff' opacity='.06'/%3E%3Cpath d='M21 34c.35 2.4 1.05 3.1 3.45 3.45-2.4.35-3.1 1.05-3.45 3.45-.35-2.4-1.05-3.1-3.45-3.45 2.4-.35 3.1-1.05 3.45-3.45z' fill='%23fff' opacity='.045'/%3E%3C/svg%3E"),
+    /* imlecin altındaki parlama: bandın yanında sönük kalmalı, yoksa ışığı
+       yutup her şeyi sisli bir lekeye çeviriyor */
+    radial-gradient(40% 96% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
+      rgba(255, 255, 255, .26), rgba(255, 255, 255, 0) 64%),
+    /* Folyo bantları: açısı imlece bağlı. Artık bütün karta yayıldıkları
+       için sönük olmaları gerekiyor — asıl olay ışık bandı, folyo onun
+       altında sezilen bir renk oyunu. */
     repeating-linear-gradient(calc(var(--mx, .5) * 46deg + 96deg),
-      #ff5f8f 0px, #ffd76b 11px, #7bff9e 22px, #6bd7ff 33px, #b58bff 44px, #ff5f8f 55px);
+      #2e1a23 0px, #2d281c 13px, #1b2e22 26px, #19262e 39px, #231f32 52px, #2e1a23 65px);
   /* Desen kutudan büyük ve imleçle kayıyor; büyük olması döşeme dikişini
      görüş alanının dışında tutuyor. */
-  background-repeat: repeat, no-repeat, no-repeat;
-  background-size: 46px 46px, 100% 100%, 320% 320%;
-  /* Üç katman üç ayrı hızda kayıyor: yıldızlar imlecin tersine ve az,
-     folyo imleçle ve çok. Aradaki fark derinlik hissini veren şey. */
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat, no-repeat;
+  background-size: 200% 100%, 260% 100%, 78px 78px, 100% 100%, 320% 320%;
+  /* Katmanlar ayrı hızlarda kayıyor: yıldızlar imlecin tersine ve az, folyo
+     imleçle ve çok, ışık bandı ikisinden de bağımsız. Aradaki fark derinlik
+     hissini veren şey. İki bant ters yönde konumlanıyor çünkü %200'lük bir
+     zeminde konum arttıkça desen sola gidiyor. */
   background-position:
+    calc((1 - var(--sweep)) * 100%) 0,
+    calc((1 - var(--sweep)) * 100% + 9%) 0,
     calc(var(--mx, .5) * -30px) calc(var(--my, .5) * -20px),
     0 0,
     calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%);
-  /* Asıl mesele maske: folyo her yeri kaplamıyor, imlecin çevresinde bir
-     yama olarak duruyor ve onunla geziniyor. */
-  -webkit-mask-image: radial-gradient(52% 125% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
-    #000 0%, rgba(0, 0, 0, .6) 42%, transparent 76%);
-  mask-image: radial-gradient(52% 125% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
-    #000 0%, rgba(0, 0, 0, .6) 42%, transparent 76%);
+  /* Maske: folyo kartın tamamına yayılıyor ama imlecin çevresinde daha
+     kuvvetli. Eskiden dar bir yamaydı ve bandın uzayacak yeri kalmıyordu —
+     ışık bir şerit değil, imlecin altında bir sis lekesi gibi duruyordu.
+     Kenarlarda sıfıra inmesi döşeme dikişini yine görüş dışında tutuyor. */
+  -webkit-mask-image: radial-gradient(100% 190% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
+    #000 0%, rgba(0, 0, 0, .74) 44%, rgba(0, 0, 0, .36) 74%, transparent 98%);
+  mask-image: radial-gradient(100% 190% at calc(var(--mx, .5) * 100%) calc(var(--my, .5) * 100%),
+    #000 0%, rgba(0, 0, 0, .74) 44%, rgba(0, 0, 0, .36) 74%, transparent 98%);
 }
 @media (prefers-reduced-motion: no-preference) {
   .ask-tip::after { transition: opacity .28s ease; }
   /* Eğim de yumuşasın; imleç ayrılınca sıfıra dönüşü aynı eğriyle. */
   .ask-tip { transition: transform .22s cubic-bezier(.32, .72, 0, 1); }
 }
-.ask-tip:hover::after { opacity: .78; }
+.ask-tip:hover { --lift: 1.035; }
+.ask-tip:hover::after { opacity: .95; }
 .ask-tip-go { position: relative; display: block; text-align: left; color: inherit; font: inherit; }
 .ask-tip-cta {
   display: block; margin-top: 7px; font-size: .8125rem; font-weight: 600;
@@ -314,6 +346,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    değil. Birinci soruda ise "Bildiğim" hiçbir yerde geçmiyor; oraya giriş
    yalnız sorunun kendisinden. */
 body.q-me .index, body.q-me .ranked { display: none; }
+/* Üstteki arama dil dizinini süzüyor; o dizin bu soruda gizli olduğu için
+   kutuya yazılan şey hiçbir sonuç vermiyordu. Seçicinin kendi araması var. */
+body.q-me .rail > .search { display: none; }
 body.q-me #mgLayer, body.q-me #mgPaint, body.q-me #mgTone { display: none; }
 /* Sütuna inen seçici cam bir yaprak değil, sıradan bir kart: haritanın
    üstünde yüzerken gereken buzlu zemin ve gölge burada yersiz. Başlığı da
@@ -337,7 +372,8 @@ body.spk-rail .rail #spkList { max-height: 42vh; overflow-y: auto; overscroll-be
      kaydırılır yapıyordu. */
   .ask-tip { left: auto; right: 0; top: 100%; margin: 9px 0 0;
              max-width: min(38ch, calc(100vw - 28px));
-             transform: perspective(720px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); }
+             transform: perspective(460px) rotateX(var(--tilt-x, 0deg))
+                        rotateY(var(--tilt-y, 0deg)) scale(var(--lift, 1)); }
   .ask-tip::before {
     right: 10px; left: auto; top: auto; bottom: 100%; margin: 0;
     border-right-color: transparent; border-bottom-color: var(--tip-bg);
@@ -1142,6 +1178,26 @@ body.fs-on { overflow: hidden; }
   font-variant-numeric: tabular-nums;
 }
 .minor-note { margin-top: 9px; font-size: .6875rem; color: var(--ink-3); }
+/* Dil kartı: künye, üç rakam, sonra bölümler. Ülke kartıyla aynı dili
+   konuşsun diye rakamlar oradaki .d-figs ile aynı ölçüde. */
+.lang-head h3 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+                font-size: 1.0625rem; font-weight: 500; }
+.lang-head h3 i { width: 9px; height: 9px; border-radius: 999px; background: var(--c);
+                  align-self: center; flex: 0 0 auto; }
+.lang-head h3 span { font-size: .875rem; color: var(--ink-3); font-weight: 400; }
+.lang-fam { margin: 3px 0 0; font-size: .75rem; color: var(--ink-2); }
+.lang-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+             gap: 4px 12px; margin: 12px 0 0; }
+.lang-figs dt { font: 400 1.375rem/1.1 "Newsreader", Georgia, serif;
+                font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.lang-figs dd { margin: 2px 0 0; font-size: .625rem; letter-spacing: .07em;
+                text-transform: uppercase; color: var(--ink-3); line-height: 1.3;
+                overflow-wrap: anywhere; }
+.lang-sec { margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--rule); }
+.lang-sec h4 { margin: 0; font: 600 .6875rem/1.3 inherit; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--ink-3); }
+.lang-sec h4 span { font-weight: 400; letter-spacing: .02em; text-transform: none; }
+.lang-sec .minor-rows { margin-top: 8px; }
 
 /* ---------------------------------------------------------------- ranked */
 .ranked { padding: 14px 16px 16px; }
@@ -1749,6 +1805,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       noMajChip: "çoğunluk dili yok · en yaygın dil",
       back: (c) => `${c} geneline dön →`, toSubs: (c) => `${c}'yi bölgelere ayır →`,
       showLang: (l, n) => `${l} konuşulan ${n} ülkeyi göster →`,
+      langMaj: "Çoğunluğun dili olduğu yerler",
+      langOff: "Resmî dil olduğu yerler",
+      langNone: "Hiçbir ülkede çoğunluğun dili değil.",
+      fNative: "ana dili", fSecond: "ikinci dil", fMaj: "ülkede çoğunluk",
+      fOff: "ülkede resmî", langMin: "Azınlık olarak konuşulduğu yerler",
       minorH: (l) => `${l} · azınlık olarak konuşulduğu ülkeler`,
       minorSub: (n, v) => `· ${n} ülke, toplam ≈ ${v} kişi`,
       minorNote: "Haritada soluk renkle işaretlendiler. Oranlar evde konuşulan ana dile göredir; okulda öğrenilen ikinci dil sayılmaz.",
@@ -1901,6 +1962,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       noMajChip: "no majority language · most spoken",
       back: (c) => `Back to ${c} →`, toSubs: (c) => `Split ${c} into regions →`,
       showLang: (l, n) => `Show the ${n} countries where ${l} is spoken →`,
+      langMaj: "Where it is the majority language",
+      langOff: "Where it is an official language",
+      langNone: "Not the majority language in any country.",
+      fNative: "native speakers", fSecond: "second language", fMaj: "countries, majority",
+      fOff: "countries, official", langMin: "Spoken as a minority language",
       minorH: (l) => `${l} · spoken as a minority language`,
       minorSub: (n, v) => `· ${n} countries, ≈ ${v} people in total`,
       minorNote: "Marked in a pale shade on the map. Shares refer to the language spoken at home; a second language learned at school is not counted.",
@@ -2704,9 +2770,11 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
     n.style.setProperty("--mx", mx.toFixed(3));
     n.style.setProperty("--my", my.toFixed(3));
     // Eğim imlecin merkeze uzaklığından: sağa gidince sağa, yukarı gidince
-    // yukarı yatıyor. Altı derece yetiyor; fazlası yazıyı bozuyor.
-    n.style.setProperty("--tilt-y", ((mx - .5) * 12).toFixed(2) + "deg");
-    n.style.setProperty("--tilt-x", ((.5 - my) * 8).toFixed(2) + "deg");
+    // yukarı yatıyor. Köşede on bir dereceye çıkıyor — perspektif de
+    // kısaldığı için parmakla kenarına bastırılıyormuş gibi duruyor.
+    // Yazının okunurluğu sınırı: bundan fazlası uzak kenarı bulanıklaştırıyor.
+    n.style.setProperty("--tilt-y", ((mx - .5) * 22).toFixed(2) + "deg");
+    n.style.setProperty("--tilt-x", ((.5 - my) * 15).toFixed(2) + "deg");
   });
   $("#askTip").addEventListener("pointerleave", (e) => {
     e.currentTarget.style.setProperty("--tilt-x", "0deg");
@@ -3709,24 +3777,60 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
 
   // dilin çoğunluk olmadığı hâlde konuşulduğu ülkeler
   const minorBox = $("#minor");
+  /* Bir dile tıklayınca sağda açılan kart. Eskiden burada yalnız "azınlık
+     olarak konuşulduğu ülkeler" listesi vardı; azınlık listesi boşsa kutu
+     hiç açılmıyordu — resmî dil katmanında liste kasten boş üretildiği için
+     orada hiçbir dil için bir şey görünmüyordu. Kart artık dilin kendisini
+     anlatıyor: künye, rakamlar, çoğunluk/resmî olduğu yerler, sonra azınlık
+     listesi. Azınlık bölümü boşsa yalnız o bölüm düşüyor. */
+  function langChips(list, ppl) {
+    const show = list.slice(0, 24), rest = list.length - show.length;
+    return `<div class="minor-rows">` + show.map((m) => {
+      const c = C[m[0]];
+      return `<button class="minor-chip" data-go="${m[0]}"
+          title="${esc(cn(c))} · ${pc(m[1])} · ${fmtK(ppl(m))}">
+        ${esc(cn(c))} <b>${pc(m[1])} · ${fmtS(ppl(m))}</b></button>`;
+    }).join("") + (rest
+      ? `<span class="minor-chip" style="border-style:dashed">${t().andMore(rest)}</span>` : "")
+      + `</div>`;
+  }
   function renderMinor(f, minor) {
-    if (!f || f.t !== "l" || !minor.length || state.table) {
+    if (!f || f.t !== "l" || state.table) {
       minorBox.hidden = true; minorBox.innerHTML = ""; syncSide(); return;
     }
-    const l = LG[f.k];
+    const l = LG[f.k], k = f.k;
     const ppl = ([i, pct]) => C[i].pop * pct / 100;
-    const tot = minor.reduce((a, m) => a + ppl(m), 0);
-    const show = minor.slice(0, 24), rest = minor.length - show.length;
+    const inList = l.in || [];
+    // Katmana göre "asıl" liste: resmî dil katmanında resmî olduğu ülkeler,
+    // diğerlerinde çoğunluğun dili olduğu ülkeler.
+    const main = layer === "off"
+      ? inList.filter(([i]) => (C[i].o || []).includes(k))
+      : inList.filter(([i]) => C[i].l === k);
+    const minList = minor.length ? minor : inList.filter(([i]) => C[i].l !== k);
+    const tot = minList.reduce((a, m) => a + ppl(m), 0);
+    const sec = (h, inner) => `<div class="lang-sec"><h4>${h}</h4>${inner}</div>`;
+
     minorBox.innerHTML =
-      `<h3 id="minorTitle">${esc(t().minorH(ln(l)))} ` +
-        `<span>${esc(t().minorSub(minor.length, fmtK(tot)))}</span></h3>` +
-      `<div class="minor-rows">` + show.map((m) => {
-        const c = C[m[0]];
-        return `<button class="minor-chip" data-go="${m[0]}"
-            title="${esc(cn(c))} · ${pc(m[1])} · ${fmtK(ppl(m))}">
-          ${esc(cn(c))} <b>${pc(m[1])} · ${fmtS(ppl(m))}</b></button>`;
-      }).join("") + (rest ? `<span class="minor-chip" style="border-style:dashed">${t().andMore(rest)}</span>` : "") + `</div>` +
-      `<p class="minor-note">${t().minorNote}</p>`;
+      `<div class="lang-head">` +
+        `<h3 id="minorTitle" style="--c:${col(l.g)}"><i></i>${esc(ln(l))}` +
+        `<span lang="${k.split("_")[0]}">${esc(l.e)}</span></h3>` +
+        `<p class="lang-fam">${esc(lf(l))} · ${t().script} · ${esc(scName(l.sc))}${
+          l.sc2 ? ` + ${esc(scName(l.sc2))}` : ""}</p>` +
+      `</div>` +
+      `<dl class="lang-figs">` +
+        `<div><dt class="num">${l.s ? fmtS(l.s) : "—"}</dt><dd>${t().fNative}</dd></div>` +
+        `<div><dt class="num">${l.s2 ? fmtS(l.s2) : "—"}</dt><dd>${t().fSecond}</dd></div>` +
+        `<div><dt class="num">${layer === "off" ? main.length : l.c + l.t}</dt>` +
+          `<dd>${layer === "off" ? t().fOff : t().fMaj}</dd></div>` +
+      `</dl>` +
+      (main.length
+        ? sec(layer === "off" ? t().langOff : t().langMaj, langChips(main, ppl))
+        : sec(layer === "off" ? t().langOff : t().langMaj,
+              `<p class="minor-note">${t().langNone}</p>`)) +
+      (minList.length
+        ? sec(t().langMin + ` <span>${esc(t().minorSub(minList.length, fmtK(tot)))}</span>`,
+              langChips(minList, ppl) + `<p class="minor-note">${t().minorNote}</p>`)
+        : "");
     minorBox.hidden = false;
     syncSide();
   }

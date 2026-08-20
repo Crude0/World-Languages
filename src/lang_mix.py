@@ -261,6 +261,15 @@ MIX = {
 }
 
 L2 = {
+    # Afganistan'da ikinci dil listesi hiç yoktu, oysa Darice ülkenin ortak
+    # dili: Peştuca, Özbekçe ve Türkmence konuşanların büyük bölümü onu da
+    # biliyor. Alt uçtan %25 alındı.
+    "004": [("Darice", 25), ("Urduca", 8), ("İngilizce", 5)],
+    # Somaliland'de de liste boştu; Somali'ninkiyle aynı şekil, çünkü aynı
+    # eğitim ve din dili düzeni geçerli.
+    "902": [("Arapça", 20), ("İngilizce", 10)],
+    # Ekvator Ginesi'nde Fransızca ve Portekizce de resmî dil.
+    "226": [("Fransızca", 15), ("İngilizce", 5), ("Portekizce", 2)],
     # ---------------------------------------------------------- Avrupa (Eurobarometre 386, 2012)
     "008": [("İngilizce", 40), ("İtalyanca", 35), ("Yunanca", 15)],
     "020": [("İspanyolca", 90), ("Fransızca", 40)],

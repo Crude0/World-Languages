@@ -10,6 +10,61 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.22.0 — 20 Ağustos 2026
+
+**Bir dile tıklayınca sağda o dilin kartı açılıyor.** Orada eskiden yalnız
+"azınlık olarak konuşulduğu ülkeler" listesi vardı; liste boşsa kutu hiç
+açılmıyordu. Resmî dil katmanında bu liste kasten boş üretildiği için orada
+hiçbir dil için hiçbir şey görünmüyordu — Hintçe'ye tıklayıp sağda boşluk
+görmenin sebebi buydu. Kart artık dilin kendisini anlatıyor: adı ve öz adı,
+ailesi ve yazısı, üç rakam (ana dili, ikinci dil, kaç ülkede çoğunluk),
+ardından çoğunluğun dili olduğu yerler ve azınlık listesi. Azınlık bölümü
+boşsa yalnız o bölüm düşüyor. Üçüncü rakam katmanı izliyor: resmî dil
+katmanında "kaç ülkede resmî" oluyor ve üstteki bölüm de resmî olduğu ülkeleri
+listeliyor.
+
+**"Sen kimlerle konuşabilirsin" sorusunda üstteki arama kutusu kalktı.** O
+kutu dil dizinini süzüyor, dizin de o soruda gizli; yazdığın hiçbir şey bir
+sonuç vermiyordu. Seçicinin kendi araması zaten var.
+
+**Balonun üstündeki ışık gerçek bir parlamaya benzedi.** Eğim iki katına
+çıktı ve perspektif kısaldı — imleç köşeye gidince kart parmakla oraya
+bastırılıyormuş gibi yatıyor, üstüne bir tık büyüyor. Yıldız tozu söndü.
+Yerine Steam'in folyo kartlarındaki gibi bir ışık bandı geldi ve bu bandın
+davranışı bilerek fiziksel: ışığın yönü sabit, kayan şey kartın kendisi, yani
+bant imleçle birlikte tek bir eksende süzülüyor, dönmüyor. Ortasında dar ve
+sıcak bir çekirdek, iki yanında geniş ve yumuşak bir etek var; giren kenarı
+sarıya, çıkan kenarı maviye kaçıyor — cam bir kaplamanın kırılması böyle
+görünüyor. Arkasında bir de sönük ikincil yansıma duruyor.
+
+İlk denemede bant kartın tamamını yalayınca yazı okunmaz oluyordu: folyo
+maskesi imlecin çevresindeki dar bir yamadan bütün karta genişletildi, folyo
+bantları ile imleç hâlesi ise kısıldı. Ölçüldü — bandın tepesi imleci birebir
+izliyor (imleç %12'de tepe %17'de, %88'de %83'te), tepe parlaklığı 139–156,
+kartın geri kalanı 30–47.
+
+**Veri: üç ülke göçmen tablosuna, üç ülke ikinci dil tablosuna girdi.** Tayland
+tabloda hiç yoktu, oysa Burmalı göçmen işçiler ülkedeki en büyük yabancı
+topluluk — belgeli 2,3 milyon, 71,7 milyonluk nüfusta alt uçtan %3,2; yanına
+Khmerce ve Laoca eklendi. Malezya da yoktu: Endonezyalılar %4,5, Nepalliler
+%1,4, Bangladeşliler %1,2. Şili'ye 2017 sonrası Haiti göçü (~180 bin, %0,9)
+girdi; Venezuelalılar daha kalabalık ama onlar da İspanyolca konuştuğu için
+haritada bir fark yaratmıyor.
+
+İkinci dil tarafında Afganistan'ın listesi bomboştu, oysa Darice ülkenin ortak
+dili: Peştuca, Özbekçe ve Türkmence konuşanların büyük bölümü onu da biliyor
+(alt uçtan %25). Somaliland ve Ekvator Ginesi de boştu; ilki Somali'ninkiyle
+aynı düzeni izliyor, ikincisinde Fransızca ve Portekizce de resmî dil.
+
+Tarama bunlardan ibaret değildi: 56 varış ülkesi × 91 dilden oluşan tablo ile
+234 ülkenin evde konuşulan dil ve ikinci dil listeleri baştan sona gözden
+geçirildi. Büyük ülkelerin listeleri beklenenden derin çıktı (Hindistan 22
+satır, Nijerya'nın ikinci dilleri, Filipinler'in İngilizcesi hep yerinde);
+boşluklar uzun kuyrukta. Kalan adaylar — Arjantin'deki Bolivyalı topluluk,
+Lübnan'daki Ermenice, Mısır'daki Nubyanca ve Beja — bu turda eklenmedi, çünkü
+her biri ya kaynak ya da yeni bir dil kaydı istiyor. Uydurma sayı yerine boşluk
+bırakmak yeğlendi.
+
 ## v0.21.0 — 20 Ağustos 2026
 
 **Sıfır artık kendi rengine sahip.** Kürtçeyi seçtiğinizde İsveç'te nüfusun

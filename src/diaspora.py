@@ -12,6 +12,26 @@ MIX'te zaten bulunan bir dil buradan tekrar eklenmez.
 """
 
 DIASPORA = {
+    # ------------------------------------------------- Güneydoğu / Doğu Asya
+    # Tayland tabloda hiç yoktu: Burmalı göçmen işçiler ülkedeki en büyük
+    # yabancı topluluk (belgeli ~2,3 milyon, tahminler 3–4 milyona çıkıyor).
+    # 71,7 milyonluk nüfusta alt uçtan %3,2. Kamboçya ve Laos'tan gelenler de
+    # yüz binlerle ölçülüyor.
+    "764": [  # Tayland
+        ("Birmanca", 3.2), ("Khmerce", 0.8), ("Laoca", 0.4),
+    ],
+    # Malezya da yoktu. Yabancı işgücü 2–3 milyon; en büyük grup Endonezyalılar,
+    # ardından Bangladeşliler ve Nepalliler. Malayca ve Mandarin zaten MIX'te.
+    "458": [  # Malezya
+        ("Endonezce", 4.5), ("Nepalce", 1.4), ("Bengalce", 1.2), ("Birmanca", 0.5),
+    ],
+    # ------------------------------------------------------------ Güney Amerika
+    # Şili'ye 2017 sonrası Haiti göçü: ~180 bin kişi, 19,8 milyonluk nüfusta
+    # %0,9. Venezuelalılar daha kalabalık ama onlar da İspanyolca konuşuyor,
+    # yani haritada bir fark yaratmıyor.
+    "152": [  # Şili
+        ("Haiti Kreolcesi", 0.9),
+    ],
     # ---------------------------------------------------------- Batı Avrupa
     "276": [  # Almanya
         ("Ukraynaca", 1.4), ("Kürtçe", 1.2), ("Arapça", 1.2), ("Romence", 1),
@@ -35,17 +55,13 @@ DIASPORA = {
         ("Arapça", 4), ("İtalyanca", 1.5), ("Berberice", 1.5),
         ("Türkçe", 1.3), ("Lehçe", 0.7), ("Romence", 0.6), ("İngilizce", 0.5),
         ("İspanyolca", 0.5), ("Portekizce", 0.3), ("Lingala", 0.3),
-        ("Rusça", 0.3), ("Yunanca", 0.2),
-    
-        ("Kürtçe", 0.3),
+        ("Rusça", 0.3), ("Kürtçe", 0.3), ("Yunanca", 0.2),
     ],
     "528": [  # Hollanda
         ("Arapça", 1.5), ("Berberice", 1.2), ("İngilizce", 1),
         ("Lehçe", 0.7), ("Ukraynaca", 0.5), ("Sranan Tongo", 0.5),
         ("Almanca", 0.4), ("Papiamentu", 0.3), ("Mandarin Çincesi", 0.2),
-        ("Endonezce", 0.2), ("Somalice", 0.1),
-    
-        ("Kürtçe", 0.4),
+        ("Kürtçe", 0.4), ("Endonezce", 0.2), ("Somalice", 0.1),
     ],
     "756": [  # İsviçre
         ("İngilizce", 5.4), ("Portekizce", 3.5), ("Arnavutça", 3.1),
