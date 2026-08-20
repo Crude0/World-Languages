@@ -7,289 +7,185 @@ süzülebilen etkileşimli harita. Tamamen çevrimdışı çalışır: tek dosya
 sayfası, masaüstü uygulaması (macOS · Windows) ve Android uygulaması olarak
 paketlenir. Hiçbir ağ isteği yapmaz, hiçbir izin istemez.
 
-**[▶ Tarayıcıda aç](https://crude0.github.io/World-Languages/)** ·
-[📱 Telefon sürümü](https://crude0.github.io/World-Languages/mobile.html) ·
-[⬇ İndirilebilir uygulamalar](#i̇ndir)
-
-Arayüz **Türkçe ve İngilizce**; tema **otomatik, açık veya koyu** seçilebilir.
+<p>
+  <a href="https://crude0.github.io/World-Languages/"><picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/btn-open-tr-dark.svg">
+    <img height="46" alt="Tarayıcıda aç" src="docs/img/btn-open-tr-light.svg">
+  </picture></a>
+  <a href="https://crude0.github.io/World-Languages/mobile.html"><picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/btn-phone-tr-dark.svg">
+    <img height="46" alt="Telefon sürümü" src="docs/img/btn-phone-tr-light.svg">
+  </picture></a>
+  <a href="#i̇ndir"><picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/btn-dl-tr-dark.svg">
+    <img height="46" alt="İndirmeler" src="docs/img/btn-dl-tr-light.svg">
+  </picture></a>
+</p>
 
 ![Dünya haritası](docs/img/desktop-world.png)
 
+Arayüz Türkçe ve İngilizce; tema otomatik, açık veya koyu.
+
+| | | | |
+|---|---|---|---|
+| **234** ülke ve bölge | **270** dil, **121**'i bir yerde çoğunluk | **1.128** ülke × dil satırı | **507** eyalet, il ve kanton |
+| **32** yazı sistemi | **8,09 milyar** kapsanan nüfus | **7,97 milyar** adlandırılmış ana dille | **18** ülke bölge düzeyinde |
+
 ---
 
-## Ne gösteriyor?
+## Ne yapıyor?
 
-| | |
-|---|---|
-| **234** | ülke ve bağımlı bölge |
-| **270** | dil (121'i bir ülkede çoğunluk, 136'sı yalnızca bölge düzeyinde, 13'ü yalnız resmî) |
-| **1.100+** | ülke × dil satırı — her ülkede evde konuşulan dillerin dağılımı |
-| **507** | eyalet / il / kanton (18 ülkede) |
-| **30** | yazı sistemi, dillerin kendi adlarından çıkarıldı |
-| **8,09 milyar** | kapsanan nüfus |
-
-Harita dört soruya cevap verir:
-
-1. **Bu ülkede çoğunluk hangi dili konuşuyor?** Renkler dil ailesini gösterir.
-2. **Geri kalanı ne konuşuyor?** Her ülkenin evde konuşulan dil dağılımı, %0,05'e
-   kadar inen bir kuyrukla — Belçika'daki Türkçe (%1,3) ya da Almanya'daki
-   Ukraynaca (%1,4) gibi topluluklar dâhil.
-3. **Bu dil başka nerede konuşuluyor?** Bir dil seçince çoğunluk olduğu ülkeler
-   koyu, azınlık olarak konuşulduğu ülkeler soluk renkle işaretlenir. Türkçe
-   26 ülkede görünür.
-4. **Kaç kişi konuşuyor?** Ülke nüfusu × dil payı ile hesaplanan konuşan sayıları;
-   ana dil ve ikinci dil ayrı ayrı.
-
-![Türkçe diasporası](docs/img/desktop-diaspora.png)
-
-### Yoğunluk haritası
-
-Bir dil seçiliyken renklendirmeyi **yoğunluğa** (nüfustaki pay) veya **kişi
-sayısına** çevirebilirsiniz. İngilizce'de İrlanda ve Birleşik Krallık en koyu
-tonda (>%85), ABD ve Avustralya bir kademe açık, Almanya ve İsveç en açık
-kademede görünür.
-
-![Yoğunluk haritası](docs/img/desktop-density.png)
-
-### İki katman daha
-
-Haritanın üstündeki **Görünüm** yaprağındaki **Katman** seçenekleri aynı
-ülkelere iki soru daha soruyor.
-
-**Yazı** — o dil hangi alfabeyle yazılıyor? Aile haritasının söylemediği bir şey
-söylüyor: Türkçe, Vietnamca ve Endonezce akraba değil ama üçü de Latin yazıyor;
-Sırpça ile Hırvatça karşılıklı anlaşılacak kadar yakın ama biri Kiril biri
-Latin. Latin 175 ülkeyi, Arap yazısı 25'ini, Kiril 10'unu kapsıyor.
-
-Yazı verisi elle yazılmadı: dilin kendi dilindeki adının harfleri Unicode
-bloklarına göre sayılıyor. 155 dilin hepsi kendiliğinden kapsanıyor ve elde
-bakım gerektiren bir tablo kalmıyor — yalnız altı istisna elle duruyor. **İki**
-yazıyla yazılan 13 dil ayrıca işaretli: Pencapça Hindistan'da Gurmukhi,
-Pakistan'da Şahmukhi; Kazakça 2023–2031 arasında Latin'e geçiyor; Kürtçe
-Türkiye'de Latin, Irak'ta Arap yazısı.
-
-![Yazı sistemleri](docs/img/desktop-scripts.png)
-
-**Resmî dil** — devletin dili ile evin dili aynı mı? Afrika'nın yarısında değil.
-Katman açılınca kıta değişiyor: batı ve orta Afrika Fransızcanın kırmızısına,
-güney ve doğu İngilizcenin mavisine dönüyor. İngilizce **51** ülkede resmî ama
-yalnız 36'sında evin dili; Fransızca 18'de resmî, 13'ünde evin dili.
-
-**Evin dili resmî dil listesinde hiç olmayan 23 ülke** çapraz taramayla
-işaretli: Nijerya (evde Pidgin, resmî İngilizce), Senegal (Volofça / Fransızca),
-Sierra Leone (Krio / İngilizce), Güney Sudan (Cuba Arapçası / İngilizce),
-Mauritius, Jamaika, Solomon Adaları ve diğerleri. Yeni Zelanda ters yönde:
-İngilizce hiç resmî ilan edilmedi, hukuken resmî diller Maorice (1987) ve Yeni
-Zelanda İşaret Dili (2006).
-
-Tablo 234 ülkenin tamamını kapsıyor ve **yasal önceliğe** göre sıralı, günlük
-kullanıma göre değil — İrlanda'da Anayasa İrlandacayı birinci resmî dil sayar,
-günlük dil İngilizcedir; ikisi de bu sırayla listede. Hukuken resmî dil ilan
-etmemiş 16 ülke ayrıca işaretli, 48 ülkede katmanın anlattığı ayrıntı bir notla
-açıklanıyor.
-
-![Resmî diller](docs/img/desktop-official.png)
-
-### Eyalet / il düzeyi
-
-18 ülkede harita il, eyalet ya da kanton düzeyine iner: Rusya, Çin, ABD,
-Kanada, Hindistan, Nijerya, Güney Afrika, Fransa, Almanya, İspanya, İtalya,
-Birleşik Krallık, Ukrayna, Türkiye, İsviçre, Belçika, Finlandiya, Bolivya.
-Brezilya bilerek dışarıda: 27 eyaletin hepsinde Portekizce ~%98, yani
-geometrisinin karşılığı tek renkli bir yüzey olurdu. Uzaktayken ülke,
-yaklaşınca bölge görünür (Paradox oyunlarındaki gibi), ya da elle sabitlenebilir.
-
-Québec'te Fransızca %78 ile British Columbia'da %1,1; Türkiye'nin güneydoğusunda
-Kürtçe %82 ile batısında %3; Ukrayna'nın doğusunda Rusça %70 ile batısında %1 —
-ülke ortalamasının sakladığı farklar.
-
-**Rusya'nın 83 federal öznesi** en büyük ekleme. Federasyonda 30'dan fazla dil
-cumhuriyet düzeyinde resmî ama harita bugüne kadar ülkeyi tek renk çiziyordu.
-Artık Tataristan Tatarca, Çuvaşistan Çuvaşça, Saha Sahaca, Tuva Tuvaca ile Türk
-dilleri renginde; Çeçenistan, İnguşetya, Dağıstan ve Kabardey-Balkar kendi
-Kafkas dilleriyle ayrı duruyor.
-
-**Çin'in 31 eyaleti** "Çince"yi gerçekte olduğu şeye ayırıyor: Mandarin,
-Kantonca, Wu, Min, Hakka, Xiang ve Gan karşılıklı anlaşılmaz. Şanghay ve
-Zhejiang Wu, Fujian ve Hainan Min, Jiangxi Gan, Hunan Xiang, Guangdong
-Kantonca; yanında Sincan'da Uygurca, Tibet'te Tibetçe, İç Moğolistan'da
-Moğolca, Guangxi'de Zhuangca.
-
-**Nijerya'nın 37 eyaleti** ülke ortalamasının gösteremediğini gösteriyor:
-ülkenin çoğunluk dili yok, asıl örüntü kuzeyde Hausa, güneybatıda Yorubaca,
-güneydoğuda İgboca ve Nijer Deltası'nda bir Nijerya Pidgini kuşağı.
-**Güney Afrika'nın 9 ili** Census 2022'den geliyor; 12 resmî dilin hiçbiri
-ülke genelinde çoğunluk değil. **Fransa** Korsikaca, Bretonca, Oksitanca ve
-denizaşırı kreolleri ekliyor; **Almanya'nın 16 eyaleti** ise hanede konuşulan
-dili ilk kez soran 2022 sayımından.
-
-![Bölge düzeyi](docs/img/desktop-regions.png)
-
-![Rusya'nın federal özneleri](docs/img/desktop-russia.png)
-
-### İki yeri karşılaştırma
-
-Bir ülke seçip **"… ile karşılaştır"** düğmesine basıyorsunuz; ikinci bir yer
-seçilince kart iki sütuna dönüyor ve iki dağılım yan yana geliyor. Altta
-**iki yerde de konuşulan diller** listeleniyor, her biri iki paydan küçüğüyle —
-yani o dille kaç kişiyle anlaşılabileceğinin alt sınırıyla. Ülkeler kadar
-bölgeler de karşılaştırılabiliyor: Tataristan ile Çuvaşistan, Québec ile Ontario.
-
-### Bildiğim dillerle dünya
-
-Dördüncü bir katman: **Bildiğim**. Listeden bildiğiniz dilleri seçiyorsunuz,
-harita her ülkeyi o dillerden en az birini konuşan nüfusun payıyla boyuyor —
-ana dil ya da ikinci dil olarak. Türkçe ile İngilizce ≈1,81 milyar kişi ediyor.
-Seçim tarayıcıda saklanıyor ve bağlantıya giriyor (`#k=know&kn=tr.en`).
-
-Katmanın iki okuma biçimi var. **Pay** yukarıdaki gibi. **Ana dil** ise yalnız
-seçtiğiniz dillerden birinin *evde konuşulan çoğunluk dili* olduğu ülkeleri
-yakıyor — her biri kendi ailesinin renginde, öbürleri sönük. Türkçe + İngilizce
-= 38 ülke, ≈538 milyon kişi. "Nerede anlaşırım" ile "nerede benim dilim
-konuşulur" ayrı sorular.
-
-Pay kipinde paylar toplanıp %100'de kırpılıyor: iki dili birden bilenler iki kez
-sayıldığı için rakam bir üst sınır — panelde de böyle yazıyor.
-
-Bir ülkenin üstünde durunca halkın yüzde kaçıyla anlaşabileceğiniz, kaç kişiye
-denk geldiği ve bu paya en çok katkı veren üç dil yazıyor. Ölçek kırmızıdan
-yeşile gidiyor; komşu kutuların en küçük farkı üç renk körlüğü türünde de
-ΔE 9,5 (CIEDE2000).
-
-![Bildiğim dillerle dünya](docs/img/desktop-know.png)
-
-### Görünümü indirme
-
-**Paylaş** yaprağındaki **PNG** ve **SVG** düğmeleri o anki görünümü — yakınlık, katman, süzgeç, seçim —
-tek dosya olarak indiriyor. SVG tek başına duruyor: sayfanın stil sayfasından
-yalnız haritayı ilgilendiren kurallar kopyalanıyor, budanmış yollar hiç
-yazılmıyor. Dosya adı görünümden türetiliyor. Telefonda ikisi de katman
-menüsünde.
-
-### Denetimler ve tam ekran
-
-Harita kipleri başlık şeridini doldurmuyor: haritanın üstünde yüzen üç düğmelik
-bir cam çubuk var — **Görünüm**, **Tablo**, **Paylaş**. Katman, renk ve ayrıntı
-seçenekleri Görünüm yaprağında gruplanmış, her grubun ne yaptığını anlatan birer
-satırla. Karşı köşede yakınlaştırma yığını, altında paneli diğer yana alan
-düğme (⇄) ve tam ekran (⛶).
-
-**Tam ekran** haritayı görünümün tamamına açıyor; sayfa, kenar çubuğu ve kartlar
-kalkıyor, denetimler haritanın üstünde kalıyor. Fullscreen API varsa gerçek tam
-ekrana geçiliyor, yoksa sabit konumlu bir kaplamaya düşülüyor. macOS
-uygulamasında Görünüm menüsünde **Yalnız Harita (⇧⌘F)** olarak da var.
-
-Yüzen yüzeyler buzlu cam. `backdrop-filter` desteklenmiyorsa ya da işletim
-sistemi ayarında saydamlık kapalıysa düz panel rengine düşüyor: okunurluk
-camdan önce geliyor.
-
-![Tam ekran harita](docs/img/desktop-fullscreen.png)
-
-### Renkler
-
-Lejantta dokuz satır var: sekiz dil ailesi rengi ve nötr bir "diğer". Palet elle
-seçilmedi — sekiz ton OKLCH uzayında arandı ve renk körlüğü benzetimiyle
-(Machado 2009; protanopi / döteranopi / tritanopi) doğrulandı; yalnızca komşular
-değil **bütün çiftler** ayrılıyor; eşiği geçen paletler arasından da en doygun
-olanı seçiliyor. En kötü çift: açık temada ΔE 9,1, koyuda 9,0 (normal görüşte
-17,3 / 17,4).
-
-Kreol diller kendi rengini almıyor: sözcük dağarcığını aldıkları kaynak dilin
-renginde, üstünde çapraz taramayla çiziliyorlar. Böylece Haiti Kreolü taramalı
-Roman kırmızısı, Nijerya Pidgini taramalı Cermen mavisi oluyor — renk dokuzuncu
-bir ton olmak yerine fazladan bir bilgi taşıyor.
-
-### İki dil, üç tema
-
-Arayüz dili Türkçe ve İngilizce arasında geçiş yapar — yalnızca menüler değil,
-270 dilin adı, 55 aile etiketi, 352 dağılım satırındaki dil adları, 137 ülke
-notu, kıtalar ve sayı biçimi de çevrilir (1,2 milyar ↔ 1.2 billion). Tema
-sistemi izler ama elle açık/koyu da seçilebilir; seçim tarayıcıda saklanır.
-Bu depo da iki dilde: bu sayfanın İngilizcesi [README.md](README.md).
-
-![İngilizce, koyu tema](docs/img/desktop-english-dark.png)
+<table>
+<tr>
+<td colspan="2"><img alt="Atlas iki soru soruyor" src="docs/img/desktop-questions.png"></td>
+</tr>
+<tr>
+<td colspan="2"><b>Atlas iki soru soruyor</b> ve hangisini seçersen bütün sayfa
+ona göre değişiyor. "Dünya ne konuşuyor?" herkesin haritası, "Sen kimlerle
+konuşabilirsin?" senin haritan. Soru işareti kısa tanıtımı açıyor.</td>
+</tr>
+<tr>
+<td width="50%"><img alt="Türkçe diasporası" src="docs/img/desktop-diaspora.png"></td>
+<td width="50%"><img alt="Yoğunluk haritası" src="docs/img/desktop-density.png"></td>
+</tr>
+<tr>
+<td><b>Bir dil seç, nerede yaşadığını gör.</b> Çoğunluk olduğu ülkeler koyu,
+azınlık olduğu ülkeler soluk. Kuyruk %0,05'e kadar iniyor, yani Belçika'daki
+Türkçe (%1,3) ve Almanya'daki Ukraynaca (%1,4) haritada. Türkçe 26 ülkede
+görünüyor.</td>
+<td><b>Ya da yoğunluğa göre boya.</b> Nüfustaki pay veya kişi sayısı. Konuşan
+sayıları ülke nüfusu × dil payı; ana dil ile ikinci dil ayrı tutuluyor.</td>
+</tr>
+<tr>
+<td><img alt="Yazı sistemleri" src="docs/img/desktop-scripts.png"></td>
+<td><img alt="Resmî diller" src="docs/img/desktop-official.png"></td>
+</tr>
+<tr>
+<td><b>Yazı katmanı.</b> Türkçe, Vietnamca ve Endonezce akraba değil ama üçü de
+Latin yazıyor; Sırpça ile Hırvatça anlaşılabilecek kadar yakın, biri Kiril
+diğeri Latin. Yazı elle girilmiyor: her dilin kendi adındaki harfler Unicode
+bloklarına göre sayılıyor.</td>
+<td><b>Resmî dil katmanı.</b> Afrika'nın yarısı renk değiştiriyor: devletin
+dili evin dili değil. İngilizce 51 ülkede resmî ama 36'sında evde konuşuluyor.
+Evin dili hiçbir resmî listede olmayan <b>23 ülke</b> taralı.</td>
+</tr>
+<tr>
+<td><img alt="Bölge düzeyi" src="docs/img/desktop-regions.png"></td>
+<td><img alt="Rusya'nın federal özneleri" src="docs/img/desktop-russia.png"></td>
+</tr>
+<tr>
+<td><b>Yakınlaşınca ülkeler bölgelere ayrılıyor.</b> Fransızca Québec'te %78,
+British Columbia'da %1,1; Kürtçe Türkiye'nin güneydoğusunda %82, batısında %3 —
+ülke ortalamasının sakladığı farklar.</td>
+<td><b>Rusya'nın 83 federal öznesi</b> bunların en büyüğü. Tataristan Tatarca,
+Çuvaşistan Çuvaşça, Saha Yakutça okuyor; Çeçenistan, İnguşetya ve Dağıstan
+kendi Kafkas dilleriyle ayrı duruyor.</td>
+</tr>
+<tr>
+<td><img alt="Bildiğin dillerle dünya" src="docs/img/desktop-know.png"></td>
+<td><img alt="Dil kartı" src="docs/img/desktop-card.png"></td>
+</tr>
+<tr>
+<td><b>"Sen kimlerle konuşabilirsin?"</b> Bildiğin dilleri işaretle, her ülke
+nüfusunun anlaşabileceğin oranına göre boyansın. Türkçe artı İngilizce yaklaşık
+1,81 milyar kişi. Seçim bağlantıda taşınıyor.</td>
+<td><b>Bir dile tıkla, kartı açılsın.</b> Ailesi ve yazısı, ana dili ve ikinci
+dil olarak konuşan sayısı, çoğunluk olduğu yerler ve azınlık olarak konuşulduğu
+her ülke.</td>
+</tr>
+<tr>
+<td><img alt="Tam ekran harita" src="docs/img/desktop-fullscreen.png"></td>
+<td><img alt="Tanıtım" src="docs/img/desktop-tour.png"></td>
+</tr>
+<tr>
+<td><b>Tam ekran</b> bütün pencereyi haritaya veriyor; gösterge alttaki banda
+iniyor. İki yeri yan yana karşılaştırabilir, o anki görünümü <b>PNG ya da
+SVG</b> olarak indirebilirsin.</td>
+<td><b>Kısa bir tanıtım</b> sayfayı karartıp sırayla tek bir yeri aydınlatıyor.
+İkinci sorunun yanındaki soru işaretinin arkasında duruyor ve her güncellemeden
+sonra bir kez kendiliğinden geliyor.</td>
+</tr>
+</table>
 
 ### Telefon sürümü
 
-Android uygulaması masaüstü sayfasının küçültülmüş hâli değil; telefon için
-ayrı yazılmış bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar, alttan
-çekilen üç duraklı panel, dokunmatik yüzey jestleri ve sistem yazı tipi.
+Android uygulaması masaüstü sayfasının küçültülmüşü değil; telefon için yazılmış
+ayrı bir arayüz: tam ekran harita, üstünde yüzen cam katmanlar, üç duraklı alt
+yaprak, dokunma hareketleri ve sistemin kendi yazı tipi.
 
 <p>
-  <img src="docs/img/mobile-home.png" width="230" alt="Ana ekran">
-  <img src="docs/img/mobile-settings.png" width="230" alt="Görünüm menüsü">
-  <img src="docs/img/mobile-detail.png" width="230" alt="Ülke kartı">
+  <img src="docs/img/mobile-home.png" width="220" alt="Ana ekran">
+  <img src="docs/img/mobile-detail.png" width="220" alt="Ülke kartı">
+  <img src="docs/img/mobile-know.png" width="220" alt="Bildiğim diller">
+  <img src="docs/img/mobile-settings.png" width="220" alt="Ayarlar">
 </p>
 
 ---
 
 ## İndir
 
-En güncel sürüm **v0.11.1** — [Releases sayfasından indirin](https://github.com/Crude0/World-Languages/releases/latest), değişiklikler [CHANGELOG.md](CHANGELOG.md) içinde.
+Güncel derleme
+**[Releases sayfasında](https://github.com/Crude0/World-Languages/releases/latest)**;
+neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında.
 
 | Platform | Dosya | Boyut | Not |
 |---|---|---|---|
-| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 665 KB | İnternet izni yok |
-| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 8,7 MB | Evrensel (Intel + Apple Silicon) |
+| Android 7+ | [`Dunya-Dilleri-Atlasi.apk`](dist/Dunya-Dilleri-Atlasi.apk) | 690 KB | İnternet izni yok |
+| macOS 10.15+ | [`Dunya-Dilleri-Atlasi.dmg`](dist/Dunya-Dilleri-Atlasi.dmg) | 9,3 MB | Universal (Intel + Apple Silicon) |
 | macOS, disk imajsız | [`Dunya-Dilleri-Atlasi-mac.zip`](dist/Dunya-Dilleri-Atlasi-mac.zip) | 3,5 MB | Açıp uygulamayı sürükleyin |
-| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 4,9 MB | Tek dosya, kurulum yok |
-| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,9 MB | Tek dosya, çift tıkla aç |
+| Windows 10+ | [`Dunya Dilleri Atlasi.exe`](dist/Dunya%20Dilleri%20Atlasi.exe) | 5,0 MB | Tek dosya, kurulum yok |
+| Tarayıcı | [`docs/index.html`](docs/index.html) | 1,9 MB | Tek dosya, açmanız yeterli |
 
-Tarayıcı sürümü **kurulabilir**: Chrome ya da Safari'de açıp "Yükle" /
-"Ana ekrana ekle" dediğinizde uygulama gibi, çevrimdışı, adres çubuğu olmadan
-çalışır. Kurduğunuz her görünümün — bir dil, bir ülke, bir yakınlık — kendi
-bağlantısı var: **Bağlantı** düğmesine basıp paylaşabilirsiniz.
+Tarayıcı sürümü **kurulabilir** — Chrome'da "Yükle", Safari'de "Ana Ekrana
+Ekle" — ve sonrasında çevrimdışı, uygulama gibi çalışır. Kurduğunuz her
+görünümün kendi bağlantısı var: **Bağlantı**'ya basıp paylaşabilirsiniz.
 
-Uygulamalar imzalı değil (Apple/Microsoft geliştirici sertifikası yok):
+<details>
+<summary>Uygulamalar imzasız — yine de nasıl açılır</summary>
 
-- **macOS**: ilk açılışta uygulamaya sağ tıklayın → **Aç** → çıkan pencerede yine **Aç**.
-  Ya da: `xattr -dr com.apple.quarantine "/Applications/Dunya Dilleri Atlasi.app"`
-- **Windows**: SmartScreen uyarısında **Ek bilgi** → **Yine de çalıştır**.
+Bu derlemelerin arkasında Apple ya da Microsoft geliştirici sertifikası yok:
+
+- **macOS**: ilk açılışta uygulamaya sağ tıklayıp **Aç** → çıkan uyarıda yine
+  **Aç**. Ya da: `xattr -dr com.apple.quarantine "/Applications/Dunya Dilleri Atlasi.app"`
+- **Windows**: SmartScreen uyarısında **Daha fazla bilgi** → **Yine de çalıştır**.
 - **Android**: bilinmeyen kaynaklardan kuruluma izin vermeniz gerekir.
 
-Masaüstü uygulamaları işletim sisteminin kendi tarayıcı motorunu kullanır
-(macOS'ta WKWebView, Windows'ta WebView2) — kendi pencerelerinde açılırlar,
-tarayıcı gerekmez. Motor bulunamazsa kurulu bir tarayıcıyı adres çubuğu olmayan
-uygulama kipinde açan bir yedek yol vardır.
+Masaüstü uygulamaları işletim sisteminin kendi tarayıcı motorunu kullanıyor
+(macOS'te WKWebView, Windows'ta WebView2) — kendi penceresinde açılıyor, ayrıca
+tarayıcı gerekmiyor. Motor yoksa kurulu bir tarayıcıyı adres çubuğu olmadan
+uygulama kipinde açan bir yedek yol var.
+</details>
 
 ---
 
 ## Veri
 
-Rakamların nereden geldiği, nasıl hesaplandığı ve nerede zayıf olduğu
-**[DATA.md](DATA.md)** dosyasında ayrıntılı yazıyor. Özetle:
+Sayıların nereden geldiği, nasıl hesaplandığı ve nerede zayıf olduğu
+**[DATA.md](DATA.md)** dosyasında yazılı. Sınırlar
+[Natural Earth](https://www.naturalearthdata.com/) (kamu malı), nüfus BM Nüfus
+Bölümü'nün 2024 tahminleri, dil payları ise ulusal sayımlar, Ethnologue ve
+resmî dil politikalarından derlendi.
 
-- **Sınırlar**: [Natural Earth](https://www.naturalearthdata.com/) 1:50m (ülkeler)
-  ve 1:10m (alt bölgeler), kamu malı.
-- **Nüfus**: BM Nüfus Bölümü, 2024 tahminleri.
-- **Dil payları**: ulusal nüfus sayımlarının dil soruları, Ethnologue ve resmî
-  dil politikaları derlenerek yuvarlandı.
-- **İkinci dil**: Avrupa'da Eurobarometre 386 (2012) "sohbet edecek düzeyde"
-  ölçütü, diğer bölgelerde ulusal tahminler.
+Bunlar yaklaşık değerler ve ülkeler arası karşılaştırmada dikkat ister: bir
+sayım "ana dil" sorar, öteki "evde konuşulan dil". Türkiye'de resmî bir dil
+sayımı yok, il rakamları anket temelli tahmin. **Şehir düzeyinde veri yok** —
+çoğu ülke belediye başına dil istatistiği yayımlamıyor ve uydurmak seçenek
+değildi.
 
-Bunlar yaklaşık değerlerdir ve ülkeler arası karşılaştırmalarda dikkat ister:
-bir ülkenin sayımı "ana dil", diğerininki "evde konuşulan dil" sorar. Türkiye'de
-resmî dil sayımı olmadığı için il rakamları anket temelli tahmindir.
+<details>
+<summary>Derleme</summary>
 
-**Şehir düzeyi veri yoktur** — belediye bazında dil istatistiği çoğu ülkede
-yayımlanmıyor (örneğin İsveç belediye başına doğum ülkesi verir, konuşulan dili
-değil). Uydurmak yerine boş bırakıldı.
-
----
-
-## Derleme
-
-Gereksinimler: Python 3.9+, Node 18+ (yalnızca doğrulama için), Go 1.21+
-(masaüstü), Android SDK build-tools 34 + JDK 17+ (Android).
+Gereksinimler: Python 3.9+, Node 18+ (yalnız doğrulama), Go 1.21+ (masaüstü),
+Android SDK build-tools 34 + JDK 17+ (Android).
 
 ```bash
-make            # veri + web sayfası (tarayıcıda açılabilir tek dosya)
+make            # veri + web sayfası (tek dosya, tarayıcıda açılır)
 make desktop    # macOS .dmg + .app, Windows .exe
 make android    # imzalı APK
 make check      # Playwright ile arayüz denetimi
 ```
 
-Boru hattı:
+İş akışı:
 
 ```
 countries-50m.json ──► build_map.py  ──► map_paths.json  ┐
@@ -299,77 +195,76 @@ lang_mix / diaspora / population / subdiv ────────────�
                                                     mobile.tmpl.html ◄────────────┘
 ```
 
-`src/build_subs.py` ilk çalıştırmada Natural Earth'ün 40 MB'lık alt bölge dosyasını
-indirir (depoda tutulmuyor).
-
-### Dosya düzeni
+`src/build_subs.py` ilk çalışmasında Natural Earth'ün 40 MB'lık alt bölge
+dosyasını indiriyor (depoda tutulmuyor).
 
 ```
 src/                bütün derleme betikleri, veri tabloları ve şablonlar
-  build_map.py      ülke sınırları → projeksiyonlu SVG yolları
-  build_subs.py     eyalet/il sınırları; topoloji koruyan sadeleştirme
-  build_data.py     tüm katmanları birleştirir, konuşan sayılarını hesaplar
-  build_page.py     masaüstü sayfası (gömülü fontlarla tek dosya)
-  build_mobile.py   telefon arayüzü (sistem fontları)
-  pwa.py            docs/ için manifest, hizmet çalışanı ve ikon bağlama
-  anchor.py         etiket çapaları (erişilmezlik kutbu)
+  build_map.py      ülke sınırları → izdüşümlü SVG yolları
+  build_subs.py     eyalet/il sınırları; topolojiyi koruyan sadeleştirme
+  build_data.py     bütün katmanları birleştirir, konuşan sayılarını hesaplar
+  build_page.py     masaüstü sayfası (tek dosya, yazı tipleri gömülü)
+  build_mobile.py   telefon arayüzü (sistem yazı tipleri)
+  pwa.py            docs/ için manifest, hizmet çalışanı ve simgeler
+  anchor.py         etiket çıpaları (erişilmezlik kutbu)
   page.tmpl.html    masaüstü arayüzü
   mobile.tmpl.html  telefon arayüzü
-  layers.py         yazı sistemleri ve resmî diller (iki ek katman)
+  layers.py         yazı sistemleri ve resmî diller
   lang_mix.py       ülke başına dil dağılımı
   diaspora.py       göçmen ve azınlık toplulukları (%0,05'e kadar)
   population.py     ülke nüfusları
   subdiv.py         eyalet/il dağılımları ve nüfusları
   i18n.py           İngilizce dil adları, aile etiketleri, ülke notları
-VERSION             paketlerdeki sürüm numarasının tek kaynağı
+VERSION             her pakete giren sürümün tek kaynağı
 desktop/            Go başlatıcı + paketleme (WKWebView / WebView2)
 android/            WebView kabuğu + APK derleme betiği
-tools/              Playwright doğrulama betikleri
+tools/              Playwright denetimleri, README kareleri ve düğmeleri
 ```
 
+`node tools/shots.mjs` bu dosyadaki bütün ekran görüntülerini, `python3
+tools/make_buttons.py` ise üstteki düğmeleri yeniden üretiyor.
+</details>
+
+<details>
+<summary>Teknik notlar</summary>
+
+- **İzdüşüm** Natural Earth (Šavrič'in polinomu), Python'da elle yazıldı; harita
+  düz SVG yolları olarak gömülü, çalışma zamanında hiçbir bağımlılığı yok.
+- **Topolojiyi koruyan sadeleştirme**: komşu illeri tek tek sadeleştirmek ortak
+  sınır üzerinde farklı noktalar seçiyor ve aralarında kılcal boşluklar
+  bırakıyordu. TopoJSON'un kuralıyla — bir noktanın komşu çifti değiştiğinde yeni
+  bir yay başlar — halkalar yaylara bölünüyor ve paylaşılan her yay tam olarak
+  bir kez sadeleştiriliyor.
+- **Etiket çıpaları** en büyük halkanın erişilmezlik kutbu, ağırlık merkezi
+  değil. Köşe ortalaması içbükey kıyılarda denize düşüyor: Norveç'in etiketi
+  denizde, Hırvatistan'ınki Bosna'nın üstünde kalıyordu. 234 çıpanın 228'i artık
+  kesinlikle ülkesinin içinde; kalan altısı piksel boyutunda (Vatikan, Monako,
+  Makao…) ve zaten iğneyle çiziliyor.
+- **Palet seçilmedi, hesaplandı.** OKLCH uzayında benzetimli tavlama ve renk
+  körlüğü modeli (Machado 2009); yalnız komşular değil, dokuz gösterge renginin
+  *her ikilisi* ayrı kalacak biçimde denetlendi. En kötü ikili: açık temada
+  ΔE 9,1, koyuda 9,0. Koyu temanın dar açıklık bandında on renk eşiği
+  geçemiyordu — kreoller bu yüzden kendi rengi yerine, sözcük dağarcığını aldığı
+  dilin renginin üstüne çapraz tarama alıyor.
+- **Kaydırmadaki kasmanın sebebi dolgular değil konturlardı.** Uzun süre tahminle
+  kovalandı; sonunda Chrome'un kendi iz kayıtlarıyla rasterizasyon süresi
+  ölçüldü. Sürenin %70–80'i konturlara gidiyor; dolgular, tarama desenleri ve
+  süslemeler ölçülebilir bir maliyet çıkarmıyor. Üç şey buradan çıktı: uzaktayken
+  ülke sınırları daha kaba bir geometriden çiziliyor (tarayıcıda açılışta
+  hesaplanıyor, dosyaya bayt eklemiyor), hareket sürerken kenar yumuşatma
+  kapanıyor ve bölge kipinde aynı çizgi birkaç kez konturlanmıyor. Dünya
+  görünümünde rasterizasyon yarıya indi.
+- **180. meridyen**: Rusya'nın ve Fiji'nin halkaları kenarda kesilip ayrı
+  parçalara bölünüyor, yoksa haritanın ortasından yatay bir bant geçiyor.
+- **macOS'te ISO 9660 tuzağı**: DMG içindeki Türkçe karakterli dosyalar
+  açılamıyordu (cd9660 sürücüsü Unicode'u normalleştirmiyor). Dosya adları diskte
+  ASCII, görünen ad yerelleştirilmiş `InfoPlist.strings` dosyasından geliyor.
+- **Windows'ta DPI**: kendini DPI farkındalı ilan etmeyen uygulama 1080p çizilip
+  2K/4K ekranda geriliyor ve bulanık görünüyor.
+</details>
+
 ---
 
-## Teknik notlar
-
-Projede ilginç çıkan birkaç ayrıntı:
-
-- **Projeksiyon** Natural Earth (Šavrič polinomu), Python'da elle uygulandı;
-  harita dışa bağımlılığı olmayan düz SVG yolları olarak gömülü.
-- **Topoloji koruyan sadeleştirme**: komşu illeri tek tek sadeleştirmek ortak
-  sınırda farklı noktalar seçtirip aralarında kılcal boşluk bırakıyordu. TopoJSON'un
-  kuralıyla (bir noktanın komşu çifti değişiyorsa orası yay başlangıcıdır) halkalar
-  yaylara bölünüp her ortak yay bir kez sadeleştiriliyor.
-- **Renk paleti** dil ailelerine göre; renk körlüğü benzetimiyle tüm çiftlerin
-  ayırt edilebilirliği doğrulandı, yedinci grup ayrıca taramayla işaretlendi.
-- **Etiket çapaları** merkez noktası değil, en büyük halkanın erişilmezlik
-  kutbu. Köşe ortalaması içbükey kıyılarda denize düşüyordu: Norveç'in adı
-  denizde, Hırvatistan'ınki Bosna'nın üstünde kalıyordu. 234 çapanın 228'i artık
-  kesin olarak ülkenin içinde; kalan altısı piksel boyutunda (Vatikan, Monako,
-  Macao…) ve zaten iğneyle çiziliyorlar.
-- **Palet seçilmedi, hesaplandı.** OKLCH uzayında renk körlüğü modeliyle tavlama
-  benzetimi, ardından tüm-çiftler eşiğine karşı denetim. On renk koyu temanın dar
-  aydınlık bandında eşiği geçemedi — kreollerin kendi rengi yerine doku
-  taşımasının sebebi bu.
-- **Kaydırmadaki kasmanın sebebi konturmuş, dolgu değil.** Uzun süre tahminle
-  kovalandı; sonunda Chrome'un iz kayıtlarından rasterizasyon süresi ölçüldü.
-  Zamanın %70–80'i konturlarda: dolgular, tarama desenleri ve süslemeler
-  ölçülebilir bir yük getirmiyor. Üç şey yapıldı — uzakta ülke sınırları kaba
-  geometriyle çiziliyor (tarayıcıda açılışta hesaplanıyor, dosyaya bir bayt
-  eklemiyor), jest sırasında kenar yumuşatma kapanıyor, ve bölge kipinde aynı
-  çizgi birden çok kez konturlanmıyor. Rasterizasyon dünya görünümünde yarıya
-  indi.
-- **180. meridyen**: Rusya ve Fiji'nin halkaları kenardan kesilip ayrı parçalara
-  bölünüyor, yoksa harita boyunca yatay bir şerit oluşuyor.
-- **macOS'ta ISO9660 tuzağı**: DMG içindeki Türkçe karakterli dosya adları
-  açılamıyordu (cd9660 sürücüsü Unicode normalizasyonu yapmıyor). Dosya adları
-  ASCII, görünen ad ise yerelleştirilmiş `InfoPlist.strings` ile veriliyor.
-- **Windows'ta DPI**: uygulama kendini DPI farkında ilan etmezse 2K/4K ekranda
-  1080p'de çizilip büyütülüyor ve bulanık görünüyordu.
-
----
-
-## Lisans
-
-Kod [MIT](LICENSE) ile. Harita sınırları Natural Earth'ten gelir ve kamu malıdır.
-Dil ve nüfus verileri kamuya açık kaynaklardan derlenmiştir; kaynak listesi
-[DATA.md](DATA.md) içinde.
+Kod [MIT](LICENSE) lisanslı. Harita sınırları Natural Earth'ten, kamu malı. Dil
+ve nüfus verileri açık kaynaklardan derlendi; listesi [DATA.md](DATA.md)
+dosyasında.

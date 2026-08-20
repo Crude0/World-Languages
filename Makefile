@@ -55,6 +55,14 @@ android: data
 dist-check:
 	$(PY) tools/check-dist.py
 
+## shots: README görselleri ve düğmeleri  (npm i playwright)
+## Kareler elle alındığı sürece bayatlıyordu: 0.22 yayımlandığında README
+## hâlâ 0.16'nın arayüzünü gösteriyordu. Artık sürümle birlikte tazeleniyor.
+.PHONY: shots
+shots: web
+	node tools/shots.mjs
+	$(PY) tools/make_buttons.py
+
 ## check: Playwright ile arayüz denetimi  (npm i playwright)
 check: web
 	cd tools && node check-desktop.mjs
