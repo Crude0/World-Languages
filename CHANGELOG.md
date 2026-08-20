@@ -10,6 +10,50 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.23.0 — 20 Ağustos 2026
+
+**Balonun folyosu baştan yazıldı: gümüş prizma, gerçek paralaks, 60 fps.**
+Önceki sürümdeki ışık bandı hem fazla gösterişliydi hem de takılıyordu. Yerine
+dururken de var olan sönük bir gümüş prizma dokusu geldi; parlama ise yalnız
+imleç balonun üstüne gelince beliriyor, çok sönük, ve katmanlar imleçle birlikte
+ayrı hızlarda kayıyor.
+
+Takılmanın sebebi efektin ağırlığı değil, yanlış özelliğin canlandırılmasıydı —
+üst üste iki tane:
+
+- Balonun "dururken de yaşasın" diye eklenmiş salınımı, kayıtlı özel
+  değişkenleri canlandırıyordu; o değişkenler beş katmanın
+  `background-position`, `mask-position`, `box-shadow` ve `filter`'ının içinde
+  `calc()` ile geçtiği için fare hiç kımıldamasa bile her karede hepsi yeniden
+  boyanıyordu. Orta kare süresi 50 ms, yani 20 fps.
+- Paralaksı `transform`'a çevirmek tek başına yetmedi, hatta kötüleştirdi.
+  Ölçüldü: `mix-blend-mode` kompozisyonla hareketi baltalıyor — karışan bir
+  katman altındaki zemini okumak zorunda olduğu için bağımsız katman olarak
+  taşınamıyor, her `transform` değişiminde bütün grup yeniden rasterleniyor.
+  Katmanları kart boyuna küçültmek hiç fark etmedi (50,0'a karşı 50,0), yani
+  mesele raster alanı değil karışımın kendisi. Karışımın verdiği ışık ekleme
+  etkisi, zeminin koyu olduğu bilindiği için doğrudan renklerin içine pişirildi.
+
+Bir de paralaks diye gösterilen şey aslında paralaks değildi: maske hareket eden
+katmanın üstündeydi, yani desen ile onu gösteren pencere birlikte kayıyordu ve
+aralarında bağıl hareket kalmıyordu — ortaya düz bir resmin sağa sola kayması
+çıkıyor. Artık pencere sabit, desen onun arkasında kayıyor. Ölçülen bağıl kayma:
+zemin −37, prizma −137, parlama +241 piksel; katmanlar arası fark 378 piksel.
+
+Hover'daki kademelilik ayrı bir şeydi: `transform` üzerindeki 0,22 sn'lik geçiş
+her `pointermove`'da baştan başlıyordu. Geçiş kalktı, yumuşatma
+`requestAnimationFrame` döngüsüne taşındı — her karede hedefe sabit oranda
+yaklaşıyor, böylece ne geçiş yeniden başlıyor ne de seyrek imleç örnekleri
+arasında boşluk kalıyor.
+
+**Dururken hiçbir şey kımıldamıyor.** Okunacak bir yazının arkasında sürekli
+gezinen ışık dikkat dağıtıyor ve okumayı zorlaştırıyordu; efektin tamamı artık
+imlece bağlı ve boşta sayfa tek kare bile harcamıyor. Yamulma da bir tık kısıldı:
+44°/30° iken 26°/17° oldu.
+
+Ölçülen sonuç: imleç balonun üstünde gezerken **0/220 uzun kare**, boşta
+**0/238**, ikisinde de orta kare süresi 16,7 ms.
+
 ## v0.22.0 — 20 Ağustos 2026
 
 **Bir dile tıklayınca sağda o dilin kartı açılıyor.** Orada eskiden yalnız

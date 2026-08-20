@@ -1,60 +1,43 @@
-<!-- title: A card for every language -->
-**Clicking a language now opens a card about that language.** What used to sit
-there was a single list — "countries where it is spoken as a minority" — and
-when that list came out empty the box never opened at all. The official-language
-layer deliberately produces an empty minority list, so in that layer nothing
-appeared for any language: that was why picking Hindi left the right-hand side
-blank. The card now describes the language itself: its name and its own name for
-itself, its family and script, three figures (native speakers, second-language
-speakers, how many countries it is the majority in), then where it is the
-majority language, then the minority list. If the minority section is empty,
-only that section drops out. The third figure follows the layer — in the
-official-language layer it becomes "countries, official", and the section above
-it lists the countries where it is official.
+<!-- title: The bubble stops stuttering -->
+**The bubble's foil was rewritten: a silver prism, real parallax, 60 fps.** The
+light sweep in the previous release was both too showy and janky. In its place
+is a faint silver prism texture that is there even at rest, while the glare
+appears only when the pointer moves onto the bubble — very faint, with the
+layers sliding at different rates as it moves.
 
-**The second search box is gone from "Who could you talk to?".** That box
-filters the language index, and the index is hidden in that question, so
-nothing you typed there ever produced a result. The picker has a search of its
-own.
+The stutter was not caused by the effect being heavy. It was caused by animating
+the wrong property, twice over:
 
-**The light on the bubble now behaves like real light.** The tilt doubled and
-the perspective tightened — move the pointer into a corner and the card leans as
-if you were pressing that corner down, and lifts a fraction. The star dust was
-turned down. In its place is a sweep like the one on Steam's foil trading cards,
-and its behaviour is deliberately physical: the light source stays fixed and the
-card is what moves, so the band slides along a single axis with the pointer
-instead of rotating. It has a narrow warm core and a wide soft skirt; the
-leading edge runs slightly yellow and the trailing edge slightly blue, which is
-what refraction through a glossy coating looks like. A second, dimmer reflection
-trails behind it.
+- The bubble's "alive at rest" drift animated registered custom properties, and
+  those properties appeared inside `calc()` in the `background-position`,
+  `mask-position`, `box-shadow` and `filter` of five different layers. So every
+  one of them repainted on every frame even when the mouse never moved. Median
+  frame time 50 ms — 20 fps.
+- Moving the parallax to `transform` was not enough on its own, and in fact made
+  things worse. Measured: `mix-blend-mode` defeats compositor-only movement. A
+  blended layer has to read the backdrop underneath it, so it cannot be
+  composited independently, and every `transform` change re-rasterises the whole
+  group. Shrinking the layers to card size made no difference at all (50.0 ms
+  versus 50.0 ms), which proves the cost was the blending rather than the raster
+  area. The "adds light" look that blending provided is now baked straight into
+  the colours, since the bubble's own background is known to be dark.
 
-The first attempt washed the text out, because the band lit the whole card at
-once. The foil mask grew from a small patch around the pointer to the whole
-card, and the foil bands and the pointer glow were turned down to compensate.
-Measured: the peak of the band tracks the pointer one-to-one (pointer at 12% →
-peak at 17%; pointer at 88% → peak at 83%), peak brightness 139–156 against
-30–47 for the rest of the card.
+There was also a third problem: what looked like parallax was not parallax. The
+mask sat on the moving layer, so the pattern and the window showing it slid
+together and no relative motion was left — the result is a flat image sliding
+around. The window is fixed now and the pattern slides behind it. Measured
+relative travel: base −37 px, prism −137 px, glare +241 px, a 378 px spread
+between layers.
 
-**Data: three countries joined the migrant-community table, three more the
-second-language table.** Thailand was missing from the table entirely, even
-though Burmese migrant workers are the largest foreign community in the country
-— 2.3 million documented, 3.2% of a population of 71.7 million at the low end;
-Khmer and Lao were added alongside. Malaysia was missing too: Indonesians 4.5%,
-Nepalis 1.4%, Bangladeshis 1.2%. Chile gained the post-2017 Haitian migration
-(~180,000, 0.9%); Venezuelans are more numerous but they also speak Spanish, so
-they make no difference on the map.
+The stepping on hover was a separate fault: the 0.22 s `transform` transition
+restarted on every `pointermove`. The transition is gone and the smoothing moved
+into a `requestAnimationFrame` loop that advances a fixed fraction toward the
+target each frame, so nothing restarts and sparse pointer samples get filled in.
 
-On the second-language side, Afghanistan's list was empty, even though Dari is
-the country's lingua franca: most Pashto, Uzbek and Turkmen speakers know it too
-(25% at the low end). Somaliland and Equatorial Guinea were empty as well; the
-first follows the same pattern as Somalia, and in the second French and
-Portuguese are official too.
+**Nothing moves at rest.** Light drifting continuously behind text you are
+trying to read is distracting, so the whole effect is now tied to the pointer
+and an idle page spends no frames at all. The tilt was eased off too: it was
+44°/30°, it is 26°/17° now.
 
-The sweep went further than those: the whole table — 56 destination countries
-against 91 languages — and the home-language and second-language lists for all
-234 countries were reviewed end to end. The large countries turned out deeper
-than expected (India's 22 rows, Nigeria's second languages, the Philippines'
-English were all in place); the gaps are in the long tail. The remaining
-candidates — the Bolivian community in Argentina, Armenian in Lebanon, Nubian
-and Beja in Egypt — are not in this release, because each needs either a source
-or a new language entry. A gap is better than an invented number.
+Measured result: **0 long frames out of 220** while the pointer sweeps across the
+bubble, **0 out of 238** at rest, with a median frame time of 16.7 ms in both.
