@@ -10,6 +10,47 @@ Numaralandırma [semantik sürümleme](https://semver.org/lang/tr/) mantığın�
 - **1.0.0** — veri katmanı oturduğunda, kaynakların tamamı belgelenip il
   rakamlarının anket temelli olanları ayrıştırıldığında.
 
+## v0.24.0 — 21 Ağustos 2026
+
+**"Kimlerle anlaşabilirsin" sorusunun modeli yanlıştı.** Harita bu soruyu dilin
+adı birebir eşleşiyor mu diye cevaplıyordu; Türkçe seçen biri Azerbaycan'da %0
+görüyordu. Azerbaycan'ın verisi eksik değildi — nüfusun %92'si Azerbaycanca
+konuşuyor ve kayıtlı — model iki dili birbirine tamamen yabancı sayıyordu. Aynı
+hata bir düzine başka çiftte de vardı. Artık karşılıklı anlaşılırlık ağı var:
+42 dil, 90 yönlü bağ. Türkçe bilen biri için Azerbaycan %69, Türkmenistan %44,6,
+Kırgızistan %23, Kazakistan %19,9, Özbekistan %21,2 oldu. Hintçe → Pakistan %62,
+Çekçe → Slovakya %100, Danca → Norveç %81 / İsveç %51.
+
+Katsayı yönlü, çünkü anlaşılırlık simetrik değil: Portekizce bilen İspanyolcayı
+(%60), İspanyolca bilenin Portekizceyi (%45) anladığından daha iyi anlar.
+Kartta çipin üstünde "≈%75" yazıyor ve üzerine gelince sebebi çıkıyor, yoksa
+%69'un nereden geldiği anlaşılmıyor.
+
+**Veri denetimi artık kalıcı bir araç:** `tools/audit-data.py`. Tek tek örnek
+kovalamak yerine dokuz sınıfta bütün veriyi tarıyor. İlk koşusunda çıkanlar:
+377 milyon insan hiçbir dile atanmamıştı, 20 milyondan büyük 45 ülkede beş ya da
+daha az dil kayıtlıydı, Mısır'da bir tek dil vardı.
+
+**33 dil kaydedildi ve dört ülkenin listesi kaynağından yeniden yazıldı.**
+Endonezya BPS 2010 sayımının "evde günlük konuşulan dil" tablosundan (Cava,
+Endonezce, Sunda'nın yanına Malayca, Madura, Minangkabau, Banjar, Bali, Bugis,
+Betawi, Açece, Sasak, Batak, Makassar): %70 → %87,7. Filipinler PSA 2020
+sayımından (Bikol, Waray, Kapampangan, Pangasinan, Maguindanao, Maranao,
+Tausug): %64 → %90,6 — sayımın ayrı saydığı Bisaya/Binisaya ile Cebuano aynı
+öbek olduğu için birleştirildi. Etiyopya 2007 sayımından (Sidamo, Wolaytta,
+Gurage, Afarca, Hadiyya, Gamo): %75 → %89,2. İran'a Gilekçe, Mazenderanca,
+Beluçça, Kaşkayca ve Arapça girdi. Çin'in lehçe grupları ayrıştırıldı (Jin,
+Xiang, Gan, Hakka) ve başlıca azınlık dilleri eklendi (Zhuangca, Uygurca,
+Miao, Yi, Tibetçe, Moğolca, Korece).
+
+Atanmamış nüfus **377 milyondan 194 milyona** indi.
+
+**Almanya'da Türkçe %2 değil %2,5.** Mikrozensus 2023, nüfusun %2,5'inin evde
+ağırlıklı olarak Türkçe konuştuğunu veriyor. Bu arada sık karışan bir ayrım:
+Almanya'da Türkiye kökenli nüfus 2,9 milyon, ama harita kökeni değil evde
+konuşulan dili sayıyor — üçüncü kuşağın büyük bölümü evde Almanca konuşuyor.
+Denetime bu sınıf için ayrı bir başlık eklendi.
+
 ## v0.23.1 — 20 Ağustos 2026
 
 **0.23.0'daki folyo çalışıyordu ama görünmüyordu.** Efekt mekanik olarak

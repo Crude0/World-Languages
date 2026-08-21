@@ -1115,6 +1115,7 @@ body.fs-on { overflow: hidden; }
 .bar-track { height: 7px; background: var(--panel-2); border: 1px solid var(--rule); border-radius: 1px; overflow: hidden; }
 .bar-track i { display: block; height: 100%; background: var(--c); border-radius: 0 3px 3px 0; }
 .bar-pct { font-size: .6875rem; color: var(--ink-3); text-align: right; font-family: "Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.chip .kin { font-style: normal; opacity: .6; font-size: .875em; }
 .d-hint { margin-top: 7px; font-size: .6875rem; line-height: 1.4; color: var(--ink-3); }
 .detail .close { position: absolute; top: 8px; right: 9px; color: var(--ink-3); font-size: 16px; line-height: 1; width: 20px; height: 20px; }
 .detail .close:hover { color: var(--ink); }
@@ -1631,6 +1632,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // gösterge de değiştiği için karışmıyor, karşılığında ikinci bir paletin
   // renk körlüğü doğrulamasından geçirilmesi gerekmiyor.
   const SCR = D.scripts || {}, SGR = D.sgroups || {};
+  // Karşılıklı anlaşılırlık ağı ve ad -> dil araması (mix/l2 adla geliyor).
+  const KIN = D.kin || {};
+  const LGN = {};
+  for (const s in LG) LGN[LG[s].n] = LG[s];
   const SGORDER = ["lat", "cyr", "ara", "brh", "sea", "cjk", "alp", "gez", "oth"];
   const SGCOL = { lat: "ger", cyr: "rom", ara: "afa", brh: "ine", sea: "asi",
                   cjk: "aus", alp: "trk", gez: "nkg", oth: "oth" };
@@ -1643,17 +1648,39 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
   // "home" ise yalnız o dillerin evin dili olduğu ülkeleri yakar.
   let knowMode = localStorage.getItem("wl-knowmode") === "home" ? "home" : "share";
   const speaksHome = (o) => !!(o && known.has(o.l));
+  /* Bildiğin dillerden, karşılaşılan her dile düşen en iyi anlaşma
+     katsayısı. Eskiden bu soru "dilin adı birebir eşleşiyor mu" diye
+     cevaplanıyordu; Türkçe bilen biri Azerbaycan'da %0 görüyordu, oysa
+     Azerbaycan'ın verisi eksik değil — nüfusun %92'si Azerbaycanca
+     konuşuyor, model iki dili birbirine yabancı sayıyordu.
+     Katsayı yönlü: Portekizce bilen İspanyolcayı, İspanyolca bilenin
+     Portekizceyi anladığından daha iyi anlar. */
+  function bilinenKatsayilar() {
+    const best = new Map();
+    known.forEach((slug) => {
+      const l = LG[slug];
+      if (!l) return;
+      best.set(l.n, 1);
+      (KIN[slug] || []).forEach(([k, f]) => {
+        const kl = LG[k];
+        if (kl && (best.get(kl.n) || 0) < f) best.set(kl.n, f);
+      });
+    });
+    return best;
+  }
+  /* Ülkedeki diller: ev ve ikinci dil aynı dili iki kez saymasın. */
+  function ulkeDilleri(c) {
+    const m = new Map();
+    (c.mix || []).forEach(([n, q]) => m.set(n, Math.max(m.get(n) || 0, q)));
+    (c.l2 || []).forEach(([n, q]) => m.set(n, Math.max(m.get(n) || 0, q)));
+    return m;
+  }
   function reach(cid) {
     const c = C[cid];
     if (!c || !known.size) return 0;
-    const m = new Map((c.mix || []).map(([n, p]) => [n, p]));
-    const s2 = new Map((c.l2 || []).map(([n, p]) => [n, p]));
+    const best = bilinenKatsayilar();
     let t = 0;
-    known.forEach((slug) => {
-      const nm = LG[slug] && LG[slug].n;
-      if (!nm) return;
-      t += Math.max(m.get(nm) || 0, s2.get(nm) || 0);
-    });
+    ulkeDilleri(c).forEach((q, n) => { const f = best.get(n); if (f) t += q * f; });
     return Math.min(100, t);
   }
   const offOf = (id) => C[id] && C[id].o && C[id].o.length ? C[id].o[0] : null;
@@ -1752,7 +1779,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       capKnowSub: (n, v) => n
         ? `${n} dil seçili · dünyada ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2).replace(".", ",") + " milyar" : Math.round(v / 1000) + " milyon"} kişiyle anlaşılabilir`
         : "Bildiğiniz dilleri seçin.",
-      noteKnow: "Renk, o ülkede seçtiğiniz dillerden en az birini konuşan nüfusun payı — ana dil ya da ikinci dil olarak. Paylar toplandığı için iki dili birden bilenler iki kez sayılır: rakam bir üst sınırdır.",
+      noteKnow: "Renk, o ülkede seçtiğiniz dillerden en az birini konuşan nüfusun payı — ana dil ya da ikinci dil olarak. Yakın akraba diller de sayılıyor: Türkçe bilen biri Azerbaycanca konuşulan yerde yaklaşık %75 oranında anlaşır, o pay da eklenir ve çipin üstünde \"≈%75\" olarak yazar. Paylar toplandığı için iki dili birden bilenler iki kez sayılır: rakam bir üst sınırdır.",
       noteKnowEmpty: "Konuştuğunuz dilleri listeden işaretleyin. Seçim tarayıcıda saklanır ve bağlantıya girer.",
       knowScale: "anlaşılabilen nüfusun payı",
       binsKnow: ["<%5", "%5–20", "%20–45", "%45–70", "%70–90", ">%90"], binZero: "%0",
@@ -1789,6 +1816,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       noMajInline: "· çoğunluk yok", tipScrOf: (l) => `${l} bu yazıyla yazılıyor`,
       tipOffDe: "fiilî devlet dili", tipOffMism: "evin dili resmî değil",
       kWith: "Buradaki payı oluşturan diller", kNoneHere: "Bildiğiniz diller burada kayda değer değil.",
+      kinTip: (l, o) => `${l}, bildiğiniz bir dile yakın: yaklaşık %${o} oranında anlaşabilirsiniz.`,
       kHomeLang: "Ülkenin ana dili",
       speaksNote: (h) => `Ana dil ve ikinci dil birlikte; evde bu dili konuşanların payı ${h}.`,
       spkNoHit: "eşleşen dil yok",
@@ -1909,7 +1937,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       capKnowSub: (n, v) => n
         ? `${n} selected · you could talk to ≈ ${v >= 1e6 ? (v / 1e6).toFixed(2) + " billion" : Math.round(v / 1000) + " million"} people`
         : "Pick the languages you speak.",
-      noteKnow: "Colour shows the share of the population that speaks at least one of your languages — as a first or second language. Shares are added together, so people who speak two of them are counted twice: read the figure as an upper bound.",
+      noteKnow: "Colour shows the share of the population that speaks at least one of your languages — as a first or second language. Closely related languages count too: someone who speaks Turkish understands roughly 75% of what is said in Azerbaijani, and that share is added, marked \"≈75%\" on the chip. Shares are added together, so people who speak two of them are counted twice: read the figure as an upper bound.",
       noteKnowEmpty: "Tick the languages you speak in the list. The choice is stored in your browser and goes into the link.",
       knowScale: "share of the population you could talk to",
       binsKnow: ["<5%", "5–20%", "20–45%", "45–70%", "70–90%", ">90%"], binZero: "0%",
@@ -1946,6 +1974,7 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       noMajInline: "· no majority", tipScrOf: (l) => `${l} is written in it`,
       tipOffDe: "de facto state language", tipOffMism: "the home language is not official",
       kWith: "Your languages here", kNoneHere: "None of your languages registers here.",
+      kinTip: (l, o) => `${l} is close to one of your languages: roughly ${o}% mutual intelligibility.`,
       kHomeLang: "The country's home language",
       speaksNote: (h) => `First and second language together; at home the share is ${h}.`,
       spkNoHit: "no matching language",
@@ -3425,9 +3454,14 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
       const v = reach(id);
       const m = new Map((c.mix || []).map(([n, q]) => [n, q]));
       const s2 = new Map((c.l2 || []).map(([n, q]) => [n, q]));
-      const rows = [...known].filter((k) => LG[k])
-        .map((k) => [LG[k], Math.max(m.get(LG[k].n) || 0, s2.get(LG[k].n) || 0)])
-        .filter(([, q]) => q > 0).sort((x, y) => y[1] - x[1]);
+      // Katkı veren diller: bildiklerin ve onlara yakın olanlar. Yakınsa
+      // payı katsayıyla çarpılıyor ve çip üstünde "≈%75" olarak yazıyor,
+      // yoksa Azerbaycan'da neden %69 çıktığı anlaşılmıyor.
+      const best = bilinenKatsayilar();
+      const rows = [...ulkeDilleri(c)].map(([n, q]) => {
+        const f = best.get(n) || 0;
+        return [LGN[n], q * f, f];
+      }).filter(([lg, q]) => lg && q > 0).sort((x, y) => y[1] - x[1]);
       return `<div class="meter" style="--c:${knowCol(v)}">
            <dl class="d-figs">
              <div><dt class="num">${pc(Math.round(v * 10) / 10)}</dt><dd>${t().kReach}</dd></div>
@@ -3439,9 +3473,10 @@ footer h3 { font-family: inherit; font-size: .6875rem; font-weight: 600; letter-
              Math.min(100, v)}%"></div></div>
          </div>` +
         (rows.length
-          ? `<p class="d-fam">${t().kWith}</p>` + rows.map(([lg, q]) =>
-              `<span class="chip" style="box-shadow:inset 3px 0 0 ${col(lg.g)};padding-left:11px">${
-                esc(ln(lg))} ${pc(q)}</span>`).join(" ")
+          ? `<p class="d-fam">${t().kWith}</p>` + rows.map(([lg, q, f]) =>
+              `<span class="chip" style="box-shadow:inset 3px 0 0 ${col(lg.g)};padding-left:11px"${
+                f < 1 ? ` title="${esc(t().kinTip(ln(lg), Math.round(f * 100)))}"` : ""}>${
+                esc(ln(lg))}${f < 1 ? ` <i class="kin">≈${Math.round(f * 100)}%</i>` : ""} ${pc(q)}</span>`).join(" ")
           : `<p class="d-hint">${t().kNoneHere}</p>`) +
         `<p class="d-hint">${t().noteKnow}</p>` +
         sec(t().kHomeLang, homeBlock + homeFigs);

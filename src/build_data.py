@@ -34,6 +34,50 @@ LEXIFIER = {
 # Hiçbir ülkede çoğunluk olmayan, ama bir eyalet/il/bölgede çoğunluk olan
 # diller. Ülke haritasında yer almazlar; bölge katmanında ve süzgeçte varlar.
 REGIONAL = {
+    # --- 0.24.0'da eklendi: denetim, 20 milyondan büyük 45 ülkede beş ya da
+    # daha az dil kayıtlı olduğunu gösterdi. Bu diller "eksik" değildi,
+    # hiç girilmemişti; girilmeyince de nüfusun bir bölümü hiçbir dile
+    # atanmadan kalıyordu (toplam 377 milyon kişi).
+    # Endonezya — BPS 2010 nüfus sayımı, evde günlük konuşulan dil
+    "min":  ("Minangkabau", "Baso Minangkabau", "Avustronezya · Malayo-Polinezya", U),
+    "bug":  ("Bugis", "Basa Ugi", "Avustronezya · Malayo-Polinezya", U),
+    "bjn":  ("Banjar", "Bahasa Banjar", "Avustronezya · Malayo-Polinezya", U),
+    "ban":  ("Bali dili", "Basa Bali", "Avustronezya · Malayo-Polinezya", U),
+    "bew":  ("Betawi", "Bahasa Betawi", "Avustronezya · Malayo-Polinezya", U),
+    "ace":  ("Açece", "Bahsa Acèh", "Avustronezya · Malayo-Polinezya", U),
+    "sas":  ("Sasak", "Base Sasak", "Avustronezya · Malayo-Polinezya", U),
+    "btk":  ("Batak dilleri", "Hata Batak", "Avustronezya · Malayo-Polinezya", U),
+    "mak":  ("Makassar", "Basa Mangkasara", "Avustronezya · Malayo-Polinezya", U),
+    # Filipinler — PSA 2020 nüfus ve konut sayımı, evde konuşulan dil
+    "bik":  ("Bikol", "Bikol", "Avustronezya · Malayo-Polinezya", U),
+    "war":  ("Waray", "Winaray", "Avustronezya · Malayo-Polinezya", U),
+    "pam":  ("Kapampangan", "Kapampangan", "Avustronezya · Malayo-Polinezya", U),
+    "pag":  ("Pangasinan", "Salitan Pangasinan", "Avustronezya · Malayo-Polinezya", U),
+    "mdh":  ("Maguindanao", "Basa Magindanawn", "Avustronezya · Malayo-Polinezya", U),
+    "mrw":  ("Maranao", "Basa Mëranaw", "Avustronezya · Malayo-Polinezya", U),
+    "tsg":  ("Tausug", "Bahasa Sug", "Avustronezya · Malayo-Polinezya", U),
+    # Etiyopya — 2007 nüfus sayımı, ana dil
+    "sid":  ("Sidamo", "Sidaamu Afoo", "Afro-Asyatik · Kuşi", A),
+    "wal":  ("Wolaytta", "Wolaittatto", "Afro-Asyatik · Omo", A),
+    "gru":  ("Gurage", "ጉራጌ", "Afro-Asyatik · Sami", A),
+    "aa":   ("Afarca", "Qafár af", "Afro-Asyatik · Kuşi", A),
+    "hdy":  ("Hadiyya", "Hadiyyisa", "Afro-Asyatik · Kuşi", A),
+    "gmv":  ("Gamo", "Gamo", "Afro-Asyatik · Omo", A),
+    # İran — 1991 sayımı ve sonraki tahminler
+    "glk":  ("Gilekçe", "گیلکی", "Hint-Avrupa · Hint-İran", I),
+    "mzn":  ("Mazenderanca", "مازرونی", "Hint-Avrupa · Hint-İran", I),
+    "bal":  ("Beluçça", "بلوچی", "Hint-Avrupa · Hint-İran", I),
+    "qxq":  ("Kaşkayca", "قاشقایی", "Türk dilleri", T),
+    # Uganda — 2014 sayımı ve bölgesel tahminler
+    "ach":  ("Açoli", "Leb Acoli", "Nil-Sahra dilleri", O),
+    "lgg":  ("Lugbara", "Lugbarati", "Nil-Sahra dilleri", O),
+    "nyo":  ("Nyoro", "Runyoro", "Nijer-Kongo · Bantu", N),
+    "xog":  ("Soga", "Lusoga", "Nijer-Kongo · Bantu", N),
+    "cgg":  ("Kiga", "Rukiga", "Nijer-Kongo · Bantu", N),
+    "myx":  ("Masaba", "Lumasaba", "Nijer-Kongo · Bantu", N),
+    # Çin
+    "cjy":  ("Jin Çincesi", "晉語", "Çin-Tibet dilleri", S),
+    "ii":   ("Yi", "ꆈꌠꉙ", "Çin-Tibet dilleri", S),
     "ku":   ("Kürtçe", "Kurdî", "Hint-Avrupa · Hint-İran", I),
     "ta":   ("Tamilce", "தமிழ்", "Dravit dilleri", S),
     "te":   ("Telugu", "తెలుగు", "Dravit dilleri", S),
@@ -846,6 +890,7 @@ if sp:
 # Dokuz ailenin hiçbirinde dörtten fazlası gerekmiyor (en kalabalığı 26 dilli
 # "Hint-Avrupa diğer" ve o da 4).
 import collections as _co
+import kinship
 
 def tone_index(countries, langs):
     topo = json.load(open(HERE / "countries-50m.json"))
@@ -912,6 +957,9 @@ for _sl, _k in _tones.items():
 
 out = {"w": mp["w"], "h": mp["h"], "grat": mp["grat"], "eq": mp["eq"], "frame": mp["frame"],
        "countries": countries, "langs": langs, "subs": subs,
+       # Karşılıklı anlaşılırlık ağı: "kimlerle anlaşabilirsin" sorusu
+       # dilin adı birebir eşleşiyor mu diye cevaplanamaz.
+       "kin": kinship.build(),
        "inner": inner, "outer": outer,
        "groups": {k: {"n": v[0], "d": v[1],
                       "ne": i18n.GROUP_EN[k][0], "de": i18n.GROUP_EN[k][1]}

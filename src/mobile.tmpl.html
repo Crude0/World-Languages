@@ -592,6 +592,10 @@ body.zoomed .orn { opacity: 0; }
   // Katmanlar: aynı ülkelere üç ayrı soru — evde konuşulan dil, o dilin
   // yazısı, devletin resmî dili. Renkler ortak, gösterge katmanla değişiyor.
   const SCR = D.scripts || {}, SGR = D.sgroups || {};
+  // Karşılıklı anlaşılırlık ağı ve ad -> dil araması (mix/l2 adla geliyor).
+  const KIN = D.kin || {};
+  const LGN = {};
+  for (const s in LG) LGN[LG[s].n] = LG[s];
   const SGORDER = ["lat", "cyr", "ara", "brh", "sea", "cjk", "alp", "gez", "oth"];
   const SGCOL = { lat: "ger", cyr: "rom", ara: "afa", brh: "ine", sea: "asi",
                   cjk: "aus", alp: "trk", gez: "nkg", oth: "oth" };
@@ -618,11 +622,11 @@ body.zoomed .orn { opacity: 0; }
   function knowLine(cid, c) {
     if (state.layer !== "know" || !known.size || knowMode === "home") return "";
     const v = reach(cid);
-    const m = new Map((c.mix || []).map(([n, q]) => [n, q]));
-    const s2 = new Map((c.l2 || []).map(([n, q]) => [n, q]));
-    const rows = [...known].filter((k) => LG[k])
-      .map((k) => [LG[k], Math.max(m.get(LG[k].n) || 0, s2.get(LG[k].n) || 0)])
-      .filter(([, q]) => q > 0).sort((x, y) => y[1] - x[1]);
+    const best = bilinenKatsayilar();
+    const rows = [...ulkeDilleri(c)].map(([n, q]) => {
+      const f = best.get(n) || 0;
+      return [LGN[n], q * f, f];
+    }).filter(([lg, q]) => lg && q > 0).sort((x, y) => y[1] - x[1]);
     const top = rows.length
       ? rows.slice(0, 3).map(([l, q]) => `${esc(ln(l))} ${pc(q)}`).join(" · ")
       : t().tipKnowNone;
@@ -660,21 +664,44 @@ body.zoomed .orn { opacity: 0; }
       .filter(([, q]) => q > 0).sort((x, y) => y[1] - x[1]);
     if (!rows.length) return `<p class="note">${t().kNoneHere}</p>`;
     return `<p class="d-fam" style="margin-top:12px">${t().kWith}</p>` +
-      `<div class="chips">` + rows.map(([lg, q]) =>
+      `<div class="chips">` + rows.map(([lg, q, f]) =>
         `<span class="chip" style="box-shadow:inset 3px 0 0 ${col(lg.g)};padding-left:13px">${
-          esc(ln(lg))} <b class="num">${pc(q)}</b></span>`).join("") + `</div>` +
+          esc(ln(lg))}${f < 1 ? ` <i>≈${Math.round(f * 100)}%</i>` : ""} <b class="num">${pc(q)}</b></span>`).join("") + `</div>` +
       `<p class="note">${t().noteKnow}</p>`;
+  }
+  /* Bildiğin dillerden, karşılaşılan her dile düşen en iyi anlaşma
+     katsayısı. Eskiden bu soru "dilin adı birebir eşleşiyor mu" diye
+     cevaplanıyordu; Türkçe bilen biri Azerbaycan'da %0 görüyordu, oysa
+     Azerbaycan'ın verisi eksik değil — nüfusun %92'si Azerbaycanca
+     konuşuyor, model iki dili birbirine yabancı sayıyordu.
+     Katsayı yönlü: Portekizce bilen İspanyolcayı, İspanyolca bilenin
+     Portekizceyi anladığından daha iyi anlar. */
+  function bilinenKatsayilar() {
+    const best = new Map();
+    known.forEach((slug) => {
+      const l = LG[slug];
+      if (!l) return;
+      best.set(l.n, 1);
+      (KIN[slug] || []).forEach(([k, f]) => {
+        const kl = LG[k];
+        if (kl && (best.get(kl.n) || 0) < f) best.set(kl.n, f);
+      });
+    });
+    return best;
+  }
+  /* Ülkedeki diller: ev ve ikinci dil aynı dili iki kez saymasın. */
+  function ulkeDilleri(c) {
+    const m = new Map();
+    (c.mix || []).forEach(([n, q]) => m.set(n, Math.max(m.get(n) || 0, q)));
+    (c.l2 || []).forEach(([n, q]) => m.set(n, Math.max(m.get(n) || 0, q)));
+    return m;
   }
   function reach(cid) {
     const c = C[cid];
     if (!c || !known.size) return 0;
-    const m = new Map((c.mix || []).map(([n, q]) => [n, q]));
-    const s2 = new Map((c.l2 || []).map(([n, q]) => [n, q]));
+    const best = bilinenKatsayilar();
     let t2 = 0;
-    known.forEach((slug) => {
-      const nm = LG[slug] && LG[slug].n;
-      if (nm) t2 += Math.max(m.get(nm) || 0, s2.get(nm) || 0);
-    });
+    ulkeDilleri(c).forEach((q, n) => { const f = best.get(n); if (f) t2 += q * f; });
     return Math.min(100, t2);
   }
   function keyOf(o, cid) {
